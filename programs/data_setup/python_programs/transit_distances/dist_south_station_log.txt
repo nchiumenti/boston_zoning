@@ -1,0 +1,18 @@
+Finish running on 09/28/22 at 04:36:37 PM: 1 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/28/22 at 04:37:22 PM: 1 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/28/22 at 04:37:50 PM: 1 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/28/22 at 05:02:40 PM: 1 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/28/22 at 05:03:36 PM: 5 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/28/22 at 05:36:03 PM: 303 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_28.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/29/22 at 11:02:31 AM: 303 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_29.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/29/22 at 01:35:31 PM: 303 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_29.csv'.
+NOTE! Results may change ever time the program is run.
+Finish running on 09/29/22 at 01:38:30 PM: 303 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/dist_south_station_2022_09_29.csv'.
+NOTE! Results may change ever time the program is run.

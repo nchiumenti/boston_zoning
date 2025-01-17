@@ -1,0 +1,1 @@
+Finish running on 10/05/22 at 04:47:55 PM: 31,778 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/station_boundary_dist.csv'.

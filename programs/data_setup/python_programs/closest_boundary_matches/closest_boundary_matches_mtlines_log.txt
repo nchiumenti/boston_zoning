@@ -1,0 +1,28 @@
+Last run on 10/26/22 at 01:26:02 PM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_mtlines.csv 
+Total run time: 0 days, 01 hours, 40 minutes, 01 seconds 
+
+Last run on 10/26/22 at 02:41:11 PM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_mtlines.csv 
+Total run time: 0 days, 00 hours, 52 minutes, 30 seconds 
+
+Last run on 10/26/22 at 02:48:07 PM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_mtlines.csv 
+Total run time: 0 days, 00 hours, 05 minutes, 32 seconds 
+
+Last run on 11/01/22 at 02:52:52 PM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_mtlines.csv 
+Total run time: 0 days, 00 hours, 52 minutes, 05 seconds 
+
+Last run on 11/02/22 at 10:14:38 AM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_mtlines.csv 
+Total run time: 0 days, 18 hours, 19 minutes, 43 seconds 
+
+Last run on 11/02/22 at 11:06:36 AM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_mtlines.csv 
+Total run time: 0 days, 00 hours, 51 minutes, 07 seconds 
+
+Last run on 11/02/22 at 03:14:24 PM
+579,242 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_mtlines.csv 
+Total run time: 0 days, 00 hours, 05 minutes, 35 seconds 
+
