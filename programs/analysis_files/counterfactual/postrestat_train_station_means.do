@@ -6,42 +6,24 @@ set linesize 255
 
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postQJE_train_stations_means" // <--- change when necessry
+local name ="postrestat_train_stations_means" // <--- change when necessry
 
 log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
 
-** S: DRIVE VERSION **
-
-** WORKING PAPER VERSION **
-
-** MT LINES VERSION **
-
-
 ********************************************************************************
-* File name:		"postQJE_train_stations_means.do"
+* File name:		postrestat_train_stations_means.do
 *
-* Project title:	Boston Affordable Housing project (visting scholar porject)
+* Project title:	Boston Zoning Paper
 *
-* Description:		calculates means around train stations using mt lines 
-*			setup. dupac and height means calcualted at boundary level
-*			rents, prices, units means calc'd at property level.
-*			means calc'd based on properties and boundaries within
-*			.5 miles of train station.
+* Description:		
 * 				
-* Inputs:		./mt_orthogonal_dist_100m_07-01-22_v2.dta
-*			./final_dataset_10-28-2021.dta"
-*			./station_boundary_dist.csv
-*			./cb_2018_25_cousub_500k_shp.dta"
-*			./cb_2018_25_cousub_500k.dta"
-*			./adm3_latlong.dta
-*			./regulation_types.dta
-*			./all_stations.csv
-*				
-* Outputs:		./postQJE_train_station_means.dta
+* Inputs:	
 *
-* Created:		05/23/2022
-* Updated:		10/05/2022
+* Outputs:			postrestat_train_station_means.dta
+*
+* Created:			05/23/2022
+* Updated:			02/17/2025
 ********************************************************************************
 
 * create a save directory if none exists
@@ -73,14 +55,15 @@ save `mtlines', replace
 ********************************************************************************
 ** load final dataset
 ********************************************************************************
-use "$DATAPATH/final_dataset_10-28-2021.dta", clear
+// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
 
 ********************************************************************************
 ** run postQJE within town setup file
 ********************************************************************************
-run "$DOPATH/postQJE_within_town_setup.do"
+// run "$DOPATH/postQJE_within_town_setup.do"
 
+use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- use mikes post setup working file
 
 ********************************************************************************
 ** merge on mt lines to keep straight line properties
@@ -659,7 +642,7 @@ rename MUNI_NAME cousub_name
 drop NAME
 
 * save file
-save "postQJE_train_station_means.dta", replace
+save "postrestat_train_station_means.dta", replace
 
 
 ********************************************************************************
