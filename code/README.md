@@ -1,14 +1,8 @@
 # Analysis files flow chart
+The purpose of this is to document the final replication package
 
 [Mermaid diagram syntax documentation](https://mermaid.js.org/syntax/flowchart.html)
 
-```mermaid
-flowchart LR
-  A[counterfactual_spatial_heterogeneity.do] --> B[spatial_price_coeff_MAPCdefinition.dta];
-  A --> C[spatial_unit_coeff_MAPCdefinition.dta];
-  C --> A
-```
----
 ```mermaid
 flowchart LR
   A[counterfactual_spatial_heterogeneity.do] --> B[spatial_price_coeff_MAPCdefinition.dta];
