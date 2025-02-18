@@ -1,4 +1,4 @@
-<p align="center"># Analysis files flow chart</p>p>
+<p align="center"> # Analysis files flow chart </p>p>
 The purpose of this is to document the final replication package
 
 [GitHub readme markdown syntax](https://github.com/darsaveli/Readme-Markdown-Syntax)
