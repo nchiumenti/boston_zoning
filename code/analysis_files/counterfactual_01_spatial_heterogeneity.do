@@ -6,35 +6,39 @@ set linesize 255
 
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postrestat_Spatial_Heterogeneity_mtlines" // <--- change when necessry
+local name ="counterfactual_01_spatial_heterogeneity"  // <--- change when necessary
 
 log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
-** S: DRIVE VERSION **
-
-** WORKING PAPER VERSION **
-
-** MT LINES SETUP VERSION **
-
-** NO CLUSTERING **
 
 ********************************************************************************
-* File name:		"postrestat_Spatial_Heterogeneity.do"
+* File name:		"counterfactual_01_spatial_heterogeneity.do"
 *
 * Project title:	Boston Zoning Paper
 *
-* Description:		
+* Description:		Runs the spatial heterogeneity file for boston zoning paper.
+*						Regression 1: linear probability rents and prices
+*							Part 1: loop over bandwidths for means
+*							Part 2(a-c): loop over bandwidth x polynomials for rents
+*							Part 3(a-c): loop over bandwith x polynomials for sales prices
+*						Regression 2: units spatial heterogeneity
+*							Part 4: loop over bandwidths for means >=1918
+*							Part 5(a-c): loop over bandwidth x polynomials for units >=1918
+*							Part 6: loop over bandwidths for means >=1956
+*							Part 7(a-c): loop over bandwith x polynomials for units >=1956
 * 				
-* Inputs:		
+* Inputs:			./mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					./final_dataset_10-28-2021.dta
 *				
-* Outputs:		
+* Outputs:			./spatial_price_coeff_MAPCdefinition.dta
+*					./spatial_unit_coeff_MAPCdefinition.dta
 *
-* Created:		09/21/2021
-* Updated:		02/11/2025
+* Created:			09/21/2021
+* Updated:			02/11/2025
 ********************************************************************************
 
 * create a save directory if none exists
-global EXPORTPATH "$DATAPATH/postQJE_data_exports/`name'_`date_stamp'"
+global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
 
 capture confirm file "$EXPORTPATH"
 
@@ -44,6 +48,7 @@ if _rc!=0 {
 }
 
 cd $EXPORTPATH
+
 
 ********************************************************************************
 ** load the mt lines data
@@ -57,19 +62,17 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** load final dataset
+** create the working dataset
 ********************************************************************************
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear <-- this is the OG dataset, it is commented out because a post setup version loaded on line 75
+* load final dataset
+// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
-
-********************************************************************************
-** run postQJE within town setup file
-********************************************************************************
+* run the within town data setup file
 // run "$DOPATH/postQJE_within_town_setup.do"
 
-// run "$DOPATH/postREStat_within_town_setup_07102024.do" <-- this is a newer one but i am unsure what if any differences it has
-
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output that happens after running line 65 and 73, use this to cut down on time.
+* use Mike Corbetts intermediary file to cut down on time
+// run "$DOPATH/postREStat_within_town_setup_07102024.do"
+use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
 
 
 ********************************************************************************
@@ -79,11 +82,10 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line)
 drop if _merge == 2
 drop _merge
 
-keep if straight_line == 1 // <-- drops non-straight line properties
+keep if straight_line == 1  // <-- drops non-straight line properties
 
-tab year // <-- used to verify future runs of the data
+tab year
 
-// use "$DATAPATH/postQJE_data_exports/postQJE_sample_data_2022-10-07/postQJE_testing_full.dta", clear <-- this was a testing dataset, we can ignore it as of 1/31/2025 when Nick wrote this
 
 ********************************************************************************
 ** For regressions 1A + 1B keep only years 2010-2018
@@ -96,12 +98,13 @@ gen house_salesrent = ((def_saleprice/num_units)*0.0629)/12
 
 gen log_saleprice = log(house_salesrent)
 
-******************************************************
-/* Market Definitions  */
-******************************************************
+
+********************************************************************************
+** Market definitions based on MAPC town types
+********************************************************************************
 replace city = upper(city)
 
-*Basic ring defition
+* basic ring defition
 #delimit ;
 gen def_1 = 1 if (city=="ARLINGTON" | 
 			city=="BELMONT" | 
@@ -192,11 +195,11 @@ replace def_1 = 4 if (city=="BOLTON" |
 			city=="WRENTHAM" ) ;
 #delimit cr			
 
-
-gen def_name = "Inner Core" if def_1 == 1 /* Blue  */
-replace def_name = "Regional Urban" if def_1 == 2 /* Grey  */
-replace def_name = "Mature Suburbs" if def_1 == 3 /* Green  */
-replace def_name = "Developing Suburbs" if def_1 == 4 /* Yellow  */
+* assign MAPC types to ring definitions
+gen def_name = "Inner Core" if def_1 == 1  // Blue
+replace def_name = "Regional Urban" if def_1 == 2  // Grey
+replace def_name = "Mature Suburbs" if def_1 == 3  // Green
+replace def_name = "Developing Suburbs" if def_1 == 4  // Yellow
 
 rename county_fip orig_county_fip
 rename county orig_county
@@ -204,13 +207,12 @@ rename county orig_county
 gen county_fip = def_1
 gen county = def_name
 
-drop if def_1 == 2
+drop if def_1 == 2  // removes regional-urban towns from analysis
 
 
 ********************************************************************************
-**Define distance polynomial trends
+** Define distance polynomial trends
 ********************************************************************************
-
 gen r_dist_relax = relaxed*dist_both
 gen r_dist_strict = strict*dist_both
 
@@ -221,29 +223,20 @@ gen r_dist_strict2 = r_dist_strict^2
 gen r_dist_strict3 = r_dist_strict^3
 
 
-/*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Regression 1 linear probability rents and prices                           */
-/*                                                                            */
-/*----------------------------------------------------------------------------*/
-
 ********************************************************************************
-** define distance polynomial trends varlist
+** Regression 1: linear probability rents and prices
 ********************************************************************************
+* define distance polynomial trends varlist
 local distance_varlist1 = "r_dist_relax r_dist_strict"
 local distance_varlist3 = "r_dist_relax r_dist_strict r_dist_relax2 r_dist_strict2 r_dist_relax3 r_dist_strict3"
 
-
-********************************************************************************
-** county/community type regresstions for rents and sale prices
-********************************************************************************
-* by renters vs owners
+* preserve dataset in preparation for loops
 preserve 
 
-keep if only_du ==1 | du_he == 1| mf_du == 1 | only_mf == 1
+keep if only_du ==1 | du_he == 1 | mf_du == 1 | only_mf == 1  // keeps only four boundary types
 
-** define coeff stores
-* direct effects, only_du
+** define coefficient stores for output
+* direct effects, renters and owners, only_du
 gen dupac_coeff_renters_c_20_x1 = .
 gen dupac_coeff_owners_c_20_x1 = .
 gen dupac_se_renters_c_20_x1 = .
@@ -254,8 +247,7 @@ gen dupac_coeff_owners_c_20_x3 = .
 gen dupac_se_renters_c_20_x3 = .
 gen dupac_se_owners_c_20_x3 = .
 
-* direct effects, du_he
-* renters
+* direct effects, renters, du_he
 gen dupac_dXh_c_r_c_20_x1 = .
 gen height_dXh_c_r_c_20_x1 = .
 gen duXhe_dXh_c_r_c_20_x1 = .
@@ -270,7 +262,7 @@ gen dupac_dXh_s_r_c_20_x3 = .
 gen height_dXh_s_r_c_20_x3 = .
 gen duXhe_dXh_s_r_c_20_x3 = .
 	
-* owners
+* direct effects, owners, du_he
 gen dupac_dXh_c_o_c_20_x1 = .
 gen height_dXh_c_o_c_20_x1 = .
 gen duXhe_dXh_c_o_c_20_x1 = .
@@ -285,7 +277,7 @@ gen dupac_dXh_s_o_c_20_x3 = .
 gen height_dXh_s_o_c_20_x3 = .
 gen duXhe_dXh_s_o_c_20_x3 = .
 
-* direct effects, mf_du
+* direct effects, renters, mf_du
 gen dupac_dXmf_c_o_c_20_x1 = .
 gen mf_dXmf_c_o_c_20_x1 = .
 gen duXmf_dXmf_c_o_c_20_x1 = .
@@ -300,8 +292,7 @@ gen dupac_dXmf_s_o_c_20_x3 = .
 gen mf_dXmf_s_o_c_20_x3 = .
 gen duXmf_dXmf_s_o_c_20_x3 = .
 
-* direct effects, only_mf
-* direct Effects
+* direct effects, owners, only_mf
 gen mf_coeff_owners_c_20_x1 = .
 gen mf_se_owners_c_20_x1 = .
 
@@ -310,13 +301,14 @@ gen mf_se_owners_c_20_x3 = .
 
 
 ********************************************************************************
-** Prices spatial heterogeneity
-* Part 1: loop over bandwidths for means
-* Part 2(a-c): loop over bandwidth x polynomials for rents
-* Part 3(a-c): loop over bandwith x polynomials for sales prices
+** Regression 1: linear probability rents and prices
+*** Part 1: loop over bandwidths for means
+*** Part 2(a-c): loop over bandwidth x polynomials for rents
+*** Part 3(a-c): loop over bandwith x polynomials for sales prices
 ********************************************************************************
 levelsof county, local(levels) 
 
+* for every county <l> in <levels>
 foreach l of local levels {
 
 	di ""
@@ -325,10 +317,12 @@ foreach l of local levels {
 
 	tab county if county == "`l'"
 	
+
 	********************************************************************************	
-	** Part 1 means
+	** Part 1: loop over bandwidths for means
+	/* restricted to just the 0.2 bandwith in the final analysis because that is 
+	what we end up showing, older versions use more */
 	********************************************************************************
-	*****loop over different bandwidth
 	foreach d of numlist 0.2 {
 		
 		di ""
@@ -377,13 +371,16 @@ foreach l of local levels {
 		di "means for `l' at bandwidth `d': ONLY_MF, BOTH SIDES"
 		sum log_mfrent comb_rent2 house_rent log_saleprice theta_hd theta_gd dupac  if county == "`l'" & only_mf == 1 & dist<=`d'
 	
-	} // emd of bandwidth loop
+	}  // end of part 1 loop
+
 
 	********************************************************************************	
-	** Part 2: renter costs with only_du du_he mf_du only_mf(run quietly)
+	** Part 2: renter costs with only_du du_he mf_du only_mf (run quietly)
 	********************************************************************************	
 	di ""
 	di "*** log_mfrent regressions ***"
+
+	* for every <d> bandwidth
 	quietly foreach d of numlist 0.2 {
 		
 		* set local var name for bandwith
@@ -392,7 +389,7 @@ foreach l of local levels {
 		********************************************************************************	
 		** Part 2a: only_du
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -439,14 +436,13 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 406
-
+		}  // end of part 2a loop 
 
 	
 		********************************************************************************	
 		** Part 2b: du_he
 		********************************************************************************	
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -502,14 +498,16 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 511
-							
+		}  // end of part 2b loop
+	}  // end of part 2 bandwidth loop						
 	
 	********************************************************************************	
 	** Part 3: housing cost estimates with only_du du_he mf_du only_mf (NOTE! make sure to use log_saleprice)
 	********************************************************************************	
 	di ""
 	di "*** log_saleprice regesssions ***"
+
+	* for every <d> distance bin
 	quietly foreach d of numlist 0.2 {
 
 		* set local var name for bandwith
@@ -518,7 +516,7 @@ foreach l of local levels {
 		********************************************************************************	
 		** Part 3a: only_du
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -565,11 +563,13 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 691
+		}  // end of part 3a polynomial loop
+
 
 		********************************************************************************	
 		** Part 3b: du_he
 		********************************************************************************	
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -626,12 +626,13 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 742
+		} // end of part 3b polynomial loop
+
 
 		********************************************************************************	
 		** Part 3c: mf_du
 		********************************************************************************	
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -683,13 +684,13 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 804
+		}  // end of part 3c polynomial loop
 		
 		
 		********************************************************************************	
 		** Part 3d: only_mf
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -745,21 +746,19 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 862
-	} // end of bandwidth loop on line 682
-} // end of county/community type loop on line 330
-}
+		}  // end of part 3d polynomial loop
+	}  // end of part 3 bandwidth loop
+}  // end of levelsof county/community type loop
 
-// stop
 
 ********************************************************************************
 ** t statistics
 ********************************************************************************
-*loop over different bandwidth
+* loop over different bandwidth
 quietly foreach d of numlist 0.2{ 
 	local var = round(`d'*100,1)
 	
-	*loop over different polynomial distance trends
+	* loop over different polynomial distance trends
 	forvalues i = 1(2)3 {
 
 		gen t_dupac_coeff_renters_c_`var'_x`i' = dupac_coeff_renters_c_`var'_x`i'/dupac_se_renters_c_`var'_x`i'
@@ -780,10 +779,7 @@ quietly foreach d of numlist 0.2{
 	}
 }
 
-/* save only these coefficients as separate data set to be able to make maps of 
-spatial variation */
-
-*keep only one observation per county
+* keep only one observation per county
 by county, sort: gen nvals = _n == 1
 keep if nvals == 1
 
@@ -808,7 +804,11 @@ keep if nvals == 1
 	t_mf_coeff_owners_c_* mf_coeff_owners_c_* mf_se_owners_c_*
 ;
 
-***convert dataset to long format, each coefficient has 5(different bandwidth)*5(different polynomial trends)*4(counties) variations
+/* convert dataset to long format, 
+each coefficient has 5 (different bandwidth) 
+* 5 (different polynomial trends) 
+* 4 (counties) variations */
+
 reshape long t_dupac_coeff_renters_c dupac_coeff_renters_c dupac_se_renters_c 
 	t_dupac_coeff_owners_c dupac_coeff_owners_c dupac_se_owners_c
 	t_dupac_dXh_c_r_c dupac_dXh_c_r_c dupac_dXh_s_r_c 
@@ -821,43 +821,32 @@ reshape long t_dupac_coeff_renters_c dupac_coeff_renters_c dupac_se_renters_c
 	t_mf_dXmf_c_o_c mf_dXmf_c_o_c mf_dXmf_s_o_c 
 	t_duXmf_dXmf_c_o_c duXmf_dXmf_c_o_c duXmf_dXmf_s_o_c 
 	t_mf_coeff_owners_c mf_coeff_owners_c mf_se_owners_c, i(county) j(spec) s;
-
 #delimit cr
 
 
 ********************************************************************************
-** save output data 
-** CHANGE PATH ACCORDINGLY HERE
+** regression 1 save output data 
 ********************************************************************************
-save "postQJE_spatial_price_coeff_MAPCdefinition.dta", replace
+save "spatial_price_coeff_MAPCdefinition.dta", replace
 
-restore
-
-
-
-/*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Regression 2 linear probability number of units 1918 and 1956              */
-/*                                                                            */
-/*----------------------------------------------------------------------------*/
+restore  // restores data in memory to pre reg 1 state
 
 
 ********************************************************************************
-** define distance polynomial trends varlist
+** Regression 2 linear probability number of units 1918 and 1956              
 ********************************************************************************
+* define distance polynomial trends varlist
 local distance_varlist1 = "r_dist_relax r_dist_strict"
 local distance_varlist3 = "r_dist_relax r_dist_strict r_dist_relax2 r_dist_strict2 r_dist_relax3 r_dist_strict3"
 
-
-********************************************************************************
-** county/community type regresstions for units
-********************************************************************************
+* preserve dataset in preparation for loops
 preserve
 
 keep if year == 2018
 
 keep if only_du ==1 | du_he == 1 | mf_du == 1 | only_mf == 1
 
+** define coefficient stores for output
 * direct effects, only_du
 quietly foreach var of numlist 20 { 
 	forvalues i = 1(2)3 {
@@ -902,7 +891,7 @@ quietly foreach var of numlist 20 {
 }
 
 ********************************************************************************
-** Units spatial heterogeneity
+** Regression 2: units spatial heterogeneity
 * Part 4: loop over bandwidths for means >=1918
 * Part 5(a-c): loop over bandwidth x polynomials for units >=1918
 * Part 6: loop over bandwidths for means >=1956
@@ -910,6 +899,7 @@ quietly foreach var of numlist 20 {
 ********************************************************************************
 levelsof county, local(levels) 
 
+* for every county <l> in <levels>
 foreach l of local levels {
 	
 	di ""
@@ -919,8 +909,9 @@ foreach l of local levels {
 	
 	********************************************************************************
 	** Part 4: units built after 1918 with dupac, height, mf allowed 
+	/* restricted to just the 0.2 bandwith in the final analysis because that is 
+	what we end up showing, older versions use more */
 	********************************************************************************
-	*****loop over different bandwidth
 	foreach d of numlist 0.2 {
 		
 		di ""
@@ -968,14 +959,16 @@ foreach l of local levels {
 		
 		di "means for `l': ONLY_MF, BOTH SIDES, year_built >= 1918"
 		sum num_units1  if county == "`l'" & only_mf == 1 & year_built >= 1918 & dist <= `d'
-	} // end of bandwith loop on line 1112
+	}  // end of part 4 bandwith loop
 	
 	********************************************************************************
 	** Part 5: units with only_du du_he mf_du >= 1918 (run quietly)
+	/* regressions for num_units1 w/ year_built >= 1918 */
 	********************************************************************************
-	** regressions for num_units1 w/ year_built >= 1918
 	di ""
-	di "*** num_units1 regressions >=1918***"
+	di "*** num_units1 regressions >=1918 ***"
+
+	* for every <d> bandwidth
 	quietly foreach d of numlist 0.2 {
 		
 		* set local var name for bandwith
@@ -1031,12 +1024,12 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 1176
+		}  // end of part 5a polynomial loop
 	
 		********************************************************************************
 		** Part 5b: du_he
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -1087,12 +1080,12 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 1228
+		}  // end of part 5b polynomial loop
 		
 		********************************************************************************
 		** Part 5c: mf_du
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -1111,45 +1104,45 @@ foreach l of local levels {
 				
 			if `a'>1 {
 					
-			* run regression
-			capture noisily reg num_units1 i.mf_allowed##c.dupac i.lam_seg `distance_varlist`i'' if `regression_conditions' , vce(cluster lam_seg) 			
-					
-			* display observation count 
-			n di "# of obs. for `l' at bandwith `d' with polynomial ^`i' for reg num_units1 mf_du >=1918 == `e(N)'"
-					
-			* if no error, store coefficients and standard errors
-			if c(rc) == 0 {
-				replace dupac_dXmf_c_u18_c_`var'_x`i' = _b[dupac] if county == "`l'"
-				replace mf_dXmf_c_u18_c_`var'_x`i' = _b[1.mf_allowed] if county == "`l'"
-				replace duXmf_dXmf_c_u18_c_`var'_x`i' = _b[1.mf_allowed#c.dupac] if county == "`l'"
-				replace dupac_dXmf_s_u18_c_`var'_x`i' = _se[dupac] if county == "`l'"
-				replace mf_dXmf_s_u18_c_`var'_x`i' = _se[1.mf_allowed] if county == "`l'"
-				replace duXmf_dXmf_s_u18_c_`var'_x`i' = _se[1.mf_allowed#c.dupac] if county == "`l'"
-			}
+				* run regression
+				capture noisily reg num_units1 i.mf_allowed##c.dupac i.lam_seg `distance_varlist`i'' if `regression_conditions' , vce(cluster lam_seg) 			
+						
+				* display observation count 
+				n di "# of obs. for `l' at bandwith `d' with polynomial ^`i' for reg num_units1 mf_du >=1918 == `e(N)'"
+						
+				* if no error, store coefficients and standard errors
+				if c(rc) == 0 {
+					replace dupac_dXmf_c_u18_c_`var'_x`i' = _b[dupac] if county == "`l'"
+					replace mf_dXmf_c_u18_c_`var'_x`i' = _b[1.mf_allowed] if county == "`l'"
+					replace duXmf_dXmf_c_u18_c_`var'_x`i' = _b[1.mf_allowed#c.dupac] if county == "`l'"
+					replace dupac_dXmf_s_u18_c_`var'_x`i' = _se[dupac] if county == "`l'"
+					replace mf_dXmf_s_u18_c_`var'_x`i' = _se[1.mf_allowed] if county == "`l'"
+					replace duXmf_dXmf_s_u18_c_`var'_x`i' = _se[1.mf_allowed#c.dupac] if county == "`l'"
+				}
 
-			* else if error 2001, raise insufficient results error
-			else if c(rc) == 2001 {
-				n di as error "Insufficient results for reg num_units1 mf_du, l==`l', d==`d', ^i==`i' >=1918: moving on..."
-			}
+				* else if error 2001, raise insufficient results error
+				else if c(rc) == 2001 {
+					n di as error "Insufficient results for reg num_units1 mf_du, l==`l', d==`d', ^i==`i' >=1918: moving on..."
+				}
 
-			* else, catch all other errors
-			else {
-				local rc = _rc			
-				n di as error "reg num_units1 mf_du, l==`l', d==`d', ^i==`i' caused error r(`rc')"
-			}
-		}
+				* else, catch all other errors
+				else {
+					local rc = _rc			
+					n di as error "reg num_units1 mf_du, l==`l', d==`d', ^i==`i' caused error r(`rc')"
+				}
+			}	
 			
-		* else, not enough obs to run regression
-		else {
-			n di as error `"not enough observations to run `regression_conditions'"'
-		}
+			* else, not enough obs to run regression
+			else {
+				n di as error `"not enough observations to run `regression_conditions'"'
+			}
 	
-		} // end of polynomial loop at line 1284
+		} // end of part 5c polynomial loop
 		
 		********************************************************************************
 		** Part 5d: only_mf
 		********************************************************************************
-		*loop over different polynomial distance trends
+		* loop over different polynomial distance trends
 		forvalues i = 1(2)3 {
 			n di ""
 			n di "********************************************************************************"
@@ -1195,15 +1188,15 @@ foreach l of local levels {
 			else {
 				n di as error `"not enough observations to run `regression_conditions'"'
 			}
-		} // end of polynomial loop at line 1341
-	} // end of bandwidth loop on line 1167
-} // end of county/community type loop on line 1101
+		}  // end of part 5d polynomial loop
+	}  // end of part 5 bandwidth loop
+}  // end of levelsof county/community type loop
 
 
 ********************************************************************************
 ** t statistics
 ********************************************************************************
-*loop over different bandwidth
+* loop over different bandwidth
 quietly foreach var of numlist 20 { 
 	forvalues i = 1(2)3 {
 
@@ -1221,9 +1214,6 @@ quietly foreach var of numlist 20 {
 	}
 }
 
-/* save only these coefficients as separate data set to be able to make maps of 
-spatial variation */
-
 * keep only one observation per county
 by county, sort: gen nvals = _n == 1
 keep if nvals == 1
@@ -1239,7 +1229,11 @@ keep if nvals == 1
 	t_duXmf_dXmf_c_u18_c_* duXmf_dXmf_c_u18_c_* duXmf_dXmf_s_u18_c_* 
 	t_mf_coeff_u18_c_* mf_coeff_u18_c_* mf_se_u18_c_*;
 	
-***convert dataset to long format, each coefficient has 5(different bandwidth)*5(different polynomial trends)*4(counties) variations
+/* convert dataset to long format, 
+each coefficient has 5 (different bandwidth) 
+* 5 (different polynomial trends)
+* 4 (counties) variations */
+
 reshape long t_dupac_coeff_u18_c dupac_coeff_u18_c dupac_se_u18_c 
 	t_dupac_dXh_c_u18_c dupac_dXh_c_u18_c dupac_dXh_s_u18_c 
 	t_height_dXh_c_u18_c height_dXh_c_u18_c height_dXh_s_u18_c 
@@ -1252,21 +1246,17 @@ reshape long t_dupac_coeff_u18_c dupac_coeff_u18_c dupac_se_u18_c
 
 
 ********************************************************************************
-** save output data 
-** CHANGE PATH ACCORDINGLY HERE
+** regression 2 save output data 
 ********************************************************************************
-save "postQJE_spatial_unit_coeff_MAPCdefinition.dta", replace
+save "spatial_unit_coeff_MAPCdefinition.dta", replace
 
-
-
-restore
-
-
+restore  // restores data in memory to pre reg 2 state
 
 
 ********************************************************************************
-** END
+** END OF FILE
 ********************************************************************************
 log off
 log close
 clear all
+di "Done!"
