@@ -6,31 +6,44 @@ set linesize 255
 
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postrestat_means" // <--- change when necessry
+local name ="counterfactual_03_means" // <--- change when necessry
 
 log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
-* File name:		"postrestat_means.do"
+* File name:		"counterfactual_03_means.do"
 *
 * Project title:	Boston Zoning Project
 *
-* Description:		
+* Description:		This is part 3 of the counterfactual analysis. Some analysis
+*					might be used in other parts of the paper.
+*					
+*					This file calcs a bunch of means at different levels (property,
+*					boundary, etc.). It then creates a town level version that also
+*					has train station level means attached. If run in order, on the
+*					same day, counterfactual output should be in the same folder.
 * 				
-* Inputs:		
+* Inputs:			under $DATAPATH
+*						./final_dataset_10-28-2021.dta  // if not using post setup version
+*						./mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					under $EXPORTPATH 
+* 						./means_town_lvl.dta
+* 						./means_town_lvl_tomerge.dta
 *				
-* Outputs:			postQJE_means_lpm.dta
-*               	postQJE_means_property_lvl.dta
-*					postQJE_means_town_lvl_tomerge.dta
-*					postQJE_means_town_train_stations.dta
+* Outputs:			means_lpm.dta
+* 					means_property_lvl.dta
+* 					means_boundary_lvl.dta
+*					means_town_lvl.dta
+* 					means_town_lvl_tomerge.dta
+* 					means_town_train_stations.dta
 *
 * Created:			11/10/2021
-* Updated:			02/17/2025
+* Updated:			02/18/2025
 ********************************************************************************
 
 * create a save directory if none exists
-global EXPORTPATH "$DATAPATH/postQJE_data_exports/`name'_`date_stamp'"
+global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
 
 capture confirm file "$EXPORTPATH"
 
@@ -45,7 +58,7 @@ cd $EXPORTPATH
 ********************************************************************************
 ** load the mt lines data
 ********************************************************************************
-use "$SHAPEPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
@@ -54,17 +67,16 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** load final dataset
+** create the working dataset
 ********************************************************************************
 // use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
-
-********************************************************************************
-** run postQJE within town setup file
-********************************************************************************
+* run postQJE within town setup file
 // run "$DOPATH/postQJE_within_town_setup.do"
 
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- use mikes post setup working file
+* use Mike Corbetts intermediary file to cut down on time
+// run "$DOPATH/postREStat_within_town_setup_07102024.do"
+use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
 
 
 ********************************************************************************
@@ -286,7 +298,7 @@ lab var n_fam4plus_1956 "count of props 4+ units >=1956 in 2018"
 lab var n_singlefam "count of props single fam last sale year 2010 to 2018"
 	
 * save as .dta file
-save "postQJE_means_lpm.dta", replace
+save "means_lpm.dta", replace
 
 * display output in log file
 tabdisp boundary_type, cell(mean_*)
@@ -317,7 +329,7 @@ lab var n_rent "count of properties used in mean_rent"
 lab var n_price "count of properties used in mean_price"
 
 * save as .dta file
-save "postQJE_means_property_lvl.dta", replace
+save "means_property_lvl.dta", replace
 
 * display output in log file
 di "Property level MEANS for units, rent, prices"
@@ -365,7 +377,7 @@ lab var n_height "count of boundaries used in mean_height"
 lab var n_dupac "count of boundaries used in mean_dupac"
 lab var n_mfallow "count of boundaries used in mean_mfallow"
 
-save "postQJE_means_boundary_lvl.dta", replace
+save "means_boundary_lvl.dta", replace
 
 * display output in log
 di "Boundary level MEANS for height, dupac, mf_allow"
@@ -417,7 +429,7 @@ lab var n_units "count of properties used in mean_units"
 lab var n_rent "count of properties used in mean_rent"
 lab var n_price "count of properties used in mean_price"
 
-save "postQJE_means_town_lvl.dta", replace
+save "means_town_lvl.dta", replace
 
 restore
 
@@ -428,26 +440,31 @@ restore
 /* NOTE: this will require some work with Mike to figure out directory paths */
 
 * begin by loading the town means file
-use "postQJE_means_town_lvl.dta", clear 
+use "means_town_lvl.dta", clear 
 
 * rename variables so the merge works correctly
 rename (mean_units mean_rent mean_price n_units n_rent n_price) (mean_units_town mean_rent_town mean_price_town n_units_town n_rent_town n_price_town)
 
 * save
-save "postQJE_means_town_lvl_tomerge.dta", replace
+save "means_town_lvl_tomerge.dta", replace
 
 * load the train station means file
-use "<PATH>/postREStat_train_station_means.dta", clear
+// use "$EXPORTPATH/postrestat_train_station_means.dta", clear
+
+pwd
+// use "/shared/boston_zoning/working_paper/data/postQJE_data_exports/postrestat_train_stations_means_2025-02-18/postrestat_train_station_means", clear // this version works on the BosFed computers
+
+use "train_station_means.do"  // this version should be available in the working directory, if files are run in order
 
 * merge on down means
-merge m:1 cousub_name boundary_type side using "postQJE_means_town_lvl_tomerge.dta"
+merge m:1 cousub_name boundary_type side using "means_town_lvl_tomerge.dta"
 
 drop mean_units mean_rent mean_saleprice _merge
 
 rename (mean_units_town mean_rent_town mean_price_town)(mean_units mean_rent mean_saleprice)
 
 // save "$dir\postQJE_means_town_lvl_tomerge.dta", replace  // <-- old save file name pre 2/17/2025
-save "postQJE_means_town_train_stations.dta", replace  // new save file name 2/17/2025
+save "means_town_train_stations.dta", replace  // new save file name 2/17/2025
 
 
 ********************************************************************************

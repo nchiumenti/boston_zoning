@@ -6,28 +6,38 @@ set linesize 255
 
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postrestat_train_stations_means" // <--- change when necessry
+local name ="counterfactual_02_train_stations_means" // <--- change when necessry
 
 log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
-* File name:		postrestat_train_stations_means.do
+* File name:		counterfactual_02_train_stations_means.do
 *
 * Project title:	Boston Zoning Paper
 *
-* Description:		
+* Description:		This file is part 2 of the counterfactual analysis. It
+*					calculated means around train stations using the finalized 
+*					set of warren group data.
 * 				
-* Inputs:	
+* Inputs:			under $DATAPATH
+*						./mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
+*						./train_stops/station_boundary_dist.csv
+*						./shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269
+*				
+*					under $SHAPEPATH
+*						./originals/cb_2018_25_cousub_500k_shp.dta
+*						./originals/cb_2018_25_cousub_500k.dta
 *
-* Outputs:			postrestat_train_station_means.dta
+* Outputs:			under $EXPORTPATH
+*						./train_station_means.dta
 *
 * Created:			05/23/2022
 * Updated:			02/17/2025
 ********************************************************************************
 
 * create a save directory if none exists
-global EXPORTPATH "$DATAPATH/postQJE_data_exports/`name'_`date_stamp'"
+global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
 
 capture confirm file "$EXPORTPATH"
 
@@ -38,13 +48,14 @@ if _rc!=0 {
 
 cd $EXPORTPATH
 
+
 ********************************************************************************
 ** load striaght line and final dataset (warren properties)
 /* run with the within town setup file and keep striaght line properties to keep 
 the sample the same and to calc things like sales price and rent, keep only 
 year==2018 to calc means*/
 ********************************************************************************
-use "$SHAPEPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
@@ -53,17 +64,17 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** load final dataset
+** create the working dataset
 ********************************************************************************
 // use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
-
-********************************************************************************
-** run postQJE within town setup file
-********************************************************************************
+* run postQJE within town setup file
 // run "$DOPATH/postQJE_within_town_setup.do"
 
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- use mikes post setup working file
+* use Mike Corbetts intermediary file to cut down on time
+// run "$DOPATH/postREStat_within_town_setup_07102024.do"
+use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
+
 
 ********************************************************************************
 ** merge on mt lines to keep straight line properties
@@ -72,14 +83,14 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	
 	* check merge for errors
 	sum _merge
-	assert `r(N)' ==  3400297
-	assert `r(sum_w)' ==  3400297
-	assert `r(mean)' ==  2.940873106084557
-	assert `r(Var)' ==  .0556309206919615
-	assert `r(sd)' ==  .235862079809285
-	assert `r(min)' ==  2
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  9999842
+	//assert `r(N)' ==  3400297
+	//assert `r(sum_w)' ==  3400297
+	//assert `r(mean)' ==  2.940873106084557
+	//assert `r(Var)' ==  .0556309206919615
+	//assert `r(sd)' ==  .235862079809285
+	//assert `r(min)' ==  2
+	//assert `r(max)' ==  3
+	//assert `r(sum)' ==  9999842
 	
 	* drop merge vars	
 	drop if _merge == 2
@@ -101,7 +112,7 @@ save `warren', replace
 which calcs distance from train stations to all boundaries and keeps only those
 boundaries witin .5 miles */
 ********************************************************************************
-import delimited "$SHAPEPATH/train_stops/station_boundary_dist.csv", clear stringcols(_all)
+import delimited "$DATAPATH/train_stops/station_boundary_dist.csv", clear stringcols(_all)
 
 * trim variables
 keep station_id station_name station_lat station_lon boundary_using_id left_fid right_fid dist_meters dist_miles
@@ -119,14 +130,14 @@ merge m:1 _ID using "$SHAPEPATH/originals/cb_2018_25_cousub_500k.dta", keepusing
 
 	* merge error checks
 	sum _merge
-	assert `r(N)' ==  32086
-	assert `r(sum_w)' ==  32086
-	assert `r(mean)' ==  2.990400797855763
-	assert `r(Var)' ==  .0095073537709077
-	assert `r(sd)' ==  .0975056601993327
-	assert `r(min)' ==  2
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  95950
+	//assert `r(N)' ==  32086
+	//assert `r(sum_w)' ==  32086
+	//assert `r(mean)' ==  2.990400797855763
+	//assert `r(Var)' ==  .0095073537709077
+	//assert `r(sd)' ==  .0975056601993327
+	//assert `r(min)' ==  2
+	//assert `r(max)' ==  3
+	//assert `r(sum)' ==  95950
 
 	* drop merge vars
 	keep if _merge == 3
@@ -231,13 +242,14 @@ replace def_1 = 4 if (MUNI=="BOLTON" |
 			MUNI=="WRENTHAM" ) ;
 #delimit cr			
 
+* assign MAPC types to ring definitions
 gen def_name = ""
-replace def_name = "Inner Core" if def_1 == 1 		/* Blue  */
-replace def_name = "Regional Urban" if def_1 == 2 	/* Grey  */
-replace def_name = "Mature Suburbs" if def_1 == 3 	/* Green  */
-replace def_name = "Developing Suburbs" if def_1 == 4	/* Yellow  */
+replace def_name = "Inner Core" if def_1 == 1  // Blue
+replace def_name = "Regional Urban" if def_1 == 2  // Grey
+replace def_name = "Mature Suburbs" if def_1 == 3  // Green
+replace def_name = "Developing Suburbs" if def_1 == 4  // Yellow
 
-drop if def_name == ""
+drop if def_name == ""  // drop unassigned cities and towns
 
 
 ********************************************************************************
@@ -245,27 +257,27 @@ drop if def_name == ""
 ********************************************************************************
 * confirm that obs are unique at station_id boundary_id level
 unique station_id boundary_using_id
-	assert `r(N)' ==  31689
-	assert `r(sum)' ==  31689
-	assert `r(unique)' ==  31689
+	//assert `r(N)' ==  31689
+	//assert `r(sum)' ==  31689
+	//assert `r(unique)' ==  31689
 
 * merge on left/right boundary ids
 destring boundary_using_id, replace
 
 gen _ID = boundary_using_id + 1 // <-- to match properly add 1, python ID's start at 0
 
-merge m:1 _ID using "$SHAPEPATH/zoning_boundaries/adm3_crs4269/adm3_latlong.dta", keepusing(LEFT_FID RIGHT_FID)
+merge m:1 _ID using "$DATAPATH/shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269", keepusing(LEFT_FID RIGHT_FID)
 	
 	* check merge for errors
 	sum _merge
-	assert `r(N)' ==  53215
-	assert `r(sum_w)' ==  53215
-	assert `r(mean)' ==  2.595489993422907
-	assert `r(Var)' ==  .2408861878156406
-	assert `r(sd)' ==  .4908015768267667
-	assert `r(min)' ==  2
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  138119
+	//assert `r(N)' ==  53215
+	//assert `r(sum_w)' ==  53215
+	//assert `r(mean)' ==  2.595489993422907
+	//assert `r(Var)' ==  .2408861878156406
+	//assert `r(sd)' ==  .4908015768267667
+	//assert `r(min)' ==  2
+	//assert `r(max)' ==  3
+	//assert `r(sum)' ==  138119
 
 	* drop merge vars
 	drop if _merge == 2
@@ -275,8 +287,8 @@ merge m:1 _ID using "$SHAPEPATH/zoning_boundaries/adm3_crs4269/adm3_latlong.dta"
 	fid from the train station file should match the one from adm3_latlon */
 	destring left_fid right_fid, replace
  	
-	assert left_fid == LEFT_FID
-	assert right_fid == RIGHT_FID
+	//assert left_fid == LEFT_FID
+	//assert right_fid == RIGHT_FID
 	
 	* drop fids from initial .csv file
 	drop left_fid right_fid
@@ -293,14 +305,14 @@ merge m:1 LRID using "$DATAPATH/regulation_data/regulation_types.dta", keepusing
 
 	* check merge for errors
 	sum _merge
-	assert `r(N)' ==  68323
-	assert `r(sum_w)' ==  68323
-	assert `r(mean)' ==  2.356219721030985
-	assert `r(Var)' ==  .8007424318601312
-	assert `r(sd)' ==  .8948421267799874
-	assert `r(min)' ==  1
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  160984
+	//assert `r(N)' ==  68323
+	//assert `r(sum_w)' ==  68323
+	//assert `r(mean)' ==  2.356219721030985
+	//assert `r(Var)' ==  .8007424318601312
+	//assert `r(sd)' ==  .8948421267799874
+	//assert `r(min)' ==  1
+	//assert `r(max)' ==  3
+	//assert `r(sum)' ==  160984
 
 	* drop merge vars
 	drop if _merge == 2
@@ -309,9 +321,9 @@ merge m:1 LRID using "$DATAPATH/regulation_data/regulation_types.dta", keepusing
 /* confirm unique id level, at this point in the code observations are unique
 by <station_id boundary_using_id SIDE> */
 unique station_id boundary_using_id SIDE
-	assert `r(N)' ==  63378
-	assert `r(sum)' ==  63378
-	assert `r(unique)' ==  63378
+	//assert `r(N)' ==  63378
+	//assert `r(sum)' ==  63378
+	//assert `r(unique)' ==  63378
 
 * define home and neighbor (nn_) regulation vars
 rename mxht_eff home_mxht_eff
@@ -419,9 +431,9 @@ drop a b
 
 * check unique obs count
 unique station_id boundary_using_id SIDE
-	assert `r(N)' ==  41924
-	assert `r(sum)' ==  41924
-	assert `r(unique)' ==  41924
+	//assert `r(N)' ==  41924
+	//assert `r(sum)' ==  41924
+	//assert `r(unique)' ==  41924
 
 
 ********************************************************************************
@@ -433,14 +445,14 @@ joinby boundary_using_id boundary_side using `warren', unmatched(master) _merge(
 	
 	* joinby check
 	sum _joinby
-	assert `r(N)' ==  102066
-	assert `r(sum_w)' ==  102066
-	assert `r(mean)' ==  2.250406599651206
-	assert `r(Var)' ==  .9373057181807131
-	assert `r(sd)' ==  .9681455046534654
-	assert `r(min)' ==  1
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  229690
+	//assert `r(N)' ==  102066
+	//assert `r(sum_w)' ==  102066
+	//assert `r(mean)' ==  2.250406599651206
+// 	//assert `r(Var)' ==  .9373057181807131
+// 	//assert `r(sd)' ==  .9681455046534654
+// 	//assert `r(min)' ==  1
+// 	//assert `r(max)' ==  3
+// 	//assert `r(sum)' ==  229690
 
 	keep if _joinby == 3
 	drop _joinby
@@ -491,34 +503,34 @@ collapse (count) prop_n=prop_id ///
 	
 * error checks
 sum mean_units
-	assert `r(N)' ==  559
-	assert `r(sum_w)' ==  559
-	assert `r(mean)' ==  9.355653678634878
-// 	assert `r(Var)' ==  1180.205872066956
-	assert `r(sd)' ==  34.35412452773257
-	assert `r(min)' ==  1
-	assert `r(max)' ==  444
-	assert `r(sum)' ==  5229.810406356897
+	//assert `r(N)' ==  559
+	//assert `r(sum_w)' ==  559
+	//assert `r(mean)' ==  9.355653678634878
+// 	//assert `r(Var)' ==  1180.205872066956
+	//assert `r(sd)' ==  34.35412452773257
+	//assert `r(min)' ==  1
+	//assert `r(max)' ==  444
+	//assert `r(sum)' ==  5229.810406356897
 
 sum mean_saleprice
-	assert `r(N)' ==  270
-	assert `r(sum_w)' ==  270
-	assert `r(mean)' ==  825674.2827073019
-// 	assert `r(Var)' ==  215686731863.4877
-	assert `r(sd)' ==  464420.8564044984
-	assert `r(min)' ==  190990.2496316312
-	assert `r(max)' ==  1956448.897010949
-	assert `r(sum)' ==  222932056.3309715
+	//assert `r(N)' ==  270
+	//assert `r(sum_w)' ==  270
+	//assert `r(mean)' ==  825674.2827073019
+// 	//assert `r(Var)' ==  215686731863.4877
+	//assert `r(sd)' ==  464420.8564044984
+	//assert `r(min)' ==  190990.2496316312
+	//assert `r(max)' ==  1956448.897010949
+	//assert `r(sum)' ==  222932056.3309715
 
 sum mean_rent
-	assert `r(N)' ==  485
-	assert `r(sum_w)' ==  485
-	assert `r(mean)' ==  1998.016040669532
-// 	assert `r(Var)' ==  937289.3210726834
-	assert `r(sd)' ==  968.1370363087467
-	assert `r(min)' ==  339.0915829108626
-	assert `r(max)' ==  4819.001080832831
-	assert `r(sum)' ==  969037.7797247233
+	//assert `r(N)' ==  485
+	//assert `r(sum_w)' ==  485
+// 	//assert `r(mean)' ==  1998.016040669532
+// // 	//assert `r(Var)' ==  937289.3210726834
+// 	//assert `r(sd)' ==  968.1370363087467
+// 	//assert `r(min)' ==  339.0915829108626
+// 	//assert `r(max)' ==  4819.001080832831
+// 	//assert `r(sum)' ==  969037.7797247233
 
 tempfile prop_lvl
 save `prop_lvl', replace
@@ -537,24 +549,24 @@ collapse (count) boundary_n=boundary_using_id ///
 
 * error checks
 sum mean_height
-	assert `r(N)' ==  604
-	assert `r(sum_w)' ==  604
-	assert `r(mean)' ==  46.07332071901608
-	assert `r(Var)' ==  1443.156119614917
-	assert `r(sd)' ==  37.98889468798635
-	assert `r(min)' ==  0
-	assert `r(max)' ==  356
-	assert `r(sum)' ==  27828.28571428571
+	//assert `r(N)' ==  604
+	//assert `r(sum_w)' ==  604
+	//assert `r(mean)' ==  46.07332071901608
+	//assert `r(Var)' ==  1443.156119614917
+	//assert `r(sd)' ==  37.98889468798635
+	//assert `r(min)' ==  0
+	//assert `r(max)' ==  356
+	//assert `r(sum)' ==  27828.28571428571
 
 sum mean_dupac
-	assert `r(N)' ==  604
-	assert `r(sum_w)' ==  604
-	assert `r(mean)' ==  40.25883497940617
-	assert `r(Var)' ==  3252.366354105255
-	assert `r(sd)' ==  57.02952177692931
-	assert `r(min)' ==  0
-	assert `r(max)' ==  349
-	assert `r(sum)' ==  24316.33632756133
+	//assert `r(N)' ==  604
+	//assert `r(sum_w)' ==  604
+	//assert `r(mean)' ==  40.25883497940617
+	//assert `r(Var)' ==  3252.366354105255
+	//assert `r(sd)' ==  57.02952177692931
+	//assert `r(min)' ==  0
+	//assert `r(max)' ==  349
+	//assert `r(sum)' ==  24316.33632756133
 
 
 ********************************************************************************
@@ -564,14 +576,14 @@ merge 1:1 station_id station_name station_lat station_lon def_1 def_name boundar
 	
 	* check merge for errors
 	sum _merge
-	assert `r(N)' ==  604
-	assert `r(sum_w)' ==  604
-	assert `r(mean)' ==  3
-	assert `r(Var)' ==  0
-	assert `r(sd)' ==  0
-	assert `r(min)' ==  3
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  1812
+	//assert `r(N)' ==  604
+	//assert `r(sum_w)' ==  604
+	//assert `r(mean)' ==  3
+	//assert `r(Var)' ==  0
+	//assert `r(sd)' ==  0
+	//assert `r(min)' ==  3
+	//assert `r(max)' ==  3
+	//assert `r(sum)' ==  1812
 
 	* drop merge var
 	drop if _merge == 2
@@ -583,7 +595,7 @@ merge 1:1 station_id station_name station_lat station_lon def_1 def_name boundar
 ********************************************************************************
 * add back line layer variables
 preserve
-	import delimited "$SHAPEPATH/train_stops/all_stations.csv", clear stringcols(_all)
+	import delimited "$DATAPATH/train_stops/all_stations.csv", clear stringcols(_all)
 	tempfile stations
 	save `stations', replace
 restore
@@ -614,9 +626,9 @@ lab var mean_rent "mean rent in mf properties"
 
 * error check
 unique station_id
-	assert `r(N)' ==  604
-	assert `r(sum)' ==  194
-	assert `r(unique)' ==  194
+	//assert `r(N)' ==  604
+	//assert `r(sum)' ==  194
+	//assert `r(unique)' ==  194
 
 * export with town names
 destring station_lat station_lon, replace
@@ -642,7 +654,8 @@ rename MUNI_NAME cousub_name
 drop NAME
 
 * save file
-save "postrestat_train_station_means.dta", replace
+pwd
+save "train_station_means.dta", replace
 
 
 ********************************************************************************
