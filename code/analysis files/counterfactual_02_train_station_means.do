@@ -6,29 +6,38 @@ set linesize 255
 
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postrestat_train_stations_means" // <--- change when necessry
+local name ="counterfactual_02_train_stations_means" // <--- change when necessry
 
 log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
-test
 
 ********************************************************************************
-* File name:		postrestat_train_stations_means.do
+* File name:		counterfactual_02_train_stations_means.do
 *
 * Project title:	Boston Zoning Paper
 *
-* Description:		
+* Description:		This file is part 2 of the counterfactual analysis. It
+*					calculated means around train stations using the finalized 
+*					set of warren group data.
 * 				
-* Inputs:	
+* Inputs:			under $DATAPATH
+*						./mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
+*						./train_stops/station_boundary_dist.csv
+*						./shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269
+*				
+*					under $SHAPEPATH
+*						./originals/cb_2018_25_cousub_500k_shp.dta
+*						./originals/cb_2018_25_cousub_500k.dta
 *
-* Outputs:			postrestat_train_station_means.dta
+* Outputs:			under $EXPORTPATH
+*						./train_station_means.dta
 *
 * Created:			05/23/2022
 * Updated:			02/17/2025
 ********************************************************************************
 
 * create a save directory if none exists
-global EXPORTPATH "$DATAPATH/postQJE_data_exports/`name'_`date_stamp'"
+global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
 
 capture confirm file "$EXPORTPATH"
 
@@ -38,6 +47,7 @@ if _rc!=0 {
 }
 
 cd $EXPORTPATH
+
 
 ********************************************************************************
 ** load striaght line and final dataset (warren properties)
@@ -54,17 +64,17 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** load final dataset
+** create the working dataset
 ********************************************************************************
 // use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
-
-********************************************************************************
-** run postQJE within town setup file
-********************************************************************************
+* run postQJE within town setup file
 // run "$DOPATH/postQJE_within_town_setup.do"
 
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- use mikes post setup working file
+* use Mike Corbetts intermediary file to cut down on time
+// run "$DOPATH/postREStat_within_town_setup_07102024.do"
+use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
+
 
 ********************************************************************************
 ** merge on mt lines to keep straight line properties
@@ -232,13 +242,14 @@ replace def_1 = 4 if (MUNI=="BOLTON" |
 			MUNI=="WRENTHAM" ) ;
 #delimit cr			
 
+* assign MAPC types to ring definitions
 gen def_name = ""
-replace def_name = "Inner Core" if def_1 == 1 		/* Blue  */
-replace def_name = "Regional Urban" if def_1 == 2 	/* Grey  */
-replace def_name = "Mature Suburbs" if def_1 == 3 	/* Green  */
-replace def_name = "Developing Suburbs" if def_1 == 4	/* Yellow  */
+replace def_name = "Inner Core" if def_1 == 1  // Blue
+replace def_name = "Regional Urban" if def_1 == 2  // Grey
+replace def_name = "Mature Suburbs" if def_1 == 3  // Green
+replace def_name = "Developing Suburbs" if def_1 == 4  // Yellow
 
-drop if def_name == ""
+drop if def_name == ""  // drop unassigned cities and towns
 
 
 ********************************************************************************
@@ -644,7 +655,7 @@ drop NAME
 
 * save file
 pwd
-save "postrestat_train_station_means.dta", replace
+save "train_station_means.dta", replace
 
 
 ********************************************************************************
