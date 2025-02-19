@@ -12,12 +12,6 @@ log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
-*Bindingness of different regulations and boundaries with binding regs**********
-********************************************************************************
-
-** Post REStat Submission Version **
-
-********************************************************************************
 * File name:		"postREStat_bindingness.do"
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
