@@ -45,7 +45,7 @@ cd $EXPORTPATH
 ********************************************************************************
 ** load the mt lines data
 ********************************************************************************
-use "$SHAPEPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
@@ -437,8 +437,10 @@ rename (mean_units mean_rent mean_price n_units n_rent n_price) (mean_units_town
 save "postQJE_means_town_lvl_tomerge.dta", replace
 
 * load the train station means file
-use "<PATH>/postREStat_train_station_means.dta", clear
+// use "$EXPORTPATH/postrestat_train_station_means.dta", clear
 
+pwd
+use "/shared/boston_zoning/working_paper/data/postQJE_data_exports/postrestat_train_stations_means_2025-02-18/postrestat_train_station_means",clear
 * merge on down means
 merge m:1 cousub_name boundary_type side using "postQJE_means_town_lvl_tomerge.dta"
 
