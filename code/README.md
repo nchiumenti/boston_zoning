@@ -21,15 +21,14 @@ flowchart LR
 ### counterfactual_03_means.do
 ```mermaid
 flowchart LR
-  A[counterfactual_03_means.do] --> B[means_lpm.dta];
-  A --> C[means_property_lvl.dta];
-  A --> D[means_boundary_lvl.dta];
-  A --> E[means_town_lvl.dta];
-  A --> F[means_town_lvl_tomerge.dta];
-  A --> G[means_town_train_stations.dta];
-  E --> A;
-  F --> A;
-  G --> A;
+  A[counterfactual_03_means.do] --> B[(means_lpm.dta)];
+  A --> C[(means_property_lvl.dta)];
+  A --> D[(means_boundary_lvl.dta)];
+  A --> E[(means_town_lvl.dta)];
+  A --> F[(means_town_lvl_tomerge.dta])];
+  A --> G[(means_town_train_stations.dta)];
+  E --> G;
+  F --> G;
 ```
 
 ```
