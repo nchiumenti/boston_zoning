@@ -1,5 +1,5 @@
 ********************************************************************************
-* File name:		"analysis_master_file.do"
+* File name:		analysis_master_file.do
 *
 * Project title:	Boston Zoning Project
 *
@@ -50,6 +50,7 @@ and will store any output including, logs, figures, tables, datasets, etc.
 The follwing is the recommended folder structure:
 |-- ./project folder (this will be WORKINGDIR)
      |-- ./analysis (subdirectories will be created and defined as EXPORTPATH within corresponding .do files)
+     |--  |-- ./analysis_within_town_setup_output
      |    |-- ./bindingness_output
      |    |-- 
      |    |-- 
@@ -59,7 +60,7 @@ The follwing is the recommended folder structure:
      |-- ./code (this will be $DOPATH)
      |    |-- analysis_master_file.do
      |    |-- analysis_within_town_setup.do
-     |-- ./final_data (this will be DATAPATH)
+     |-- ./data (this will be DATAPATH)
      |    |-- ./analysis_setup_data
      |    |-- ./fred_cpi
      |    |-- ./costar

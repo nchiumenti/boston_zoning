@@ -24,30 +24,41 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 ********************************************************************************
 * File name:		analysis_within_town_setup.do
 *
-* Project title:	Boston Affordable Housing project (visting scholar porject)
+* Project title:	Boston Zoning Project
 *
 * Description:		This setup file takes the cleaned warren group, costar, etc.
-*					data that is the result of the ./data_files .do files and 
+*					data that is the result of the ./data_setup .do files and 
 *					prepares it for use in the analysis files.
 *
 *					This file does a lot, mostly defining different analysis 
 *					variables. It has also gone through many iterations. NC
 *					compared the version made by MC on 7/10/24 to past versions
-*					with the suffix postQJE and postREStat. No alterations have 
-*					occured that should prevent this version from supplimenting 
-*					earlier files.
+*					with the suffix postQJE and postREStat. No alterations 
+*                   should prevent this version from supplimenting earlier versions
+*                   of the setup file.
 *
-* Inputs:		    <various>
+* Inputs:		    final_dataset_10-28-2021.dta
+*                   warren_MAPC_all_unique_closest_stuff.dta
+*                   fred_cpi/CPI_2019.dta
+*                   costar_mf_destring.dta
+*                   costar_rent_hist.dta
 *				
-* Outputs:		    final_analysis_data.dta
+* Outputs:		    within_town_analysis_data.dta
 *
 * Created:		    09/21/2021
-* Updated:		    02/26/2025
+* Updated:		    02/27/2025
 ********************************************************************************
 
 noisily display "Running analysis_within_town_setup.do..."
 noisily display "If called with <run> this file will run quietly and not display in log."
 noisily display "Call with <do> to show the output in log file."
+
+* confirm that all of the input data actually exists
+confirm file "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
+confirm file "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+confirm file "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
+confirm file "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
+confirm file "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
 
 
 ********************************************************************************
@@ -774,11 +785,11 @@ sum log_saleprice
 ********************************************************************************
 ** End
 ********************************************************************************
-noisily display "Saving within_town_analysis.dta ..."
+noisily display "Saving within_town_analysis_data.dta ..."
 noisily display "This will be the main dataset used in the analysis files"
-noisily display "Saving this file to $DATAPATH/within_town_analysis.dta"
+noisily display "Saving this file to $DATAPATH/within_town_analysis_data.dta"
 
-save "$DATAPATH/within_town_analysis.dta", replace
+save "$DATAPATH/analysis_setup_data/within_town_analysis_data.dta", replace
 
 * final summary of output for posterity
 tab year 
