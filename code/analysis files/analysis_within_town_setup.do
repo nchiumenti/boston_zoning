@@ -1,17 +1,28 @@
-// clear all
-//
-// log close _all
-//
-// set linesize 255
-//
-// local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
-//
-// local name ="postQJE_Within_Town_setup" // <--- change when necessry
-//
-// log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
+* start here
+clear all
+log close _all
+set linesize 255
+
+local name ="analysis_within_town_setup"  // <--- change when necessry
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
+
 
 ********************************************************************************
-* File name:		"analysis_within_town_setup.do"
+* File name:		analysis_within_town_setup.do
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
 *
@@ -26,37 +37,41 @@
 *					occured that should prevent this version from supplimenting 
 *					earlier files.
 *
-* Inputs:		
+* Inputs:		    <various>
 *				
-* Outputs:		
+* Outputs:		    final_analysis_data.dta
 *
-* Created:		09/21/2021
-* Updated:		02/26/2025
+* Created:		    09/21/2021
+* Updated:		    02/26/2025
 ********************************************************************************
-use "$DATAPATH/final_dataset_10-28-2021.dta", clear  // FLAG new in mc version
 
-
-noisily display "Running postQJE_within_town_setup_07102024.do..."  // FLAG new in mc version
+noisily display "Running analysis_within_town_setup.do..."
 noisily display "If called with <run> this file will run quietly and not display in log."
 noisily display "Call with <do> to show the output in log file."
 
 
 ********************************************************************************
-** Load the main dataset
-
-/* comment out the <use> statement unless running this setup file by itself */
+** Load the main warren dataset
 ********************************************************************************
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
+noisily display "Loading final_dataset_10-28-2021.dta..."
+
+* copy final warren data to $DATAPATH
+local from_path "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
+local to_path "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta",  replace
+
+copy `from_path' `to_path'
 
 * confirm that you are using the correct input data file
-if "`c(filename)'" != "$DATAPATH/final_dataset_10-28-2021.dta" {
+use "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta", clear
+
+if "`c(filename)'" != "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta" {
 	noisily display as error "Using the wrong input dataset."
-	noisily display as error "Should be using: /home/a1nfc04/Documents/boston_zoning_sdrive/data/final_dataset_10-28-2021.dta"
+	noisily display as error "Should be using: /shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
 	noisily display as error "Currently using: `c(filename)'"
-	
 	exit
 }
- 
+
+
 ********************************************************************************
 ** Trim the input dataset
 ********************************************************************************
@@ -77,10 +92,10 @@ gen year = fy
 * summarize variables to ensure consistency across runs
 sum fy
 
-noisily assert `r(N)' == 4669556 // <-- checks the total number of observations
-noisily assert `r(mean)' == 2014.035448766435 // <-- checks the mean of variable fy
-noisily assert `r(min)' ==  2010 // <-- checks min value of varaible fy
-noisily assert `r(max)' ==  2018 // <-- checks max value of variable fy
+noisily assert `r(N)' == 4669556
+noisily assert `r(mean)' == 2014.035448766435
+noisily assert `r(min)' ==  2010
+noisily assert `r(max)' ==  2018
 
 
 ********************************************************************************
@@ -88,8 +103,14 @@ noisily assert `r(max)' ==  2018 // <-- checks max value of variable fy
 ********************************************************************************
 noisily display "Merging on closest stuff dataset..."
 
+* copy closest stuff data to $DATAPATH
+local from_path "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+local to_path "$DATAPATH/analysis_setup_data/warren_MAPC_all_unique_closest_stuff.dta",  replace
+
+copy `from_path' `to_path'
+
 * merge on file with distance to closest school/river/road
-merge m:1 prop_id using "$DATAPATH/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta", keepusing(closest_*)
+merge m:1 prop_id using "$DATAPATH/analysis_setup_data/warren_MAPC_all_unique_closest_stuff.dta", keepusing(closest_*)
 	
 	* checks for errors in merge
 	sum _merge
@@ -110,8 +131,14 @@ merge m:1 prop_id using "$DATAPATH/warren/closest_stuff/warren_MAPC_all_unique_c
 ********************************************************************************
 noisily display "Merging on CPI dataset..."
 
+* copy CPI data to $DATAPATH
+local from_path "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
+local to_path "$DATAPATH/analysis_setup_data/CPI_2019.dta",  replace
+
+copy `from_path' `to_path'
+
 * merge con CPI data to adjust rents/prices into 2019 dollars
-merge m:1 year using "$DATAPATH/fred_cpi/CPI_2019.dta"
+merge m:1 year using "$DATAPATH/analysis_setup_data/CPI_2019.dta"
 	
 	* checks for errors in merge
 	sum _merge
@@ -136,11 +163,21 @@ is the rent history file. */
 noisily display "Merging on CoStar datasets..."
 
 drop costar_rent costar_status // <-- drop these variables so they update properly in the merge
-
 destring costar_id, replace
 
+* copy CoStar multifamily and historic rent data to $DATAPATH
+local from_path "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
+local to_path "$DATAPATH/analysis_setup_data/costar_mf_destring.dta",  replace
+
+copy `from_path' `to_path'
+
+local from_path "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
+local to_path "$DATAPATH/analysis_setup_data/costar_rent_hist.dta",  replace
+
+copy `from_path' `to_path'
+
 * merge on multifamily property characteristics
-merge m:1 costar_id using "$DATAPATH/costar/costar_mf_destring.dta" 
+merge m:1 costar_id using "$DATAPATH/analysis_setup_data/costar_mf_destring.dta" 
 
 	* checks for errors in merge
 	sum _merge
@@ -156,7 +193,7 @@ merge m:1 costar_id using "$DATAPATH/costar/costar_mf_destring.dta"
 	drop _merge
 	
 * merge on historic rents and replace when not missing
-merge m:1 fy costar_id using "$DATAPATH/costar/costar_rent_hist.dta" , keepusing(costar_rent)
+merge m:1 fy costar_id using "$DATAPATH/analysis_setup_data/costar_rent_hist.dta", keepusing(costar_rent)
 
 	* checks for errors in merge
 	sum _merge
@@ -182,7 +219,14 @@ replace AvgAskingUnit = costar_rent if costar_rent!=. // <-- use the historic re
 ********************************************************************************
 noisily display "Merging on warren group sales price data..."
 
-merge 1:1 prop_id fy using "$DATAPATH/warren/warren_sales_data.dta", keep(1 3)
+* copy CoStar multifamily and historic rent data to $DATAPATH
+local from_path "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
+local to_path "$DATAPATH/analysis_setup_data/warren_sales_data.dta",  replace
+
+copy `from_path' `to_path'
+
+* merge on sales data
+merge 1:1 prop_id fy using "$DATAPATH/analysis_setup_data/warren_sales_data.dta", keep(1 3)
 
 	* checks for errors in merge
 	sum _merge
@@ -775,3 +819,4 @@ noisily display "** END OF SETUP FILE **"
 
 // log close
 // clear all
+
