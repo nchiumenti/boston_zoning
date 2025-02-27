@@ -55,16 +55,12 @@ noisily display "Call with <do> to show the output in log file."
 ********************************************************************************
 noisily display "Loading final_dataset_10-28-2021.dta..."
 
-* copy final warren data to $DATAPATH
-local from_path "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
-local to_path "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta",  replace
+local data_file_path "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
 
-copy `from_path' `to_path'
+use `data_file_path', clear
 
 * confirm that you are using the correct input data file
-use "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta", clear
-
-if "`c(filename)'" != "$DATAPATH/analysis_setup_data/final_dataset_10-28-2021.dta" {
+if "`c(filename)'" != "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta" {
 	noisily display as error "Using the wrong input dataset."
 	noisily display as error "Should be using: /shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
 	noisily display as error "Currently using: `c(filename)'"
@@ -103,14 +99,10 @@ noisily assert `r(max)' ==  2018
 ********************************************************************************
 noisily display "Merging on closest stuff dataset..."
 
-* copy closest stuff data to $DATAPATH
-local from_path "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
-local to_path "$DATAPATH/analysis_setup_data/warren_MAPC_all_unique_closest_stuff.dta",  replace
-
-copy `from_path' `to_path'
-
 * merge on file with distance to closest school/river/road
-merge m:1 prop_id using "$DATAPATH/analysis_setup_data/warren_MAPC_all_unique_closest_stuff.dta", keepusing(closest_*)
+local data_file_path "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+
+merge m:1 prop_id using `data_file_path', keepusing(closest_*)
 	
 	* checks for errors in merge
 	sum _merge
@@ -131,14 +123,10 @@ merge m:1 prop_id using "$DATAPATH/analysis_setup_data/warren_MAPC_all_unique_cl
 ********************************************************************************
 noisily display "Merging on CPI dataset..."
 
-* copy CPI data to $DATAPATH
-local from_path "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
-local to_path "$DATAPATH/analysis_setup_data/CPI_2019.dta",  replace
-
-copy `from_path' `to_path'
-
 * merge con CPI data to adjust rents/prices into 2019 dollars
-merge m:1 year using "$DATAPATH/analysis_setup_data/CPI_2019.dta"
+local data_file_path "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
+
+merge m:1 year using `data_file_path'
 	
 	* checks for errors in merge
 	sum _merge
@@ -156,28 +144,18 @@ merge m:1 year using "$DATAPATH/analysis_setup_data/CPI_2019.dta"
 		
 ********************************************************************************
 ** Merge on Co-Star variables
-
-/* Two merges occur, first is the overall property characteristics, the second 
-is the rent history file. */
+* Two merges occur, first is the overall property characteristics, the second is
+* the rent history file.
 ********************************************************************************
 noisily display "Merging on CoStar datasets..."
 
 drop costar_rent costar_status // <-- drop these variables so they update properly in the merge
 destring costar_id, replace
 
-* copy CoStar multifamily and historic rent data to $DATAPATH
-local from_path "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
-local to_path "$DATAPATH/analysis_setup_data/costar_mf_destring.dta",  replace
-
-copy `from_path' `to_path'
-
-local from_path "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
-local to_path "$DATAPATH/analysis_setup_data/costar_rent_hist.dta",  replace
-
-copy `from_path' `to_path'
-
 * merge on multifamily property characteristics
-merge m:1 costar_id using "$DATAPATH/analysis_setup_data/costar_mf_destring.dta" 
+local data_file_path "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
+
+merge m:1 costar_id using `data_file_path'
 
 	* checks for errors in merge
 	sum _merge
@@ -193,7 +171,9 @@ merge m:1 costar_id using "$DATAPATH/analysis_setup_data/costar_mf_destring.dta"
 	drop _merge
 	
 * merge on historic rents and replace when not missing
-merge m:1 fy costar_id using "$DATAPATH/analysis_setup_data/costar_rent_hist.dta", keepusing(costar_rent)
+local data_file_path "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
+
+merge m:1 fy costar_id using `data_file_path', keepusing(costar_rent)
 
 	* checks for errors in merge
 	sum _merge
@@ -219,14 +199,10 @@ replace AvgAskingUnit = costar_rent if costar_rent!=. // <-- use the historic re
 ********************************************************************************
 noisily display "Merging on warren group sales price data..."
 
-* copy CoStar multifamily and historic rent data to $DATAPATH
-local from_path "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
-local to_path "$DATAPATH/analysis_setup_data/warren_sales_data.dta",  replace
-
-copy `from_path' `to_path'
-
 * merge on sales data
-merge 1:1 prop_id fy using "$DATAPATH/analysis_setup_data/warren_sales_data.dta", keep(1 3)
+local data_file_path "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
+
+merge 1:1 prop_id fy using `data_file_path', keep(1 3)
 
 	* checks for errors in merge
 	sum _merge
@@ -464,7 +440,7 @@ by lam_seg, sort : egen blah_sum = total(blah)
 tab blah_sum
 
 * drop if blah_sum indicates no observations on the other side
-keep if blah_sum == 2 // <-- 1,450,261 drops
+keep if blah_sum == 2  // <-- 1,450,261 drops
 
 * error checking
 sum lam_seg
@@ -477,12 +453,11 @@ sum lam_seg
 	
 ********************************************************************************
 ** Relaxed side of the boundary indicators
-
-/* Definition of which side of the boundary is relaxed:
-	treatment is: relaxing the regulation
-	height (more height = relaxed)
-	du (more density = relaxed)
-	mf (allowing mf = relaxed) */
+* Definition of which side of the boundary is relaxed. Treatment is relaxing the 
+* regulation where:
+*   - height (more height = relaxed)
+*   - du (more density = relaxed)
+*   - mf (allowing mf = relaxed)
 ********************************************************************************
 noisily display "Generating relaxed side of boundary indicators..."
 
@@ -537,10 +512,12 @@ replace relaxed2 = 1 if mf_he_du == 1 & mf_delta == 1 & he_delta>0 & du_delta<0
 replace relaxed2 = 1 if mf_he_du == 1 & mf_delta == 1 & he_delta<0 & du_delta>0
 replace relaxed2 = 1 if mf_he_du == 1 & mf_delta == -1 & he_delta>0 & du_delta>0
 
-/* Start of REStat additions on 3-27-2024
-	Additional definitions added for REStat work on 3-27-2024. These were added
-	so that if one regulation relaxes but another doesn't we still capture the 
-	boundary as relaxed. du dominates du_he, mf dominates mf_he mf_du */
+
+/* Additions made 3-27-2024:
+Additional definitions added for REStat work on 3-27-2024. These were added so 
+that if one regulation relaxes but another doesn't we still capture the boundary 
+as relaxed. du dominates du_he, mf dominates mf_he mf_du */
+
 
 ** <relaxed3> du dominates du_he, mf dominates mf_he mf_du 
 * relaxed 3: only 1 reg changes
@@ -580,17 +557,12 @@ replace relaxed4 = 1 if du_he == 1 & he_delta>0 & du_delta < 0
 replace relaxed4 = 1 if mf_he == 1 & mf_delta == 1 & he_delta > 0
 replace relaxed4 = 1 if mf_he == 1 & mf_delta == -1 & he_delta > 0
 
-
-
 * clear boundaries (du dominates du_he, mf dominates mf_he mf_du)
 gen clear_relaxed_strict_lam = 0 
 replace clear_relaxed_strict_lam = 1 if (only_du == 1 | only_he == 1 | only_mf == 1) // only one reg changes
 replace clear_relaxed_strict_lam = 1 if mf_du == 1 & ((mf_delta == 1 & du_delta > 0) | (mf_delta==-1 & du_delta<0)) // mf_du  // FLAG new in mc version
 replace clear_relaxed_strict_lam = 1 if mf_he == 1 & ((mf_delta == 1 & he_delta > 0) | (mf_delta==-1 & he_delta<0)) //mf_he  // FLAG new in mc version
 replace clear_relaxed_strict_lam = 1 if du_he == 1 & ((he_delta > 0 & du_delta > 0) | (he_delta<0 & du_delta<0)) //du_he  // FLAG new in mc version
-
-
-/* End of REStat additions */
 
 * error checking
 sum relaxed
@@ -607,6 +579,10 @@ sum relaxed2
 	noisily assert `r(max)' ==  1
 	noisily assert `r(sum)' ==  1573139
 
+sum relaxed3  // added for logging/error-check purposes
+
+sum relaxed4  // added for logging/error-check purposes
+
 
 ********************************************************************************
 ** Distance from the boundary variables
@@ -616,9 +592,6 @@ noisily display "Generating distance to boundary variables..."
 gen dist = boundary_dist
 gen dist_1 = boundary_dist
 gen dist_2 = boundary_dist^2
-
-/* differential running var on either side 
-(SUBSTITUTE RELAXED OR RELAXED2 DEPENDING ON WhAT WE DECIDE) */
 
 * distance based on <relaxed>
 gen dist_both = dist if relaxed == 1
@@ -643,9 +616,10 @@ egen dist3 = group(dist_group), label
 egen dist_group2 = cut(dist_both2), at(-0.5(0.02)0.5)
 egen dist3_2 = group(dist_group2), label
 
-/* Start of REStat Revisions from 03-27-2024
-	- add another distance variable for relaxed3 and relaxed4 */
-	*relaxed 3
+/* Additional revisions from 03-27-2024:
+Added another distance variable for relaxed3 and relaxed4 */
+
+* relaxed3 distance variable
 gen dist_both3 = dist if relaxed3 == 1
 	replace dist_both3 = (-1)*dist if relaxed3 == 0
 	
@@ -657,8 +631,7 @@ gen r_dist_both3 = strict3*dist_both3
 egen dist_group3 = cut(dist_both3), at(-0.5(0.02)0.5)
 egen dist3_3 = group(dist_group3), label
 
-*relaxed4  // FLAG new in mc version, below code is new
-
+* relaxed4 distance variable
 gen dist_both4 = dist if relaxed4 == 1
 	replace dist_both4 = (-1)*dist if relaxed4 == 0
 	
@@ -669,8 +642,6 @@ gen r_dist_both4 = strict4*dist_both4
 
 egen dist_group4 = cut(dist_both4), at(-0.5(0.02)0.5)
 egen dist3_4 = group(dist_group4), label
-
-/* End of REStat Revisions from 03-27-2024 */
 
 * error checking
 sum dist
@@ -694,7 +665,12 @@ sum r_dist_both
 	noisily assert `r(max)' ==  0
 	noisily assert `r(sum)' ==  -440526.9571855639
 
-	
+* added the following so they print to the log
+sum dist_both2
+sum dist_both3
+sum dist_both4
+
+
 ********************************************************************************
 ** Housing costs: Rents, house prices, last sales price
 ********************************************************************************
@@ -704,7 +680,7 @@ noisily display "Generating rents and house price variables..."
 replace AvgAskingUnit = AvgAskingUnit/fred_cpi
 
 * adjust assessed value for inflation 
-gen def_houseprice = assd_totval/fred_cpi // <-- NFC comment: this used to be the orginal house price variable
+gen def_houseprice = assd_totval/fred_cpi
 
 * calc house rent based on assessed value
 gen house_rent = ((def_houseprice/num_units)*0.0629)/12 
@@ -717,17 +693,17 @@ gen log_houseprice = log(house_rent)
 gen comb_rent1 = AvgAskingUnit 
 replace comb_rent1 = house_rent if comb_rent1==.
 
-	* code 99th percentiles as missing
-	egen comb1_99 = pctile(comb_rent1) if (res_typex != "Single Family Res"), p(99)
-	replace comb_rent1 = . if comb_rent1 > comb1_99
+* code 99th percentiles as missing
+egen comb1_99 = pctile(comb_rent1) if (res_typex != "Single Family Res"), p(99)
+replace comb_rent1 = . if comb_rent1 > comb1_99
 
 * gen combination rent #2: costar + assessed value house rent for non sinle family properties
 gen comb_rent2 = AvgAskingUnit if (res_typex != "Single Family Res")
 replace comb_rent2 = house_rent if (comb_rent2 == . & res_typex != "Single Family Res")
 	
-	* code 99th percentiles as missing
-	egen comb2_99 = pctile(comb_rent2) , p(99)
-	replace comb_rent2 = . if comb_rent2 > comb2_99
+* code 99th percentiles as missing
+egen comb2_99 = pctile(comb_rent2) , p(99)
+replace comb_rent2 = . if comb_rent2 > comb2_99
 	
 * gen the logs of rents
 gen log_combrent1 = log(comb_rent1)
@@ -748,7 +724,7 @@ sum ass_pct
 drop if (sale_pct<=2 | sale_pct>=98) & sale_pct !=. & res_typex == "Single Family Res" // NOTE! we do not drop the top/bottom 2% of assessed values
 
 * adjuste last sales price for inflation
-gen def_saleprice = last_salepr / fred_cpi // added 7/22/22, prior to this did not control for inflation
+gen def_saleprice = last_salepr / fred_cpi
 
 * log sales prices
 gen log_saleprice = ln(def_saleprice) if last_salepr > 0
@@ -767,7 +743,7 @@ sum def_houseprice
 sum log_combrent1
 	noisily assert `r(N)' ==  3167190
 	noisily assert `r(sum_w)' ==  3167190
-	noisily assert `r(mean)' ==   7.547702495636593 //7.547702495636594
+	noisily assert `r(mean)' ==   7.547702495636593 // was 7.547702495636594 in much older version, likely rounding error
 	noisily assert `r(Var)' ==  .509970895085293
 	noisily assert `r(sd)' ==  .7141224650473426
 	noisily assert `r(min)' ==  -1.503454442838915
@@ -783,17 +759,7 @@ sum log_combrent2
 	noisily assert `r(min)' ==  -1.503454442838915
 	noisily assert `r(max)' ==  8.516855684258472
 	noisily assert `r(sum)' ==  6524818.602936598
-/*
-sum def_saleprice
-	noisily assert `r(N)' ==  568782
-	noisily assert `r(sum_w)' ==  568782
-	noisily assert `r(mean)' ==  680570.7492073558 // 680570.7492073559
-	noisily assert `r(Var)' ==  4762897350715.571
-	noisily assert `r(sd)' ==  2182406.321177514
-	noisily assert `r(min)' ==  0
-	noisily assert `r(max)' ==  361534066.403122
-	noisily assert `r(sum)' ==  387096391875.6583
-*/   // FLAG new in mc version coded out asserts
+
 sum log_saleprice
 	noisily assert `r(N)' ==  568608
 	noisily assert `r(sum_w)' ==  568608
@@ -808,15 +774,20 @@ sum log_saleprice
 ********************************************************************************
 ** End
 ********************************************************************************
-save "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta", replace  // FLAG new in mc version changed name
+noisily display "Saving within_town_analysis.dta ..."
+noisily display "This will be the main dataset used in the analysis files"
+noisily display "Saving this file to $DATAPATH/within_town_analysis.dta"
 
+save "$DATAPATH/within_town_analysis.dta", replace
+
+* final summary of output for posterity
 tab year 
 
 noisily assert _N == 3199248
 
 noisily display "Done!"
-noisily display "** END OF SETUP FILE **"
+noisily display "** analysis_witin_town_setup.do has completed successfully **"
+noisily display " *☆*: .｡. o(≧▽≦)o .｡.:*☆*"
 
-// log close
-// clear all
-
+log close
+clear all

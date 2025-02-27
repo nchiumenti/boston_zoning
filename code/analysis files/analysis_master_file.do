@@ -37,7 +37,7 @@ any and all subsequent filepaths found within this directory.
 
 DATAPATH - This should be the main folder storing input data. For the analysis
 .do files this will encompass the following:
-    - final_dataset.dta
+    - within_town_analysis.dta
     - 2
     - 3
     - n
