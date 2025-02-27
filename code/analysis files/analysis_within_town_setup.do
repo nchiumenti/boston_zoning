@@ -783,19 +783,74 @@ sum log_saleprice
 
 
 ********************************************************************************
-** End
+** Save
 ********************************************************************************
 noisily display "Saving within_town_analysis_data.dta ..."
 noisily display "This will be the main dataset used in the analysis files"
 noisily display "Saving this file to $DATAPATH/within_town_analysis_data.dta"
 
-save "$DATAPATH/analysis_setup_data/within_town_analysis_data.dta", replace
+save "$DATAPATH/within_town_analysis_data.dta", replace
 
 * final summary of output for posterity
 tab year 
 
 noisily assert _N == 3199248
 
+
+********************************************************************************
+** Copy over the datasets that will be used in analysis files
+********************************************************************************
+
+* copy over the mt lines file
+confirm file "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+
+local from_path "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+local to_path   "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+
+copy `from_path' `to_path'
+
+* copy over the soil quality file
+confirm file "/shared/boston_zoning/working_paper/data/shapefiles/soil_quality/soil_quality_matches.dta"
+
+local from_path "/shared/boston_zoning/working_paper/data/shapefiles/soil_quality/soil_quality_matches.dta"
+local to_path   "$DATAPATH/soil_quality_matches.dta"
+
+copy `from_path' `to_path'
+
+* copy over the expanded regulations file
+confirm file "/shared/boston_zoning/working_paper/data/warren_zoning_regulations_match.dta"
+
+local from_path "/shared/boston_zoning/working_paper/data/warren_zoning_regulations_match.dta"
+local to_path   "$DATAPATH/warren_zoning_regulations_match.dta"
+
+copy `from_path' `to_path'
+
+* copy over block group data
+confirm file "/shared/boston_zoning/working_paper/data/acs/blocks_2010.dta"
+
+local from_path "/shared/boston_zoning/working_paper/data/acs/blocks_2010.dta"
+local to_path   "$DATAPATH/blocks_2010.dta"
+
+copy `from_path' `to_path'
+
+* copy over acs data
+confirm file "/shared/boston_zoning/working_paper/data/acs/acs_amenities.dta"
+
+local from_path "/shared/boston_zoning/working_paper/data/acs/acs_amenities.dta"
+local to_path   "$DATAPATH/acs_amenities.dta"
+
+copy `from_path' `to_path'
+
+
+
+
+
+
+
+
+********************************************************************************
+** End
+********************************************************************************
 noisily display "Done!"
 noisily display "** analysis_witin_town_setup.do has completed successfully **"
 noisily display " *☆*: .｡. o(≧▽≦)o .｡.:*☆*"

@@ -1,18 +1,28 @@
+* start here
 clear all
-
 log close _all
-
 set linesize 255
 
+local name ="bindingness"  // <--- change when necessry
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postREStat_bindingness" // <--- change when necessry
-
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
-* File name:		"postREStat_bindingness.do"
+* File name:		"bindingness.do"
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
 *
@@ -39,23 +49,12 @@ log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 * Created:			09/18/2024
 * Updated:			10/07/2024
 ********************************************************************************
-// * create a save directory if none exists
-global RDPATH "$FIGPATH/`name'_`date_stamp'"
-
-capture confirm file "$RDPATH"
-
-if _rc!=0 {
-	di "making directory $RDPATH"
-	shell mkdir $RDPATH
-}
-
-cd $RDPATH
 
 
 ********************************************************************************
 ** load and tempsave the mt lines data
 ********************************************************************************
-use  "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta", clear  // loads the version with additional regulation variables
+use  "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta", clear
 
 destring prop_id, replace
 
@@ -66,7 +65,7 @@ save `mtlines', replace
 ********************************************************************************
 ** load and tempsave the soil data
 ********************************************************************************
-use "$SHAPEPATH/soil_quality/soil_quality_matches.dta", clear
+use "$DATAPATH/soil_quality_matches.dta", clear
 
 keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
 
@@ -76,7 +75,6 @@ tempfile soil
 save `soil', replace
 
 
-*NEW POSTRESTAT
 ********************************************************************************
 ** load and regulations data to keep only the imputed flag variables
 ********************************************************************************
@@ -92,18 +90,9 @@ save `imputed_flags', replace
 ********************************************************************************
 ** create working dataset
 ********************************************************************************
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
+use "$DATAPATH/within_town_analysis_data.dta", clear
 
-* run postREStat within town setup file
-// do "$DOPATH/postREStat_within_town_setup.do"  // Note that this set up file may already exist without the data tage
-
-// do "$DOPATH/postREStat_within_town_setup_07102024.do"
-
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta", clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
-
-********************************************************************************
-** merge on soil quality data
-********************************************************************************
+* merge on soil quality data
 merge m:1 prop_id using `soil'
 	
 	* merge error check
@@ -120,11 +109,8 @@ merge m:1 prop_id using `soil'
 	drop if _merge == 2
 	drop _merge
 
-	
-********************************************************************************
-** merge on mt lines to keep straight line properties
-********************************************************************************
-merge m:1 prop_id using `mtlines', keepusing(straight_line home_minlotsize nn_minlotsize)   /*NEW POSTRESTAT - CHECK*/
+* merge on mt lines to keep straight line properties
+merge m:1 prop_id using `mtlines', keepusing(straight_line home_minlotsize nn_minlotsize)
 	
 	* merge error check
 	sum _merge
@@ -140,30 +126,21 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line home_minlotsize nn_mi
 	drop if _merge == 2
 	drop _merge
 
-keep if straight_line == 1 // <-- drops non-straight line properties
+keep if straight_line == 1  // <-- drops non-straight line properties
 
-
-********************************************************************************
-** drop out of scope years
-********************************************************************************
+* drop out of scope years
 keep if (year >= 2010 & year <= 2018)
 
 tab year
 
-
-********************************************************************************
-** merge on imputation flags for regulations
-********************************************************************************
+* merge on imputation flags for regulations
 merge m:1 prop_id using `imputed_flags'
 sum _merge
 
 drop if _merge == 2
 drop _merge 
 
-
-********************************************************************************
 ** merge on ACS characteristics
-********************************************************************************
 * merge on block data level characteristics
 merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replace
 	
@@ -211,10 +188,10 @@ gen soil_avgclay = avg_clay
 ********************************************************************************
 ** property characteristic variables
 ********************************************************************************
-gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0			// lot size in acres, excl zero acre --> NOW IN LOGS
-gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0		// living area in XX per unit, excl zero --> NOW IN LOGS
-gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0		// num bedrooms per unit, atleast 1
-gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0		// num full bathrooms per unit, atleast 1
+gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0  // lot size in acres, excl zero acre --> NOW IN LOGS
+gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0  // living area in XX per unit, excl zero --> NOW IN LOGS
+gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0  // num bedrooms per unit, atleast 1
+gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0  // num full bathrooms per unit, atleast 1
 
 gen log_lotacres = ln(lot_acres) if lot_acres!=0
 gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
@@ -222,8 +199,8 @@ gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
 * set control variables
 global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
 
-*global char_vars dist_road
-*global char_vars_duhe dist_road soil_avgslope soil_avgrestri
+// global char_vars dist_road
+// global char_vars_duhe dist_road soil_avgslope soil_avgrestri
 
 
 ********************************************************************************
@@ -231,7 +208,7 @@ global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num b
 ********************************************************************************
 gen log_land = log(assd_landval)
 
-*per squarefoot price of land 
+* per squarefoot price of land 
 gen land_per_sqft = assd_landval/lot_sizesqft
 gen log_land_per_sqft = log(land_per_sqft)
 
@@ -482,7 +459,6 @@ table boundary_reg, stat(count frac_binding_mls_05_all frac_binding_height_05_al
 
 table boundary_reg, stat(mean frac_binding_mls_10_all frac_binding_height_10_all frac_binding_far_10_all frac_binding_far_2_10_all frac_binding_maxdu_10_all frac_binding_mf) nformat(%4.3fc)
 table boundary_reg, stat(count frac_binding_mls_10_all frac_binding_height_10_all frac_binding_far_10_all frac_binding_far_2_10_all frac_binding_maxdu_10_all frac_binding_mf) nformat(%4.3fc)
-
 */
 
 		
