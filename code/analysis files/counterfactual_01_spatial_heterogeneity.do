@@ -1,59 +1,60 @@
+* start here
 clear all
-
 log close _all
-
 set linesize 255
 
-local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+local name = "counterfactual_01_spatial_heterogeneity"  // <--- change when necessry
 
-local name ="counterfactual_01_spatial_heterogeneity"  // <--- change when necessary
+local short_name = "counterfactual" // <-- specific to the counterfactual files to make an output dir
 
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
-
-
-********************************************************************************
-* File name:		"counterfactual_01_spatial_heterogeneity.do"
-*
-* Project title:	Boston Zoning Paper
-*
-* Description:		Runs the spatial heterogeneity file for boston zoning paper.
-*						Regression 1: linear probability rents and prices
-*							Part 1: loop over bandwidths for means
-*							Part 2(a-c): loop over bandwidth x polynomials for rents
-*							Part 3(a-c): loop over bandwith x polynomials for sales prices
-*						Regression 2: units spatial heterogeneity
-*							Part 4: loop over bandwidths for means >=1918
-*							Part 5(a-c): loop over bandwidth x polynomials for units >=1918
-*							Part 6: loop over bandwidths for means >=1956
-*							Part 7(a-c): loop over bandwith x polynomials for units >=1956
-* 				
-* Inputs:			./mt_orthogonal_dist_100m_07-01-22_v2.dta
-*					./final_dataset_10-28-2021.dta
-*				
-* Outputs:			./spatial_price_coeff_MAPCdefinition.dta
-*					./spatial_unit_coeff_MAPCdefinition.dta
-*
-* Created:			09/21/2021
-* Updated:			02/11/2025
-********************************************************************************
-
-* create a save directory if none exists
-global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`short_name'_output"
 
 capture confirm file "$EXPORTPATH"
 
-if _rc!=0 {
+if _rc != 0 {
 	di "making directory $EXPORTPATH"
 	shell mkdir $EXPORTPATH
 }
 
-cd $EXPORTPATH
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
+
+
+********************************************************************************
+* File name:		counterfactual_01_spatial_heterogeneity.do
+*
+* Project title:	Boston Zoning Paper
+*
+* Description:		Runs the spatial heterogeneity file for boston zoning paper.
+*					Regression 1: linear probability rents and prices
+*						Part 1: loop over bandwidths for means
+*						Part 2(a-c): loop over bandwidth x polynomials for rents
+*						Part 3(a-c): loop over bandwith x polynomials for sales prices
+*					Regression 2: units spatial heterogeneity
+*						Part 4: loop over bandwidths for means >=1918
+*						Part 5(a-c): loop over bandwidth x polynomials for units >=1918
+*						Part 6: loop over bandwidths for means >=1956
+*						Part 7(a-c): loop over bandwith x polynomials for units >=1956
+* 				
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					final_dataset_10-28-2021.dta
+*				
+* Outputs:			spatial_price_coeff_MAPCdefinition.dta
+*					spatial_unit_coeff_MAPCdefinition.dta
+*					log output
+*
+* Created:			09/21/2021
+* Updated:			02/27/2025
+********************************************************************************
 
 
 ********************************************************************************
 ** load the mt lines data
 ********************************************************************************
-use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
@@ -62,22 +63,11 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** create the working dataset
+** create working dataset
 ********************************************************************************
-* load final dataset
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
+use "$DATAPATH/within_town_analysis_data.dta", clear
 
-* run the within town data setup file
-// run "$DOPATH/postQJE_within_town_setup.do"
-
-* use Mike Corbetts intermediary file to cut down on time
-// run "$DOPATH/postREStat_within_town_setup_07102024.do"
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
-
-
-********************************************************************************
-** merge on mt lines to keep straight line properties
-********************************************************************************
+* merge on mt lines to keep straight line properties
 merge m:1 prop_id using `mtlines', keepusing(straight_line)
 drop if _merge == 2
 drop _merge
@@ -827,7 +817,7 @@ reshape long t_dupac_coeff_renters_c dupac_coeff_renters_c dupac_se_renters_c
 ********************************************************************************
 ** regression 1 save output data 
 ********************************************************************************
-save "spatial_price_coeff_MAPCdefinition.dta", replace
+save "$EXPORTPATH/spatial_price_coeff_MAPCdefinition.dta", replace
 
 restore  // restores data in memory to pre reg 1 state
 
@@ -1248,7 +1238,7 @@ reshape long t_dupac_coeff_u18_c dupac_coeff_u18_c dupac_se_u18_c
 ********************************************************************************
 ** regression 2 save output data 
 ********************************************************************************
-save "spatial_unit_coeff_MAPCdefinition.dta", replace
+save "$EXPORTPATH/spatial_unit_coeff_MAPCdefinition.dta", replace
 
 restore  // restores data in memory to pre reg 2 state
 

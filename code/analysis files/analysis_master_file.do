@@ -52,8 +52,9 @@ The follwing is the recommended folder structure:
      |-- ./analysis (subdirectories will be created and defined as EXPORTPATH within corresponding .do files)
      |--  |-- ./analysis_within_town_setup_output
      |    |-- ./bindingness_output
-     |    |-- 
-     |    |-- 
+     |    |-- ./counterfactual_output     
+     |    |-- ./external_effects_output
+     |    |-- ./predicted_prices_mtlines_output
      |    |-- 
      |    |-- 
      |    |-- 
@@ -61,10 +62,7 @@ The follwing is the recommended folder structure:
      |    |-- analysis_master_file.do
      |    |-- analysis_within_town_setup.do
      |-- ./data (this will be DATAPATH)
-     |    |-- ./analysis_setup_data
-     |    |-- ./fred_cpi
-     |    |-- ./costar
-     |    |-- ./warren
+
 */
 
 global WORKINGDIR ""

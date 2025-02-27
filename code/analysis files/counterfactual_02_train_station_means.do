@@ -1,14 +1,26 @@
+* start here
 clear all
-
 log close _all
-
 set linesize 255
 
+local name = "counterfactual_01_spatial_heterogeneity"  // <--- change when necessry
+
+local short_name = "counterfactual" // <-- specific to the counterfactual files to make an output dir
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`short_name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="counterfactual_02_train_stations_means" // <--- change when necessry
-
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
@@ -20,42 +32,25 @@ log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
 *					calculated means around train stations using the finalized 
 *					set of warren group data.
 * 				
-* Inputs:			under $DATAPATH
-*						./mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
-*						./train_stops/station_boundary_dist.csv
-*						./shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269
-*				
-*					under $SHAPEPATH
-*						./originals/cb_2018_25_cousub_500k_shp.dta
-*						./originals/cb_2018_25_cousub_500k.dta
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					within_town_analysis_data.dta
+*					station_boundary_dist.csv
+*					adm3_crs4269.dta
+*					cb_2018_25_cousub_500k_shp.dta
+*					b_2018_25_cousub_500k.dta
+*					all_stations.csv
 *
-* Outputs:			under $EXPORTPATH
-*						./train_station_means.dta
+* Outputs:			train_station_means.dta
+*					log output
 *
 * Created:			05/23/2022
-* Updated:			02/17/2025
+* Updated:			02/27/2025
 ********************************************************************************
-
-* create a save directory if none exists
-global EXPORTPATH "$DATAPATH/counterfactual_data_exports/`name'_`date_stamp'"
-
-capture confirm file "$EXPORTPATH"
-
-if _rc!=0 {
-	di "making directory $EXPORTPATH"
-	shell mkdir $EXPORTPATH
-}
-
-cd $EXPORTPATH
-
 
 ********************************************************************************
 ** load striaght line and final dataset (warren properties)
-/* run with the within town setup file and keep striaght line properties to keep 
-the sample the same and to calc things like sales price and rent, keep only 
-year==2018 to calc means*/
 ********************************************************************************
-use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
@@ -64,21 +59,11 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** create the working dataset
+** create working dataset
 ********************************************************************************
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
+use "$DATAPATH/within_town_analysis_data.dta", clear
 
-* run postQJE within town setup file
-// run "$DOPATH/postQJE_within_town_setup.do"
-
-* use Mike Corbetts intermediary file to cut down on time
-// run "$DOPATH/postREStat_within_town_setup_07102024.do"
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output mike created from running the above within_town_setup_07102024.do file
-
-
-********************************************************************************
-** merge on mt lines to keep straight line properties
-********************************************************************************
+* merge on mt lines to keep straight line properties
 merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	
 	* check merge for errors
@@ -96,7 +81,7 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	drop if _merge == 2
 	drop _merge
 
-keep if straight_line == 1 // <-- drops non-straight line properties
+keep if straight_line == 1  // <-- drops non-straight line properties
 
 keep if year == 2018
 
@@ -112,7 +97,7 @@ save `warren', replace
 which calcs distance from train stations to all boundaries and keeps only those
 boundaries witin .5 miles */
 ********************************************************************************
-import delimited "$DATAPATH/train_stops/station_boundary_dist.csv", clear stringcols(_all)
+import delimited "$DATAPATH/station_boundary_dist.csv", clear stringcols(_all)
 
 * trim variables
 keep station_id station_name station_lat station_lon boundary_using_id left_fid right_fid dist_meters dist_miles
@@ -124,9 +109,9 @@ order station_id station_name station_lat station_lon boundary_using_id left_fid
 ********************************************************************************
 destring station_lat station_lon, replace
 
-geoinpoly station_lat station_lon using "$SHAPEPATH/originals/cb_2018_25_cousub_500k_shp.dta"
+geoinpoly station_lat station_lon using "$DATAPATH/cb_2018_25_cousub_500k_shp.dta"
 
-merge m:1 _ID using "$SHAPEPATH/originals/cb_2018_25_cousub_500k.dta", keepusing(NAME)
+merge m:1 _ID using "$DATAPATH/cb_2018_25_cousub_500k.dta", keepusing(NAME)
 
 	* merge error checks
 	sum _merge
@@ -257,16 +242,13 @@ drop if def_name == ""  // drop unassigned cities and towns
 ********************************************************************************
 * confirm that obs are unique at station_id boundary_id level
 unique station_id boundary_using_id
-	//assert `r(N)' ==  31689
-	//assert `r(sum)' ==  31689
-	//assert `r(unique)' ==  31689
 
 * merge on left/right boundary ids
 destring boundary_using_id, replace
 
-gen _ID = boundary_using_id + 1 // <-- to match properly add 1, python ID's start at 0
+gen _ID = boundary_using_id + 1  // <-- to match properly add 1, python ID's start at 0
 
-merge m:1 _ID using "$DATAPATH/shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269", keepusing(LEFT_FID RIGHT_FID)
+merge m:1 _ID using "$DATAPATH/adm3_crs4269.dta", keepusing(LEFT_FID RIGHT_FID)
 	
 	* check merge for errors
 	sum _merge
@@ -301,7 +283,7 @@ reshape long FID_, i(station_id boundary_using_id) j(SIDE) string
 
 rename FID_ LRID
 
-merge m:1 LRID using "$DATAPATH/regulation_data/regulation_types.dta", keepusing(mulfam mxht_eff dupac_eff)
+merge m:1 LRID using "$DATAPATH/regulation_types.dta", keepusing(mulfam mxht_eff dupac_eff)
 
 	* check merge for errors
 	sum _merge
@@ -595,7 +577,7 @@ merge 1:1 station_id station_name station_lat station_lon def_1 def_name boundar
 ********************************************************************************
 * add back line layer variables
 preserve
-	import delimited "$DATAPATH/train_stops/all_stations.csv", clear stringcols(_all)
+	import delimited "$DATAPATH/all_stations.csv", clear stringcols(_all)
 	tempfile stations
 	save `stations', replace
 restore
@@ -633,9 +615,9 @@ unique station_id
 * export with town names
 destring station_lat station_lon, replace
 
-geoinpoly station_lat station_lon using "$SHAPEPATH/originals/cb_2018_25_cousub_500k_shp.dta"
+geoinpoly station_lat station_lon using "$DATAPATH/cb_2018_25_cousub_500k_shp.dta"
 
-merge m:1 _ID using "$SHAPEPATH/originals/cb_2018_25_cousub_500k.dta", keepusing(NAME)
+merge m:1 _ID using "$DATAPATH/cb_2018_25_cousub_500k.dta", keepusing(NAME)
 
 	* drop merge vars
 	keep if _merge == 3
@@ -654,8 +636,8 @@ rename MUNI_NAME cousub_name
 drop NAME
 
 * save file
-pwd
-save "train_station_means.dta", replace
+di $EXPORTPATH
+save "$EXPORTPATH/train_station_means.dta", replace
 
 
 ********************************************************************************

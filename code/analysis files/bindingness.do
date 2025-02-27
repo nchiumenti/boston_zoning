@@ -39,15 +39,18 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 * 						5B: Sales prices > 15% , characteristics 
 * 						5E: Rents > 15% , no characteristics 
 * 						5F: Rents > 15% , characteristics 	
-* Inputs:			from $DATAPATH/
-*						./mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta
-*						./soil_quality/soil_quality_matches.dta
-*						./warren_zoning_regulations_match.dta
+*
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_moreregs.dta
+*					soil_quality_matches.dta
+*					warren_zoning_regulations_match.dta
+*					within_town_analysis_data.dta
+*					blocks_2010.dta
+*					acs_amenities.dta
 *	
 * Outputs:			log output only
 *
 * Created:			09/18/2024
-* Updated:			10/07/2024
+* Updated:			02/27/2027
 ********************************************************************************
 
 
@@ -142,7 +145,7 @@ drop _merge
 
 ** merge on ACS characteristics
 * merge on block data level characteristics
-merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replace
+merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
 	
 	* summarize _merge var and drop
 	tab _merge
@@ -153,7 +156,7 @@ merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replac
 gen BLKGRP = substr(warren_GEOID_full,1,12)
 
 * merge on ace amenities dataset
-merge m:1 year BLKGRP using "$DATAPATH/acs/acs_amenities.dta", keepusing(B19113001)
+merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
 
 	* summarize merge and drop
 	tab _merge

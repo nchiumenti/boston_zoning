@@ -1,60 +1,57 @@
+* start here
 clear all
-
 log close _all
-
 set linesize 255
 
+local name = "external_effects"  // <--- change when necessry
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="external_effects" // <--- change when necessry
-
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 
 
 ********************************************************************************
-* File name:		"external_effects.do"
+* File name:		external_effects.do
 *
-* Project title:	Boston Affordable Housing project (visting scholar porject)
+* Project title:	Boston Zoning Project
 *
-* Description:		A shortened and cleanred version of the external effects 
+* Description:		A shortened and cleaned version of the external effects 
 *                   file, last run by MC on 2/3/2025. 
 *
 *                   Near-far external lot analysis following Turner et al.
 * 			        striaght line boundaries (matt turner orthogona lines)
 * 			        for house prices, rents. regression output is tables only.
 *			        printed w/o characteristics or exclusions (a) and w/ (b).
-*			
-*			a: baseline
-*			b: control for house characteristics --> this should be preferred specification
 *
-*			Contents:
-*				Part 1(a-b): Sales prices baseline + controls 
-*				Part 2(a-b): Rents baseline + controls 
+*					Contents:
+*						Part 1(a-b): Sales prices baseline + controls 
+*						Part 2(a-b): Rents baseline + controls 
 * 				
-* Inputs:		
+* Inputs:		mt_orthogonal_dist_100m_07-01-22_moreregs.dta
+*				within_town_analysis_data.dta
 *				
-* Outputs:		
+* Outputs:		log output only
 *
 * Created:		04/11/2024
-* Updated:      02/03/2025
+* Updated:      02/27/2025
 ********************************************************************************
-* create a save directory if none exists
-global EXPORTPATH "$FIGPATH/`name'_`date_stamp'"
-
-capture confirm file "$EXPORTPATH"
-
-if _rc!=0 {
-	di "making directory $EXPORTPATH"
-	shell mkdir $EXPORTPATH
-}
-
-cd $EXPORTPATH
 
 
 ********************************************************************************
-** load the mt lines data
+** load and tempsave the mt lines data
 ********************************************************************************
-use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use  "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta", clear
 
 destring prop_id, replace
 
@@ -63,19 +60,11 @@ save `mtlines', replace
 
 
 ********************************************************************************
-** create working dataset for analysis
+** create working dataset
 ********************************************************************************
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear <-- this is the OG dataset, it is commented out because a post setup version loaded on line 80
+use "$DATAPATH/within_town_analysis_data.dta", clear
 
-** run postQJE within town setup file
-// run "$DOPATH/postREStat_within_town_setup.do" <-- this was the original setup file used in this .do
-// run "$DOPATH/postREStat_within_town_setup_07102024.do" <-- this is a newer one but i am unsure what if any differences it has
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear  // <-- this is the output that happens after running line 70 and 78, use this to cut down on time.
-
-
-********************************************************************************
 ** merge on mt lines to keep straight line properties
-********************************************************************************
 merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	
 	* checks for errors in merge
@@ -92,12 +81,9 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	drop if _merge == 2
 	drop _merge
 
-keep if straight_line == 1 // <-- drops non-straight line properties
+keep if straight_line == 1  // <-- drops non-straight line properties
 
-
-********************************************************************************
 ** drop out of scope years
-********************************************************************************
 keep if (year >= 2010 & year <= 2018)
 
 tab year
@@ -106,10 +92,10 @@ tab year
 ********************************************************************************
 ** property characteristic variables
 ********************************************************************************
-gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0			// lot size in acres, excl zero acre --> NOW IN LOGS
-gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0		// living area in XX per unit, excl zero --> NOW IN LOGS
-gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0		// num bedrooms per unit, atleast 1
-gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0		// num full bathrooms per unit, atleast 1
+gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0  // lot size in acres, excl zero acre --> NOW IN LOGS
+gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0  // living area in XX per unit, excl zero --> NOW IN LOGS
+gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0  // num bedrooms per unit, atleast 1
+gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0  // num full bathrooms per unit, atleast 1
 
 gen log_lotacres = ln(lot_acres) if lot_acres!=0
 gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
@@ -184,7 +170,7 @@ forvalues i = 0.15 {
 		label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
 		title("Sales Prices w/ characteristics") 
 		
-	*ChEcK RESTAT: keep only the coefficients that have interior interaction with them 	  
+	*Check RESTAT: keep only the coefficients that have interior interaction with them 	  
 	esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2 using "$RDPATH/salesprice_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) ///
 		se r2 indicate("Boundary f.e.=*lam_seg" "Sale year f.e.=*last_saleyr" "Year built f.e.=*year_built") interaction(" X ") ///
 		label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///

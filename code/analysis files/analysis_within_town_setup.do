@@ -3,7 +3,7 @@ clear all
 log close _all
 set linesize 255
 
-local name ="analysis_within_town_setup"  // <--- change when necessry
+local name = "analysis_within_town_setup"  // <--- change when necessry
 
 * creates an output directory if none exists
 global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
@@ -66,7 +66,7 @@ confirm file "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
 ********************************************************************************
 noisily display "Loading final_dataset_10-28-2021.dta..."
 
-local data_file_path "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
 
 use `data_file_path', clear
 
@@ -111,7 +111,7 @@ noisily assert `r(max)' ==  2018
 noisily display "Merging on closest stuff dataset..."
 
 * merge on file with distance to closest school/river/road
-local data_file_path "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
 
 merge m:1 prop_id using `data_file_path', keepusing(closest_*)
 	
@@ -135,7 +135,7 @@ merge m:1 prop_id using `data_file_path', keepusing(closest_*)
 noisily display "Merging on CPI dataset..."
 
 * merge con CPI data to adjust rents/prices into 2019 dollars
-local data_file_path "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
 
 merge m:1 year using `data_file_path'
 	
@@ -164,7 +164,7 @@ drop costar_rent costar_status // <-- drop these variables so they update proper
 destring costar_id, replace
 
 * merge on multifamily property characteristics
-local data_file_path "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
 
 merge m:1 costar_id using `data_file_path'
 
@@ -182,7 +182,7 @@ merge m:1 costar_id using `data_file_path'
 	drop _merge
 	
 * merge on historic rents and replace when not missing
-local data_file_path "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
 
 merge m:1 fy costar_id using `data_file_path', keepusing(costar_rent)
 
@@ -211,7 +211,7 @@ replace AvgAskingUnit = costar_rent if costar_rent!=. // <-- use the historic re
 noisily display "Merging on warren group sales price data..."
 
 * merge on sales data
-local data_file_path "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
 
 merge 1:1 prop_id fy using `data_file_path', keep(1 3)
 
@@ -804,48 +804,113 @@ noisily assert _N == 3199248
 * copy over the mt lines file
 confirm file "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
 
-local from_path "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
-local to_path   "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+local from_path = "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+local to_path = "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
 
 copy `from_path' `to_path'
 
 * copy over the soil quality file
 confirm file "/shared/boston_zoning/working_paper/data/shapefiles/soil_quality/soil_quality_matches.dta"
 
-local from_path "/shared/boston_zoning/working_paper/data/shapefiles/soil_quality/soil_quality_matches.dta"
-local to_path   "$DATAPATH/soil_quality_matches.dta"
+local from_path = "/shared/boston_zoning/working_paper/data/shapefiles/soil_quality/soil_quality_matches.dta"
+local to_path = "$DATAPATH/soil_quality_matches.dta"
 
 copy `from_path' `to_path'
 
 * copy over the expanded regulations file
 confirm file "/shared/boston_zoning/working_paper/data/warren_zoning_regulations_match.dta"
 
-local from_path "/shared/boston_zoning/working_paper/data/warren_zoning_regulations_match.dta"
-local to_path   "$DATAPATH/warren_zoning_regulations_match.dta"
+local from_path = "/shared/boston_zoning/working_paper/data/warren_zoning_regulations_match.dta"
+local to_path = "$DATAPATH/warren_zoning_regulations_match.dta"
 
 copy `from_path' `to_path'
 
 * copy over block group data
 confirm file "/shared/boston_zoning/working_paper/data/acs/blocks_2010.dta"
 
-local from_path "/shared/boston_zoning/working_paper/data/acs/blocks_2010.dta"
-local to_path   "$DATAPATH/blocks_2010.dta"
+local from_path = "/shared/boston_zoning/working_paper/data/acs/blocks_2010.dta"
+local to_path = "$DATAPATH/blocks_2010.dta"
 
 copy `from_path' `to_path'
 
 * copy over acs data
 confirm file "/shared/boston_zoning/working_paper/data/acs/acs_amenities.dta"
 
-local from_path "/shared/boston_zoning/working_paper/data/acs/acs_amenities.dta"
-local to_path   "$DATAPATH/acs_amenities.dta"
+local from_path = "/shared/boston_zoning/working_paper/data/acs/acs_amenities.dta"
+local to_path = "$DATAPATH/acs_amenities.dta"
 
 copy `from_path' `to_path'
 
+* copy over distance to south station data
+confirm file "/shared/boston_zoning/working_paper/data/train_stops/dist_south_station_2022_09_29.csv"
 
+local from_path = "/shared/boston_zoning/working_paper/data/train_stops/dist_south_station_2022_09_29.csv"
+local to_path = "$DATAPATH/dist_south_station_2022_09_29.csv"
 
+copy `from_path' `to_path'
 
+* copy over transit distance data
+confirm file "/shared/boston_zoning/working_paper/data/train_stops/transit_distance.csv"
 
+local from_path = "/shared/boston_zoning/working_paper/data/train_stops/transit_distance.csv"
+local to_path = "$DATAPATH/transit_distance.csv"
 
+copy `from_path' `to_path'
+
+* copy over walkability data
+confirm file "/shared/boston_zoning/working_paper/data/warren/warren_group_walkability.dta"
+
+local from_path = "/shared/boston_zoning/working_paper/data/warren/warren_group_walkability.dta"
+local to_path = "$DATAPATH/warren_group_walkability.dta"
+
+copy `from_path' `to_path'
+
+* copy over station boundary distance data
+confirm file "/shared/boston_zoning/working_paper/data/train_stops/station_boundary_dist.csv"
+
+local from_path = "/shared/boston_zoning/working_paper/data/train_stops/station_boundary_dist.csv"
+local to_path = "$DATAPATH/station_boundary_dist.csv"
+
+copy `from_path' `to_path'
+
+* copy over county subdivision shape data
+confirm file "/shared/boston_zoning/working_paper/data/shapefiles/originals/cb_2018_25_cousub_500k_shp.dta"
+
+local from_path = "/shared/boston_zoning/working_paper/data/shapefiles/originals/cb_2018_25_cousub_500k_shp.dta"
+local to_path = "$DATAPATH/cb_2018_25_cousub_500k_shp.dta"
+
+copy `from_path' `to_path'
+
+confirm file "/shared/boston_zoning/working_paper/data/shapefiles/originals/cb_2018_25_cousub_500k.dta"
+
+local from_path = "/shared/boston_zoning/working_paper/data/shapefiles/originals/cb_2018_25_cousub_500k.dta"
+local to_path = "$DATAPATH/cb_2018_25_cousub_500k.dta"
+
+copy `from_path' `to_path'
+
+* copy over boundary shape data
+confirm file "/shared/boston_zoning/working_paper/data/shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269.dta"
+
+local from_path = "/shared/boston_zoning/working_paper/data/shapefiles/zoning_boundaries/adm3_crs4269/adm3_crs4269.dta"
+local to_path = "$DATAPATH/adm3_crs4269.dta"
+
+copy `from_path' `to_path'
+
+* copy over regulation data
+confirm file "/shared/boston_zoning/working_paper/data/regulation_data/regulation_types.dta"
+
+local from_path = "/shared/boston_zoning/working_paper/data/regulation_data/regulation_types.dta"
+local to_path = "$DATAPATH/regulation_types.dta"
+
+copy `from_path' `to_path'
+
+* copy over all train stations data
+confirm file "/shared/boston_zoning/working_paper/data/train_stops/all_stations.csv"
+
+local from_path = "/shared/boston_zoning/working_paper/data/train_stops/all_stations.csv"
+local to_path = "$DATAPATH/all_stations.csv"
+
+copy `from_path' `to_path'
 
 
 ********************************************************************************
