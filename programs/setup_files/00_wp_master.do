@@ -1,118 +1,33 @@
 ********************************************************************************
-* File name:		"analysis_master_file.do"
+* File name:		"00_wp_master.do"
 *
-* Project title:	Boston Zoning Project
+* Project title:	Boston Affordable Housing project (visting scholar porject)
 *
-* Description:
+* Description:		Current working directories are S drive for working paper folders
 * 				
-* Inputs:
+* Inputs:		n/a
 *				
-* Outputs:
+* Outputs:		n/a
 *
-* Created:
-* Last updated:
+* Created:		12/08/2020
+* Last updated:		12/22/2022
 ********************************************************************************
 
-********************************************************************************
-** Clear data, define settings
-********************************************************************************
 clear all
+
 log close _all
 
 set more off, perm
+
 set type double
+
 set seed 123456
+
 set linesize 255
-set graphics on
 
 pause off
 
-********************************************************************************
-** Define paths
-********************************************************************************
-/* Description of file paths:
-
-WORKINGDIR - This should be the main working directory of the project, with 
-any and all subsequent filepaths found within this directory.
-
-DATAPATH - This should be the main folder storing input data. For the analysis
-.do files this will encompass the following:
-    - final_dataset.dta
-    - 2
-    - 3
-    - n
-
-EXPORTPATH - This path will vary and is defined seperately within each .do file. 
-The will be unique to the .do file and will take the form of "./<.do file name>" 
-and will store any output including, logs, figures, tables, datasets, etc.
-
-
-The follwing is the recommended folder structure:
-|-- ./project folder (this will be WORKINGDIR)
-     |-- ./analysis (subdirectories will be created and defined as EXPORTPATH within corresponding .do files)
-     |    |-- ./bindingness_output
-     |    |-- 
-     |    |-- 
-     |    |-- 
-     |    |-- 
-     |    |-- 
-     |-- ./code (this will be $DOPATH)
-     |    |-- analysis_master_file.do
-     |    |-- analysis_within_town_setup.do
-     |-- ./final_data (this will be DATAPATH)
-     |    |-- ./analysis_setup_data
-     |    |-- ./fred_cpi
-     |    |-- ./costar
-     |    |-- ./warren
-*/
-
-global WORKINGDIR ""
-
-global DATAPATH ""
-
-global DOPATH ""
-
-global EXPORTPATH ""
-
-cd $WORKINGDIR
-
-check for data files needed for analysis
-
-
-********************************************************************************
-** Run analysis .do files
-********************************************************************************
-/* Description of .do file order:
-Generally the analysis .do files can be run in any order. There are two (2) 
-exceptions, however. 
-
-1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
-that is used throughout the analysis files.
-
-2) the counterfactual files must be run in the order noted by their numerical 
-infix, i.e. counterfactual_01.. is run first, then counterfactual_02.., etc.
-
-All other analysis .do files can be run in any order.
-*/
-
-do ""
-
-do ""
-
-
-
-
-
-
-
-
-
-/* old code below this point
-
-
-
-
-
+set graphics on
 
 * set paths, passed to called .do files
 global DATAPATH "/shared/boston_zoning/working_paper/data"
@@ -133,8 +48,6 @@ cd "$DOPATH"
 // copy "/shared/warren/data/dta/MA/MA_prop_merged.dta" "$DATAPATH/warren/originals/MA_prop_merged.dta", replace
 
 stop
-
-
 
 
 ********************************************************************************

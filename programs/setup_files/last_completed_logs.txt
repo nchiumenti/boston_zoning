@@ -1,0 +1,43 @@
+# By file root (e..g, '*bindingness*') - what is the last log file present in $LOGPATH
+
+
+====
+File Name: postREStat_bindingness_log_2024-10-21.log
+Last Modified: 2024-10-21 13:02:49.696987
+====
+====
+File Name: postREStat_external_effects_07122024_log_2024-09-16.log
+Last Modified: 2024-09-16 17:07:39.788194
+====
+====
+File Name: postrestat_means_log_2024-11-01.log
+Last Modified: 2024-11-01 12:18:57.732556
+====
+====
+File Name: postQJE_predicted_prices_mtlines_log_mtlines_2024-10-21.log
+Last Modified: 2024-10-21 07:17:06.536879
+====
+====
+File Name: postREStat_rd_amenities_mtlines_log_2024-10-23.log
+Last Modified: 2024-10-23 12:37:26.006657
+====
+====
+File Name: postREstat_rd_amenities_muni_boundary_log_2024-10-08.log
+Last Modified: 2024-10-08 16:49:47.702989
+====
+====
+File Name: postREStat_rd_chars_mtlines_log_2024-11-01.log
+Last Modified: 2024-11-01 12:39:31.259694
+====
+====
+File Name: postREStat_rd_main_mtlines_log_2024-11-01.log
+Last Modified: 2024-11-01 15:54:25.797423
+====
+====
+File Name: postREStat_rd_robustness_mtlines_log_2024-11-01.log
+Last Modified: 2024-11-01 17:21:58.459385
+====
+====
+File Name: postQJE_regulation_map_mtlines_log_2024-10-21.log
+Last Modified: 2024-10-21 11:37:39.149662
+====
