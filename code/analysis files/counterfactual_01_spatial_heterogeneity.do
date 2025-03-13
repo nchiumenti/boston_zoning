@@ -267,7 +267,7 @@ gen dupac_dXh_s_o_c_20_x3 = .
 gen height_dXh_s_o_c_20_x3 = .
 gen duXhe_dXh_s_o_c_20_x3 = .
 
-* direct effects, renters, mf_du
+* direct effects, owners, mf_du
 gen dupac_dXmf_c_o_c_20_x1 = .
 gen mf_dXmf_c_o_c_20_x1 = .
 gen duXmf_dXmf_c_o_c_20_x1 = .
@@ -288,6 +288,70 @@ gen mf_se_owners_c_20_x1 = .
 
 gen mf_coeff_owners_c_20_x3 = .
 gen mf_se_owners_c_20_x3 = .
+
+** define coeff stores for boundary bins of 0.02
+* direct effects, only_du
+gen dupac_coeff_renters_c_2_x1 = .
+gen dupac_coeff_owners_c_2_x1 = .
+gen dupac_se_renters_c_2_x1 = .
+gen dupac_se_owners_c_2_x1 = .
+
+gen dupac_coeff_renters_c_2_x3 = .
+gen dupac_coeff_owners_c_2_x3 = .
+gen dupac_se_renters_c_2_x3 = .
+gen dupac_se_owners_c_2_x3 = .
+
+* direct effects, du_he, renters
+gen dupac_dXh_c_r_c_2_x1 = .
+gen height_dXh_c_r_c_2_x1 = .
+gen duXhe_dXh_c_r_c_2_x1 = .
+gen dupac_dXh_s_r_c_2_x1 = .
+gen height_dXh_s_r_c_2_x1 = .
+gen duXhe_dXh_s_r_c_2_x1 = .
+
+gen dupac_dXh_c_r_c_2_x3 = .
+gen height_dXh_c_r_c_2_x3 = .
+gen duXhe_dXh_c_r_c_2_x3 = .
+gen dupac_dXh_s_r_c_2_x3 = .
+gen height_dXh_s_r_c_2_x3 = .
+gen duXhe_dXh_s_r_c_2_x3 = .
+	
+* direct effects, du_he, owners
+gen dupac_dXh_c_o_c_2_x1 = .
+gen height_dXh_c_o_c_2_x1 = .
+gen duXhe_dXh_c_o_c_2_x1 = .
+gen dupac_dXh_s_o_c_2_x1 = .
+gen height_dXh_s_o_c_2_x1 = .
+gen duXhe_dXh_s_o_c_2_x1 = .
+
+gen dupac_dXh_c_o_c_2_x3 = .
+gen height_dXh_c_o_c_2_x3 = .
+gen duXhe_dXh_c_o_c_2_x3 = .
+gen dupac_dXh_s_o_c_2_x3 = .
+gen height_dXh_s_o_c_2_x3 = .
+gen duXhe_dXh_s_o_c_2_x3 = .
+
+* direct effects, mf_du, owners
+gen dupac_dXmf_c_o_c_2_x1 = .
+gen mf_dXmf_c_o_c_2_x1 = .
+gen duXmf_dXmf_c_o_c_2_x1 = .
+gen dupac_dXmf_s_o_c_2_x1 = .
+gen mf_dXmf_s_o_c_2_x1 = .
+gen duXmf_dXmf_s_o_c_2_x1 = .
+
+gen dupac_dXmf_c_o_c_2_x3 = .
+gen mf_dXmf_c_o_c_2_x3 = .
+gen duXmf_dXmf_c_o_c_2_x3 = .
+gen dupac_dXmf_s_o_c_2_x3 = .
+gen mf_dXmf_s_o_c_2_x3 = .
+gen duXmf_dXmf_s_o_c_2_x3 = .
+
+* direct effects, only_mf
+gen mf_coeff_owners_c_2_x1 = .
+gen mf_se_owners_c_2_x1 = .
+
+gen mf_coeff_owners_c_2_x3 = .
+gen mf_se_owners_c_2_x3 = .
 
 
 ********************************************************************************
@@ -310,10 +374,10 @@ foreach l of local levels {
 
 	********************************************************************************	
 	** Part 1: loop over bandwidths for means
-	/* restricted to just the 0.2 bandwith in the final analysis because that is 
-	what we end up showing, older versions use more */
+	/* restricted to just the 0.02 and 0.2 bandwith in the final analysis because
+	that is what we end up showing, older versions use more */
 	********************************************************************************
-	foreach d of numlist 0.2 {
+	foreach d of numlist 0.02 0.2 {
 		
 		di ""
 		di "*** bandwidth `d' ***"
@@ -371,7 +435,7 @@ foreach l of local levels {
 	di "*** log_mfrent regressions ***"
 
 	* for every <d> bandwidth
-	quietly foreach d of numlist 0.2 {
+	quietly foreach d of numlist 0.02 0.2 {
 		
 		* set local var name for bandwith
 		local var = round(`d' * 100, 1)
@@ -492,13 +556,14 @@ foreach l of local levels {
 	}  // end of part 2 bandwidth loop						
 	
 	********************************************************************************	
-	** Part 3: housing cost estimates with only_du du_he mf_du only_mf (NOTE! make sure to use log_saleprice)
+	** Part 3: housing cost estimates with only_du du_he mf_du only_mf 
+	* NOTE! make sure to use log_saleprice
 	********************************************************************************	
 	di ""
 	di "*** log_saleprice regesssions ***"
 
 	* for every <d> distance bin
-	quietly foreach d of numlist 0.2 {
+	quietly foreach d of numlist 0.02 0.2 {
 
 		* set local var name for bandwith
 		local var = round(`d' * 100, 1)
@@ -745,7 +810,7 @@ foreach l of local levels {
 ** t statistics
 ********************************************************************************
 * loop over different bandwidth
-quietly foreach d of numlist 0.2{ 
+quietly foreach d of numlist 0.02 0.2 { 
 	local var = round(`d'*100,1)
 	
 	* loop over different polynomial distance trends
@@ -838,7 +903,7 @@ keep if only_du ==1 | du_he == 1 | mf_du == 1 | only_mf == 1
 
 ** define coefficient stores for output
 * direct effects, only_du
-quietly foreach var of numlist 20 { 
+quietly foreach var of numlist 2 20 { 
 	forvalues i = 1(2)3 {
 		gen dupac_coeff_u18_c_`var'_x`i' = .
 		gen dupac_se_u18_c_`var'_x`i' = .
@@ -846,7 +911,7 @@ quietly foreach var of numlist 20 {
 }
 
 * direct effects, du_he
-quietly foreach var of numlist 20 { 
+quietly foreach var of numlist 2 20 { 
 	forvalues i = 1(2)3 {
 		*units (1918)
 		gen dupac_dXh_c_u18_c_`var'_x`i' = .
@@ -859,7 +924,7 @@ quietly foreach var of numlist 20 {
 }
 
 * direct effects, mf_du
-quietly foreach var of numlist 20 { 
+quietly foreach var of numlist 2 20 { 
 	forvalues i = 1(2)3 {
 		*units (1918)
 		gen dupac_dXmf_c_u18_c_`var'_x`i' = .
@@ -873,7 +938,7 @@ quietly foreach var of numlist 20 {
 }
 
 * direct effects, only_mf
-quietly foreach var of numlist 20 { 
+quietly foreach var of numlist 2 20 { 
 	forvalues i = 1(2)3 {
 		gen mf_coeff_u18_c_`var'_x`i' = .
 		gen mf_se_u18_c_`var'_x`i' = .
@@ -902,7 +967,7 @@ foreach l of local levels {
 	/* restricted to just the 0.2 bandwith in the final analysis because that is 
 	what we end up showing, older versions use more */
 	********************************************************************************
-	foreach d of numlist 0.2 {
+	foreach d of numlist 0.02 0.2 {
 		
 		di ""
 		di "*** bandwidth `d' ***"
@@ -959,7 +1024,7 @@ foreach l of local levels {
 	di "*** num_units1 regressions >=1918 ***"
 
 	* for every <d> bandwidth
-	quietly foreach d of numlist 0.2 {
+	quietly foreach d of numlist 0.02 0.2 {
 		
 		* set local var name for bandwith
 		local var = round(`d' * 100, 1)
