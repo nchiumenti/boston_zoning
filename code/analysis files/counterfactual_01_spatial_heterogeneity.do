@@ -1252,7 +1252,7 @@ foreach l of local levels {
 ** t statistics
 ********************************************************************************
 * loop over different bandwidth
-quietly foreach var of numlist 20 { 
+quietly foreach var of numlist 2 20 { 
 	forvalues i = 1(2)3 {
 
 		gen t_dupac_coeff_u18_c_`var'_x`i' = dupac_coeff_u18_c_`var'_x`i'/dupac_se_u18_c_`var'_x`i'
