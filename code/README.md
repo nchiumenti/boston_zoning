@@ -3,7 +3,7 @@
 |-------|-------|-------|
 |<input type="checkbox" checked> | [ ] | { } |
 |-------|-------|-------|
-
+<input type="checkbox" checked>
 * [ ] analysis_master_file.do (ongoing)
 * [x] analysis_within_town_setup.do
 * [x] bindingness.do
