@@ -3,7 +3,7 @@ clear all
 log close _all
 set linesize 255
 
-local name = "counterfactual_01_spatial_heterogeneity"  // <--- change when necessry
+local name = "counterfactual_03_means"  // <--- change when necessry
 
 local short_name = "counterfactual" // <-- specific to the counterfactual files to make an output dir
 
@@ -431,7 +431,7 @@ rename (mean_units mean_rent mean_price n_units n_rent n_price) (mean_units_town
 save "$EXPORTPATH/means_town_lvl_tomerge.dta", replace
 
 * load the train station means file
-use "$EXPORTPATH/train_station_means.do"
+use "$EXPORTPATH/train_station_means.dta"
 
 * merge on down means
 merge m:1 cousub_name boundary_type side using "$EXPORTPATH/means_town_lvl_tomerge.dta"

@@ -800,8 +800,15 @@ noisily assert _N == 3199248
 ********************************************************************************
 ** Copy over the datasets that will be used in analysis files
 ********************************************************************************
+* copy over the mt lines v2 file
+confirm file "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta"
 
-* copy over the mt lines file
+local from_path = "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta"
+local to_path = "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta"
+
+copy `from_path' `to_path'
+
+* copy over the mt lines moreregs file
 confirm file "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
 
 local from_path = "/shared/boston_zoning/working_paper/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"

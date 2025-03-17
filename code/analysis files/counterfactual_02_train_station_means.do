@@ -3,7 +3,7 @@ clear all
 log close _all
 set linesize 255
 
-local name = "counterfactual_01_spatial_heterogeneity"  // <--- change when necessry
+local name = "counterfactual_02_train_station_means"  // <--- change when necessry
 
 local short_name = "counterfactual" // <-- specific to the counterfactual files to make an output dir
 
@@ -636,7 +636,7 @@ rename MUNI_NAME cousub_name
 drop NAME
 
 * save file
-di $EXPORTPATH
+di "$EXPORTPATH"
 save "$EXPORTPATH/train_station_means.dta", replace
 
 
