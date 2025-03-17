@@ -1,7 +1,8 @@
 ### Reviewed and cleaned analysis files checklist
 | Boobs | Butts | Yabbos|
 |-------|-------|-------|
-| *[ ]  | * [ ] | * { } |
+| [ ]  | [ ] | { } |
+|-------|-------|-------|
 
 * [ ] analysis_master_file.do (ongoing)
 * [x] analysis_within_town_setup.do
