@@ -1,7 +1,7 @@
 ### Reviewed and cleaned analysis files checklist
 | Boobs | Butts | Yabbos|
 |-------|-------|-------|
-|<input type="checkbox" checked> | [ ] | { } |
+|- [x]  | [ ] | { } |
 |-------|-------|-------|
 
 <input type="checkbox" checked>
