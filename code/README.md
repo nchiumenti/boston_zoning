@@ -1,3 +1,9 @@
+- [x] #739
+- [ ] https://github.com/octo-org/octo-repo/issues/740
+- [ ] Add delight to the experience when all tasks are complete :tada:
+
+
+
 ### Reviewed and cleaned analysis files checklist
 - [ ] analysis_master_file.do (ongoing)
 - [x] analysis_within_town_setup.do
@@ -16,8 +22,8 @@
 - [ ] robustness_mtlines.do
 - [ ] within_town_mtlines.do
 - [ ] straight_line_v_walking.do
-      
-| - [ ] |
+
+
 # <p align="center"> Analysis files flow chart </p>
 The purpose of this is to document the final replication package
 
