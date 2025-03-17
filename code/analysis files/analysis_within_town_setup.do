@@ -56,9 +56,10 @@ noisily display "Call with <do> to show the output in log file."
 * confirm that all of the input data actually exists
 confirm file "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
 confirm file "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+confirm file "/shared/boston_zoning/working_paper/data/warren/warren_sales_data.dta"
 confirm file "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
-confirm file "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
-confirm file "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
+confirm file "/shared/boston_zoning/working_paper/data/costar/costar_mf_destring.dta"
+confirm file "/shared/boston_zoning/working_paper/data/costar/costar_rent_hist.dta"
 
 
 ********************************************************************************
@@ -164,7 +165,7 @@ drop costar_rent costar_status // <-- drop these variables so they update proper
 destring costar_id, replace
 
 * merge on multifamily property characteristics
-local data_file_path = "/shared/boston_zoning/working_paper/costar/costar_mf_destring.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/costar/costar_mf_destring.dta"
 
 merge m:1 costar_id using `data_file_path'
 
@@ -182,7 +183,7 @@ merge m:1 costar_id using `data_file_path'
 	drop _merge
 	
 * merge on historic rents and replace when not missing
-local data_file_path = "/shared/boston_zoning/working_paper/costar/costar_rent_hist.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/costar/costar_rent_hist.dta"
 
 merge m:1 fy costar_id using `data_file_path', keepusing(costar_rent)
 
@@ -211,7 +212,7 @@ replace AvgAskingUnit = costar_rent if costar_rent!=. // <-- use the historic re
 noisily display "Merging on warren group sales price data..."
 
 * merge on sales data
-local data_file_path = "/shared/boston_zoning/working_paper/warren/warren_sales_data.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/warren/warren_sales_data.dta"
 
 merge 1:1 prop_id fy using `data_file_path', keep(1 3)
 

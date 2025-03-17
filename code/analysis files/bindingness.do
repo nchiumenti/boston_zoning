@@ -24,7 +24,7 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 ********************************************************************************
 * File name:		"bindingness.do"
 *
-* Project title:	Boston Affordable Housing project (visting scholar porject)
+* Project title:	Boston Zoning Paper
 *
 * Description:		Last run with MC on 10/21/2024
 *					This version was shortened from prior versions by AK 

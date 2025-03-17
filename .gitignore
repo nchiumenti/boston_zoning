@@ -1,2 +1,4 @@
-*/counterfacual*
-*/programs*
+*.*
+*/*
+
+!/code

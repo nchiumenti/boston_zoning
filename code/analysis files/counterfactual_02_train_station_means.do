@@ -636,12 +636,13 @@ rename MUNI_NAME cousub_name
 drop NAME
 
 * save file
-di "$EXPORTPATH"
+di "${EXPORTPATH}s"
 save "$EXPORTPATH/train_station_means.dta", replace
 
 
 ********************************************************************************
 ** end
 ********************************************************************************
+log off
 log close
 clear all
