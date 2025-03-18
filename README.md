@@ -22,8 +22,8 @@
 | robustness_mtlines.do | ✅ | ❌ |
 | within_town_mtlines.do | ✅ | ❌ |
 | within_town_mtlines_robustse.do | ✅ | ❌ |
-| straight_line_v_walking.do | ❌ | ❌ |
-
+| straight_line_v_walking.do{^1] | ❌ | ❌ |
+[^1]: Requires a python program to run and reproduce
 #### Data Setup Files
 | File name| File checked/cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
