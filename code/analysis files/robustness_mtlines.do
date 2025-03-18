@@ -26,11 +26,58 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 *
 * Project title:	Boston Zoning Paper
 *
-* Description:
+* Description:		This file runs a myriad of robustness checks, not main line
+*					specifications. it has been trimmed down considerably. As
+*					such, the .do file 'part' numbers are not consecutive but 
+*					they should align to prior versions of the file.
+					
+*					Contents:
+*					Part 0: Optimal bandwidth calculation
+*					Part 3: Rents
+*						3a: Rents, baseline
+*						3b: Rents, not between $500 - $1400
+*					Part 4: Rents
+*						4a: Rents, baseline
+*						4c: CoStar imputation dummy 
+*					Part 5: Sales prices
+*						5a: Sales prices, baseline
+*						5b: Sales prices with ACS controls
+*					Part 7: Rents
+*						7a: Rents, baseline
+*						7b: Rents, w/ ACS controls 
+*					Part 9: Sales prices (baseline is salesprice_table_baseline.tex from point 1)
+*						9a: Sales prices, relaxed2 definition 
+*						9b: Sales prices, relaxed3 definition
+*						9c: Sales prices, relaxed4 definition
+*						9d: Sales prices, only clear boundaries
+*					Part 10: Rents (baseline is rents_table_baseline.tex from point 2)
+*						10a: Rents, relaxed2 definition 
+*						10b: Rents, relaxed3 definition
+*						10c: Rents, relaxed4 definition
+*						10d: Rents, only clear boundaries
+*					Part 11: Sales prices
+*						11a: Sales prices, minlotsize by-right boundaries
+*					Part 12: Rents
+*						12a: Rents, baseline
+*					Part 15: Sales prices
+*						15a: Sales prices, baseline
+*						15b: Sales prices, w/ control discontinuous amenities 
+*					Part 16: Sales prices
+*						16a: Sales prices, baseline
+*						16b: Sales prices, w/ control discontinuous amenities 
 * 				
-* Inputs:
-*				
-* Outputs:
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_moreregs.dta
+*					dist_south_station_2022_09_29.csv
+*					transit_distance.csv
+*					soil_quality_matches.dta
+*					warren_group_walkability.dta"
+*					within_town_analysis_data.dta
+*					final_addon_regs_intersect.dta
+*					blocks_2010.dta
+*					acs_amenities.dta
+*
+* Outputs:			log file output
+*					.gph and .pdf graph file output
 *
 * Created:			10/05/2022
 * Updated:			03/18/2025
@@ -45,7 +92,7 @@ confirm file "$DATAPATH/warren_group_walkability.dta"
 confirm file "$DATAPATH/within_town_analysis_data.dta"
 confirm file "$DATAPATH/final_addon_regs_intersect.dta"
 confirm file "$DATAPATH/blocks_2010.dta"
-confrim file "$DATAPATH/acs_amenities.dta"
+confirm file "$DATAPATH/acs_amenities.dta"
 
 ********************************************************************************
 ** load and tempsave the mt lines data
@@ -1216,12 +1263,8 @@ esttab price_du_robust price_duhe_robust price_mfdu_robust price_mf_robust price
 
 eststo clear	
 
-
 * Part 9d: Sales price (only clear boundaries)
-/* Note: the first 3 shouldn't be 
-different because these are 
-automatically clear */
-
+* Note: the first 3 shouldn't be different because these are automatically clear
 local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res"
 
 quietly eststo price_du: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if clear_relaxed_strict_lam == 1 & only_du==1 & `regression_conditions', vce(cluster lam_seg)
@@ -1458,13 +1501,15 @@ local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both
 quietly eststo price_du: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions', vce(cluster lam_seg)
 sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex=="Single Family Res" & last_salepr & mnls_esval==0
 sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex=="Single Family Res" & last_salepr& mnls_esval==0
-*number of boundaries
+
+* number of boundaries
 unique lam_seg if only_du==1 & `regression_conditions'
 
 quietly eststo price_duhe: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
 sum def_saleprice if du_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex=="Single Family Res" & last_salepr & mnls_esval==0
 sum def_saleprice if du_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex=="Single Family Res" & last_salepr& mnls_esval==0
-*number of boundaries
+
+* number of boundaries
 unique lam_seg if du_he==1 & `regression_conditions'
 
 
@@ -1472,18 +1517,13 @@ quietly eststo price_mfdu: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr 
 sum def_saleprice if mf_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0& mnls_esval==0
 sum def_saleprice if mf_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex=="Single Family Res" & last_salepr > 0 & mnls_esval==0
 
-*number of boundaries
+* number of boundaries
 unique lam_seg if mf_du==1 & `regression_conditions'
 
-* older esttab version, pre REStat
 esttab price_du price_duhe price_mfdu, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu") ///
 	title("Sales Prices minimum lot size in bylaws, clustered s.e.") 
-	
-/* REStat Revision - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 
 esttab price_du price_duhe price_mfdu  using "$EXPORTPATH/salesprice_table_minlotsize.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
@@ -1497,7 +1537,6 @@ quietly eststo price_duhe_robust: reg log_saleprice ib26.dist3 i.lam_seg i.last_
 
 quietly eststo price_mfdu_robust: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions', vce(robust)
 
-* older esttab version, pre REStat
 esttab price_du_robust price_duhe_robust price_mfdu_robust , ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu" ) ///
@@ -1603,7 +1642,6 @@ graph close _all
 ********************************************************************************
 ** regressions
 * set regression conditions
-* POSTRESTAT NEW CHECK, adding minlotsize condition here 
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums" & mnls_esval==0
 	
 * Part 12a: Rents w/o characteristics
@@ -1616,31 +1654,28 @@ unique lam_seg if only_du==1 & `regression_conditions'
 quietly eststo rent_duhe: reg log_mfrent ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
 sum comb_rent2 if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
 sum comb_rent2 if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
-*number of boundaries
+
+* number of boundaries
 unique lam_seg if du_he==1 & `regression_conditions' 
 
 quietly eststo rent_mfdu: reg log_mfrent ib26.dist3 i.lam_seg i.year if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
 sum comb_rent2 if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
 sum comb_rent2 if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
-*number of boundaries
-unique lam_seg if mf_du==1 & `regression_conditions' 
 
+* number of boundaries
+unique lam_seg if mf_du==1 & `regression_conditions' 
 
 esttab rent_du rent_duhe rent_mfdu, se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("rent_du" "rent_duhe" "rent_mfdu") ///
 	title("Rents, minimum lot size in bylaws, clustered s.e.") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-
 esttab rent_du rent_duhe rent_mfdu using "$EXPORTPATH/rents_table_minlotsize.tex", replace keep(25.dist3) se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("rent_du" "rent_duhe" "rent_mfdu" ) ///
 	title("Rents, minimum lot size in bylaws, clustered s.e.") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo rent_du_robust: reg log_mfrent ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions', vce(robust)
 	
 quietly eststo rent_duhe_robust: reg log_mfrent ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions', vce(robust)
@@ -1749,8 +1784,8 @@ graph close _all
 
 ********************************************************************************
 ** Part 15: Sales prices
-* Part 1a: Sales prices, baseline
-* Part 1b: Sales prices, w/ control discontinuous amenities 
+* Part 15a: Sales prices, baseline
+* Part 15b: Sales prices, w/ control discontinuous amenities 
 ********************************************************************************
 ** regressions
 * set regression conditions
@@ -1769,7 +1804,6 @@ quietly eststo price_mfhe: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr 
 
 quietly eststo price_he: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
 
-* older esttab version, pre REStat
 esttab price_du price_duhe price_mfdu price_mf price_mfhe price_he, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
@@ -1788,7 +1822,6 @@ quietly eststo price_mfhe_robust: reg log_saleprice ib26.dist3 i.lam_seg i.last_
 
 quietly eststo price_he_robust: reg log_saleprice ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(robust)
 
-* older esttab version, pre REStat
 esttab price_du_robust price_duhe_robust price_mfdu_robust price_mf_robust price_mfhe_robust price_he_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
@@ -1807,7 +1840,6 @@ quietly eststo price_mfhe2: reg log_saleprice ib26.dist3 soil_avgslope dist_road
 
 quietly eststo price_he2: reg log_saleprice ib26.dist3 soil_slope15 dist_space dist_road i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
 
-* older esttab version, pre REStat
 esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
@@ -1987,7 +2019,6 @@ esttab rent_du2 rent_duhe2 rent_he2, se r2 ///
 	label mtitles("rent_du2" "rent_duhe2" "rent_he2") ///
 	title("Rents, w/ amenities") 
 	
-*POSTRESTAT ADDED	
 esttab rent_du2 rent_duhe2 rent_he2 using "$EXPORTPATH/rents_table_amenities_control_new.tex", replace keep(25.dist3) se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("rent_du2" "rent_duhe2" "rent_he2") ///
