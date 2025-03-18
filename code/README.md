@@ -16,10 +16,10 @@
 - [x] amentities_mtlines.do
 - [ ] amenities_muni_boundary.do
 - [x] chars_mtlines.do
-- [ ] main_mtlines.do
-- [ ] main_no_roads.do
+- [x] main_mtlines.do
+- [o] main_no_roads.do
 - [ ] residuals.do
-- [ ] robustness_mtlines.do
+- [x] robustness_mtlines.do
 - [ ] within_town_mtlines.do
 - [ ] straight_line_v_walking.do
 
