@@ -9,7 +9,7 @@
 | analysis_within_town_setup.do | ✅ | ✅ |
 | amentities_mtlines.do | ✅ | ❌ |
 | amenities_muni_boundary.do | ❌ | ❌ |
-|-----------|
+|-----------|||
 | bindingness.do | ✅ | ❌ |
 | chars_mtlines.do | ✅ | ❌ |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
