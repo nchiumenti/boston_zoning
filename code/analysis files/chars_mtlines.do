@@ -56,7 +56,7 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 ********************************************************************************
 ** load the mt lines data
 ********************************************************************************
-use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
