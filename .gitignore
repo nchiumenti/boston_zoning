@@ -1,7 +1,8 @@
 ## dirs
 
 #/programs
-/counterfactual*
+#/counterfactual*
+/_archived
 
 ## files
 *.dta
