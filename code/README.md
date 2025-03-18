@@ -18,9 +18,10 @@
 - [x] chars_mtlines.do
 - [x] main_mtlines.do
 - [ ] main_no_roads.do
-- [ ] residuals.do
+- {x] residuals.do
 - [x] robustness_mtlines.do
-- [ ] within_town_mtlines.do
+- [x] within_town_mtlines.do
+- [x] within_town_mtlines_robustse.do
 - [ ] straight_line_v_walking.do
 
 
