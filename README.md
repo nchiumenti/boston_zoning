@@ -3,7 +3,7 @@
 
 ### Replication File Status
 #### Analysis Files
-| File name| File cleaned | File run by Mike |
+| File name| File checked/cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ |
@@ -25,7 +25,7 @@
 | straight_line_v_walking.do | ❌ | ❌ |
 
 #### Data Setup Files
-| File name| File cleaned | File run by Mike |
+| File name| File checked/cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
 | data_setup | ❌ | ❌ |
 | 10_warren_data_compile.do | ❌ | ❌ |
