@@ -5,6 +5,12 @@
 | File name| File cleaned | File run by Mike |
 |----------|--------------|------------------|
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
+
+
+
+
+
+* done
 | analysis_within_town_setup.do | ✅ | ✅ |
 | bindingness.do | ✅ |  |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
