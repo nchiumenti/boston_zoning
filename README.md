@@ -3,7 +3,7 @@
 
 ### Replication File Status
 #### ./analysis_files
-| File name| File checked/cleaned | File run by Mike |
+| File Name| Checked/Cleaned | Run by Mike |
 |----------|:------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ❌ |
 | amenities_muni_boundary.do | ❌ | ❌ |
