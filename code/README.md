@@ -1,27 +1,27 @@
 - [x] #739
 - [ ] https://github.com/octo-org/octo-repo/issues/740
 - [ ] Add delight to the experience when all tasks are complete :tada:
-
+✅⭕❌✅❗⚠️
 | File name| File cleaned | File run by Mike |
 |----------|--------------|------------------|
-| analysis_master_file.do (ongoing) |  |  |
-| analysis_within_town_setup.do |  |  |
-| bindingness.do |  |  |
-| counterfactual_01_spatial_heterogeneity.do |  |  |
-| counterfactual_02_train_station_means.do |  |  |
-| counterfactual_03_means.do (formerly means.do |  |  |
-| external_effects.do |  |  |
-| predicted_prices_mtlines.do |  |  |
-| amentities_mtlines.do |  |  |
-| amenities_muni_boundary.do |  |  |
-| chars_mtlines.do |  |  |
-| main_mtlines.do |  |  |
-| main_no_roads.do |  |  |
-| residuals.do |  |  |
-| robustness_mtlines.do |  |  |
-| within_town_mtlines.do |  |  |
-| within_town_mtlines_robustse.do |  |  |
-| straight_line_v_walking.do |  |  |
+| analysis_master_file.do (ongoing) | ⚠️ | ✅ |
+| analysis_within_town_setup.do | ✅ | ✅ |
+| bindingness.do | ✅ |  |
+| counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
+| counterfactual_02_train_station_means.do | ✅ | ✅ |
+| counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
+| external_effects.do | ✅ | ❌ |
+| predicted_prices_mtlines.do | ✅ | ❌ |
+| amentities_mtlines.do | ✅ | ❌ |
+| amenities_muni_boundary.do | ❌ | ❌ |
+| chars_mtlines.do | ✅ | ❌ |
+| main_mtlines.do | ✅ | ❌ |
+| main_no_roads.do | ✅ | ❌ |
+| residuals.do | ✅ | ❌ |
+| robustness_mtlines.do | ✅ | ❌ |
+| within_town_mtlines.do | ✅ | ❌ |
+| within_town_mtlines_robustse.do | ✅ | ❌ |
+| straight_line_v_walking.do | ✅ | ❌ |
 
 ### Reviewed and cleaned analysis files checklist
 - [ ] analysis_master_file.do (ongoing)
