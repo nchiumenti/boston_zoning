@@ -15,8 +15,9 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
 | external_effects.do | ✅ | ❌ |
+| histogram.do | ❌ | ❌ |
 | main_mtlines.do | ✅ | ❌ |
-| main_no_roads.do | ❌ | ❌ |
+| main_noroads.do | ❌ | ❌ |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
