@@ -1,0 +1,1 @@
+Finish running on 09/29/22 at 11:34:27 AM: 303 observations written to '/home/a1nfc04/Documents/boston_zoning_sdrive/data/shapefiles/train_stops/all_stations.csv'.

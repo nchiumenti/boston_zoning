@@ -1,0 +1,17 @@
+--proxy=http://p1web4.frb.org:8080 --cert c:/Temp/ca-bundle.trust.crt
+
+
+## local cluster proxy set
+# os.environ['http_proxy'] = 'http://p1web4.frb.org:8080'
+# os.environ['https_proxy'] = 'http://p1web4.frb.org:8080'
+    
+## AWS cluster proxy set
+# os.environ['http_proxy'] = 'http://10.121.131.6:8080'
+# os.environ['https_proxy'] = 'http://10.121.131.6:8080'
+    
+## JupyterHub Proxy
+# os.environ["https_proxy"] = "http://p1proxy.frb.org:8080"
+# os.environ["http_proxy"] = "http://p1proxy.frb.org:8080"
+# os.environ["no_proxy"] = "frb.org,frb.pvt,frb.gov"
+
+# ca_bundle_fp = "/etc/pki/tls/certs/ca-bundle.crt"

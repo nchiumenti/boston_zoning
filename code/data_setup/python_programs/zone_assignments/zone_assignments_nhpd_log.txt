@@ -1,0 +1,20 @@
+Last run on 11/16/22 at 09:53:21 AM
+1,489 observations written to: /home/a1nfc04/Documents/boston_zoning_sdrive/python_programs/zone_assignments/zone_assignments_nhpd_export.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 04 seconds 
+
+Last run on 11/16/22 at 09:54:08 AM
+1,489 observations written to: /home/a1nfc04/Documents/boston_zoning_sdrive/python_programs/zone_assignments/zone_assignments_nhpd_export.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 04 seconds 
+
+Last run on 11/16/22 at 10:25:47 AM
+1,489 observations written to: /home/a1nfc04/Documents/boston_zoning_sdrive/python_programs/zone_assignments/zone_assignments_nhpd_export.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 04 seconds 
+
+Last run on 11/18/22 at 09:48:53 AM
+1,489 observations written to: /home/a1nfc04/Documents/boston_zoning_sdrive/python_programs/zone_assignments/zone_assignments_nhpd_export.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 04 seconds 
+
+Last run on 11/18/22 at 09:52:03 AM
+1,489 observations written to: /home/a1nfc04/Documents/boston_zoning_sdrive/python_programs/zone_assignments/zone_assignments_nhpd_export.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 04 seconds 
+
