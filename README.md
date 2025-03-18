@@ -24,7 +24,7 @@
 | within_town_mtlines_robustse.do | ✅ | ❌ |
 | straight_line_v_walking.do | ❌ | ❌ |
 
-#### Analysis Files
+#### Data Setup Files
 | File name| File cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
 | data_setup | ❌ | ❌ |
