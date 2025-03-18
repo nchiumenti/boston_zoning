@@ -13,9 +13,9 @@
 - [x] counterfactual_03_means.do (formerly means.do
 - [x] external_effects.do
 - [x] predicted_prices_mtlines.do
-- [ ] amentities_mtlines.do
+- [x] amentities_mtlines.do
 - [ ] amenities_muni_boundary.do
-- [ ] chars_mtlines.do
+- [x] chars_mtlines.do
 - [ ] main_mtlines.do
 - [ ] main_no_roads.do
 - [ ] residuals.do
