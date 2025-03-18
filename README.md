@@ -2,7 +2,7 @@
 [Replication File Status](#replication-file-status)
 
 ### Replication File Status
-#### Analysis Files
+#### ./analysis_files
 | File name| File checked/cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
@@ -24,10 +24,9 @@
 | within_town_mtlines_robustse.do | ✅ | ❌ |
 | straight_line_v_walking.do[^1] | ❌ | ❌ |
 [^1]: Requires a python program to run and reproduce
-#### Data Setup Files
+#### ./data_setup Files
 | File name| File checked/cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
-| data_setup | ❌ | ❌ |
 | 10_warren_data_compile.do | ❌ | ❌ |
 | 11_geocoding.do | ❌ | ❌ |
 | 12_res_types.do | ❌ | ❌ |
