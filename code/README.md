@@ -1,18 +1,12 @@
-- [x] #739
-- [ ] https://github.com/octo-org/octo-repo/issues/740
-- [ ] Add delight to the experience when all tasks are complete :tada:
-✅⭕❌✅❗⚠️
+## Table of Contents
+[Replication File Status](#replication-file-status)
 
+## Replication File Status
+### Analysis Files
 | File name| File cleaned | File run by Mike |
-|----------|--------------|------------------|
+|----------|:------------:|:----------------:|
 | boobs | butts | yabbos |
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
-
-
-
-
-
-* done
 | analysis_within_town_setup.do | ✅ | ✅ |
 | bindingness.do | ✅ |  |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
