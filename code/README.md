@@ -4,7 +4,7 @@
 ✅⭕❌✅❗⚠️
 
 | File name| File cleaned | File run by Mike |
-|----------|--------------|:----------------:|
+|----------|--------------|------------------|
 | boobs | butts | yabbos |
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
 
