@@ -1,14 +1,14 @@
 ## Table of Contents
 [Replication File Status](#replication-file-status)
 
-## Replication File Status
-### Analysis Files
+### Replication File Status
+#### Analysis Files
 | File name| File cleaned | File run by Mike |
 |----------|:------------:|:----------------:|
 | boobs | butts | yabbos |
 | analysis_master_file.do (ongoing) | ⚠️ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ |
-| bindingness.do | ✅ |  |
+| bindingness.do | ✅ | ❌ |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
@@ -18,12 +18,12 @@
 | amenities_muni_boundary.do | ❌ | ❌ |
 | chars_mtlines.do | ✅ | ❌ |
 | main_mtlines.do | ✅ | ❌ |
-| main_no_roads.do | ✅ | ❌ |
+| main_no_roads.do | ❌ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
 | within_town_mtlines.do | ✅ | ❌ |
 | within_town_mtlines_robustse.do | ✅ | ❌ |
-| straight_line_v_walking.do | ✅ | ❌ |
+| straight_line_v_walking.do | ❌ | ❌ |
 
 ### Reviewed and cleaned analysis files checklist
 - [ ] analysis_master_file.do (ongoing)
