@@ -17,7 +17,7 @@
 - [ ] amenities_muni_boundary.do
 - [x] chars_mtlines.do
 - [x] main_mtlines.do
-- [o] main_no_roads.do
+- [ ] main_no_roads.do
 - [ ] residuals.do
 - [x] robustness_mtlines.do
 - [ ] within_town_mtlines.do
