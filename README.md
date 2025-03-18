@@ -3,11 +3,11 @@
 
 ### Replication File Status
 #### ./analysis_files
-| File name| File checked/cleaned | File run by Mike |
+| File Name| Checked/Cleaned | Run by Mike |
 |----------|:------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ❌ |
 | amenities_muni_boundary.do | ❌ | ❌ |
-| analysis_master_file.do (ongoing) | ⚠️ | ✅ |
+| analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ |
 | bindingness.do | ✅ | ❌ |
 | chars_mtlines.do | ✅ | ❌ |
@@ -15,8 +15,9 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
 | external_effects.do | ✅ | ❌ |
+| histogram.do | ❌ | ❌ |
 | main_mtlines.do | ✅ | ❌ |
-| main_no_roads.do | ❌ | ❌ |
+| main_noroads.do | ❌ | ❌ |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
@@ -48,47 +49,6 @@
 |  80_amenity_datasets.do | ❌ | ❌ |
 | town_lists_export.do | ❌ | ❌ |
 | warren_geocode_fixes.do | ❌ | ❌ |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Reviewed and cleaned analysis files checklist
-- [ ] analysis_master_file.do (ongoing)
-- [x] analysis_within_town_setup.do
-- [x] bindingness.do
-- [x] counterfactual_01_spatial_heterogeneity.do
-- [x] counterfactual_02_train_station_means.do
-- [x] counterfactual_03_means.do (formerly means.do
-- [x] external_effects.do
-- [x] predicted_prices_mtlines.do
-- [x] amentities_mtlines.do
-- [ ] amenities_muni_boundary.do
-- [x] chars_mtlines.do
-- [x] main_mtlines.do
-- [ ] main_no_roads.do
-- {x] residuals.do
-- [x] robustness_mtlines.do
-- [x] within_town_mtlines.do
-- [x] within_town_mtlines_robustse.do
-- [ ] straight_line_v_walking.do
 
 
 # <p align="center"> Analysis files flow chart </p>
