@@ -1,68 +1,63 @@
+* start here
 clear all
 log close _all
 set linesize 255
-local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-local name ="postREstat_rd_amenities_muni_boundary" // <--- change when necessry
+local name ="amenities_muni_boundary"  // <--- change when necessry
 
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
-scalar UPDATE_INT_FILE = 0
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 
-** Post REStat Submission Version **
+capture confirm file "$EXPORTPATH"
 
-********************************************************************************
-* File name:		"postREstat_rd_amenities_muni_boundary.do"
-*
-* Project title:	Boston Affordable Housing project (visting scholar porject)
-*
-* Description:		Post QJE updates
-*			technically these are coefplots
-* 			striaght line boundaries (matt turner orthogona lines)
-* 			Ammenities only:
-*				- dist to school
-*				- dist to city center
-*				- dist to major road
-*				- dist to major river
-*				- dist to green space
-*				- soil quality (x5)
-*				- transit dist nearest stop (manhattan)
-*				  and downtown (public transit)
-*				- walk score (tables only)
-*
-*           Note on 5-29-2024: This version of the file uses the warren group to
-*           town boundary matches and their regulations. It also includes the expanded
-*           soild data. This version DOES NOT use the mt_lines file becasue it is not
-*			relevant for this analysis
-*
-* Inputs:		
-*				
-* Outputs:		
-*
-* Created:		06/23/2021
-* Updated:		03/27/2024
-********************************************************************************
-* create a save directory if none exists
-global RDPATH "$FIGPATH/`name'_`date_stamp'"
-
-capture confirm file "$RDPATH"
-
-if _rc!=0 {
-	di "making directory $RDPATH"
-	shell mkdir $RDPATH
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
 }
 
-cd $RDPATH
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
-if UPDATE_INT_FILE {
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
+
+
+********************************************************************************
+* File name:		amenities_muni_boundary.do
+*
+* Project title:	Boston Zoning Paper
+*
+* Description:		Is the same as amenities except comparing across town 
+*					boundaries instead of zoning boundaries
+*
+* Inputs:			dist_south_station_2022_09_29.csv
+*					transit_distance.csv
+*					soil_quality_matches.dta
+*					warren_group_walkability.dta
+*					final_dataset_town_comparisons.dta
+*
+* Outputs:			multiple .tex files
+*					log output
+*
+* Created:			06/23/2021
+* Updated:			03/19/2025
+********************************************************************************
+
+confirm file "$DATAPATH/dist_south_station_2022_09_29.csv"
+confirm file "$DATAPATH/transit_distance.csv"
+confirm file "$DATAPATH/soil_quality_matches.dta"
+confirm file "$DATAPATH/warren_group_walkability.dta"
+confirm file "$DATAPATH/final_dataset_town_comparisons.dta"
+
+
 ********************************************************************************
 ** load and tempsave the transit data
 ********************************************************************************
-import delimited "$DATAPATH/train_stops/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
 
 tempfile dist_south_station
 save `dist_south_station', replace
 
-import delimited "$DATAPATH/train_stops/transit_distance.csv", clear stringcols(_all)
+import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
 
 merge m:1 station_id using `dist_south_station'
 		
@@ -84,7 +79,7 @@ save `transit', replace
 ********************************************************************************
 ** load and tempsave the soil data
 ********************************************************************************
-use "$SHAPEPATH/soil_quality/soil_quality_matches.dta", clear // bringing back the old soil data
+use "$DATAPATH/soil_quality_matches.dta", clear
 
 keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
 
@@ -97,7 +92,7 @@ save `soil', replace
 ********************************************************************************
 ** load and tempsave the walk score data 19.05.2024
 ********************************************************************************
-use "$DATAPATH/warren/warren_group_walkability.dta" // set to file path
+use "$DATAPATH/warren_group_walkability.dta"
 
 keep prop_id d2b_e8mixa d2a_ephhm d3b d2a_ranked d2b_ranked d3b_ranked natwalkind
 
@@ -106,15 +101,11 @@ save `walkscore', replace
 
 
 ********************************************************************************
-** load final dataset
+** load final town comparisons dataset and run the setup
 ********************************************************************************
-use "$DATAPATH/final_dataset_town_comparisons.dta", clear // Note on 5/29/2024 to HB/EI - set the file path to the town boundary matched data here
+use "$DATAPATH/final_dataset_town_comparisons.dta", clear
 
-
-********************************************************************************
-** run postQJE within town setup file
-********************************************************************************
-run "$DOPATH/postREStat_within_town_setup_HB.do"
+run "$DOPATH/analysis_town_comparisons_setup.do"
 
 
 ********************************************************************************
@@ -175,23 +166,16 @@ gen soil_avgrestri = avg_restri
 gen soil_avgsand = avg_sand
 gen soil_avgclay = avg_clay
 
+* save a mid-point version to cut down on run time while error checking code
+// save "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta", replace
 
-save "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta" , replace
-}
-//stop
-
-
-use  "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta" ,clear
-
-// stop
-
-
+* load mid-point version to cut down on run time while error checking code
+// use  "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta", clear
 
 
 ********************************************************************************
 ** distance to highway 
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo road_du: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_road if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -220,17 +204,13 @@ sum dist_road if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) & 
 esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") title("Distance to Highway (miles)") 
-	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 
-esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$RDPATH/amenities_table_road.tex", replace keep(25.dist3) ///
+esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$EXPORTPATH/amenities_table_road.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") ///
 	title("Distance to Highway (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo road_du_robust: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo road_duhe_robust: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -252,8 +232,6 @@ esttab road_du_robust road_duhe_robust road_mfdu_robust road_mf_robust road_mfhe
 ********************************************************************************
 ** distance to water body
 ********************************************************************************
-capture noisily {
-
 ** regressions
 quietly eststo river_du: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_river if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -282,16 +260,12 @@ sum dist_river if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) &
 esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") title("Distance to River (miles)") 
 
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-
-esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$RDPATH/amenities_table_river.tex", replace keep(25.dist3) ///
+esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$EXPORTPATH/amenities_table_river.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") ///
 	title("Distance to River (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo river_du_robust: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 
 quietly eststo river_duhe_robust: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -311,7 +285,6 @@ esttab river_du_robust river_duhe_robust river_mfdu_robust river_mf_robust river
 ********************************************************************************
 ** distance to green space
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo space_du: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_space if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -339,17 +312,13 @@ sum dist_space if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) &
 
 esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") title("Distance to Green Space (miles)") 
-	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 	  
-esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he using "$RDPATH/amenities_table_space.tex", replace keep(25.dist3) ///
+esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he using "$EXPORTPATH/amenities_table_space.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") ///
 	title("Distance to Green Space (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo space_du_robust: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo space_duhe_robust: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -369,7 +338,6 @@ esttab space_du_robust space_duhe_robust space_mfdu_robust space_mf_robust space
 ********************************************************************************
 * distance to school
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo school_du: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_school if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -397,17 +365,13 @@ sum dist_school if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) 
 
 esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") title("Distance to School (miles)") 
-	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 	  
-esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "$RDPATH/amenities_table_school.tex", replace keep(25.dist3) ///
+esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "$EXPORTPATH/amenities_table_school.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") ///
 	title("Distance to School (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo school_du_robust: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo school_duhe_robust: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -427,7 +391,6 @@ esttab school_du_robust school_duhe_robust school_mfdu_robust school_mf_robust s
 ********************************************************************************
 ** distance to city center
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo center_du: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_center if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -455,17 +418,13 @@ sum dist_center if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) 
 
 esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") title("Distance to City Center (miles)") 
-	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 	  
-esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "$RDPATH/amenities_table_center.tex", replace keep(25.dist3) ///
+esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "$EXPORTPATH/amenities_table_center.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") ///
 	title("Distance to City Center (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo center_du_robust: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo center_duhe_robust: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -485,7 +444,6 @@ esttab center_du_robust center_duhe_robust center_mfdu_robust center_mf_robust c
 ********************************************************************************
 ** commuting distance to downtown distance (south station)
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo transit_du: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum transit_dist if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -514,16 +472,12 @@ sum transit_dist if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02)
 esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") title("Public Transit Distance to Downtown Boston (miles)") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he using "$RDPATH/amenities_table_transit.tex", replace keep(25.dist3) ///
+esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he using "$EXPORTPATH/amenities_table_transit.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") ///
 	title("Public Transit Distance to Downtown Boston (miles)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo transit_du_robust: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 
 quietly eststo transit_duhe_robust: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -539,10 +493,10 @@ quietly eststo transit_he_robust: reg transit_dist ib26.dist3 i.lam_seg i.year i
 esttab transit_du_robust transit_duhe_robust transit_mfdu_robust transit_mf_robust transit_mfhe_robust transit_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") title("Public Transit Distance to Downtown Boston (miles), robust s.e.") 
 	
+
 ********************************************************************************
 ** Mean slope of lot
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo slope_du: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgslope if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -570,17 +524,13 @@ sum soil_avgslope if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02
 
 esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") title("Mean Slope of Lot (degrees)") 
-
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
 	  
-esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he using "$RDPATH/amenities_table_slope.tex", replace keep(25.dist3) ///
+esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he using "$EXPORTPATH/amenities_table_slope.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") ///
 	title("Mean Slope of Lot (degrees)") 
 
-*robust s.e.
+* robust s.e.
 quietly eststo slope_du_robust: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo slope_duhe_robust: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -600,7 +550,6 @@ esttab slope_du_robust slope_duhe_robust slope_mfdu_robust slope_mf_robust slope
 ********************************************************************************
 ** percent of lot >15 degrees
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo slope15_du: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_slope15 if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -629,16 +578,12 @@ sum soil_slope15 if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02)
 esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") title("Percent of Lot with Slope >15 Degrees") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he using "$RDPATH/amenities_table_slope15.tex", replace keep(25.dist3) ///
+esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he using "$EXPORTPATH/amenities_table_slope15.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") ///
 	title("Percent of Lot with Slope >15 Degrees") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo slope15_du_robust: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 
 quietly eststo slope15_duhe_robust: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -655,11 +600,9 @@ esttab slope15_du_robust slope15_duhe_robust slope15_mfdu_robust slope15_mf_robu
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") title("Percent of Lot with Slope >15 Degrees, robust s.e.") 
 	
 	
-
 ********************************************************************************
 ** depth to restrictive layer
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo depth_du: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgrestri if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -688,16 +631,12 @@ sum soil_avgrestri if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.0
 esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") title("Depth to Restrictive Layer (cm)") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he using "$RDPATH/amenities_table_depth.tex", replace keep(25.dist3) ///
+esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he using "$EXPORTPATH/amenities_table_depth.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") ///
 	title("Depth to Restrictive Layer (cm)") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo depth_du_r: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo depth_duhe_r: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -714,11 +653,9 @@ esttab depth_du_r depth_duhe_r depth_mfdu_r depth_mf_r depth_mfhe_r depth_he_r, 
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") title("Depth to Restrictive Layer (cm), robust s.e.") 
 	
 	
-
 ********************************************************************************
 ** mean percent sand
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo sand_du: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgsand if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -747,14 +684,12 @@ sum soil_avgsand if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02)
 esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") title("Avg. Percent Sand") 
 	
-*REStat Revision - allow for table - NC check
-*keeping only the first coefficient on the more restrictive side of the boundary, check if correct bin kept
-esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he using "$RDPATH/amenities_table_sand.tex", replace keep(25.dist3) ///
+esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he using "$EXPORTPATH/amenities_table_sand.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") ///
 	title("Avg. Percent Sand") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo sand_du_r: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo sand_duhe_r: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -774,7 +709,6 @@ esttab sand_du_r sand_duhe_r sand_mfdu_r sand_mf_r sand_mfhe_r sand_he_r, se r2 
 ********************************************************************************
 ** mean percent clay
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo clay_du: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgclay if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -802,17 +736,13 @@ sum soil_avgclay if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02)
 
 esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") title("Mean Percent Clay") 
-	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$RDPATH/amenities_table_clay.tex", replace keep(25.dist3) ///
+		  
+esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/amenities_table_clay.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") ///
 	title("Mean Percent Clay") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo clay_du_r: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo clay_duhe_r: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -828,15 +758,12 @@ quietly eststo clay_he_r: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==
 esttab clay_du_r clay_duhe_r clay_mfdu_r clay_mf_r clay_mfhe_r clay_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") title("Mean Percent Clay, robust s.e.") 
 	
-
-
 ********************************************************************************
 *WALKABILITY VARIABLES
 ********************************************************************************
 ********************************************************************************
 ** National Walkability Index score
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo walk_du: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum natwalkind if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -865,16 +792,12 @@ sum natwalkind if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) &
 esttab walk_du walk_duhe walk_mfdu walk_mf walk_mfhe walk_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") title("Walkability Index") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$RDPATH/amenities_table_walkability.tex", replace keep(25.dist3) ///
+esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/amenities_table_walkability.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") ///
 	title("Walkability Index") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo walk_du_r: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo walk_duhe_r: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -890,10 +813,10 @@ quietly eststo walk_he_r: reg natwalkind ib26.dist3 i.lam_seg i.year if year==20
 esttab walk_du_r walk_duhe_r walk_mfdu_r walk_mf_r walk_mfhe_r walk_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") title("Walkability Index, robust s.e.") 
 
+
 ********************************************************************************
 ** Employment mix  (only tables)
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo empl_du: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum d2b_e8mixa if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -922,16 +845,12 @@ sum d2b_e8mixa if only_he == 1 & year==2018 & (dist_both<=0 & dist_both>-0.02) &
 esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") title("Employment mix") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he using "$RDPATH/amenities_table_emplmix.tex", replace keep(25.dist3) ///
+esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he using "$EXPORTPATH/amenities_table_emplmix.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") ///
 	title("Employment mix") 
 	
-*robust s.e.
+* robust s.e.
 quietly eststo empl_du_r: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(robust)
 	
 quietly eststo empl_duhe_r: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & du_he == 1 & res_typex !="Condominiums") , vce(robust)
@@ -946,8 +865,6 @@ quietly eststo empl_he_r: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==20
 
 esttab empl_du_r empl_duhe_r empl_mfdu_r empl_mf_r empl_mfhe_r empl_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") title("Employment mix, robust s.e.") 
-}
-
 
 
 ********************************************************************************
@@ -956,7 +873,6 @@ esttab empl_du_r empl_duhe_r empl_mfdu_r empl_mf_r empl_mfhe_r empl_he_r, se r2 
 ********************************************************************************
 ** distance to highway 
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo road_du: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -974,11 +890,7 @@ esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") title("Distance to Highway (miles)") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-
-esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$RDPATH/amenities_table_road_municluster.tex", replace keep(25.dist3) ///
+esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$EXPORTPATH/amenities_table_road_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") ///
 	title("Distance to Highway (miles)") 
@@ -986,8 +898,6 @@ esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$RDPATH/amen
 ********************************************************************************
 ** distance to river
 ********************************************************************************
-capture noisily {
-
 ** regressions
 quietly eststo river_du: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -1004,7 +914,7 @@ quietly eststo river_he: reg dist_river ib26.dist3 i.lam_seg i.year if year==201
 esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") title("Distance to River (miles)") 
 
-esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$RDPATH/amenities_table_river_municluster.tex", replace keep(25.dist3) ///
+esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$EXPORTPATH/amenities_table_river_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") ///
 	title("Distance to River (miles)") 
@@ -1013,7 +923,6 @@ esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$RDPAT
 ********************************************************************************
 ** distance to green space
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo space_du: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1030,21 +939,15 @@ quietly eststo space_he: reg dist_space ib26.dist3 i.lam_seg i.year if year==201
 esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") title("Distance to Green Space (miles)") 
 	
-/* REStat Revision 03-27-2024 - allow for table - NC check
-	- keeping only the first coefficient on the more restrictive side of the 
-	  boundary, check if correct bin kept */
-	  
-esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he using "$RDPATH/amenities_table_space_municluster.tex", replace keep(25.dist3) ///
+esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he using "$EXPORTPATH/amenities_table_space_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") ///
 	title("Distance to Green Space (miles)") 
 		
 
-
 ********************************************************************************
 * distance to school
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo school_du: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1061,7 +964,7 @@ quietly eststo school_he: reg dist_school ib26.dist3 i.lam_seg i.year if year==2
 esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") title("Distance to School (miles)") 
 	  
-esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "$RDPATH/amenities_table_school_municluster.tex", replace keep(25.dist3) ///
+esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "$EXPORTPATH/amenities_table_school_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") ///
 	title("Distance to School (miles)") 
@@ -1070,7 +973,6 @@ esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "
 ********************************************************************************
 ** distance to city center
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo center_du: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1087,7 +989,7 @@ quietly eststo center_he: reg dist_center ib26.dist3 i.lam_seg i.year if year==2
 esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") title("Distance to City Center (miles)") 
 	  
-esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "$RDPATH/amenities_table_center_municluster.tex", replace keep(25.dist3) ///
+esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "$EXPORTPATH/amenities_table_center_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") ///
 	title("Distance to City Center (miles)") 
@@ -1095,7 +997,6 @@ esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "
 ********************************************************************************
 ** commuting distance to downtown distance (south station)
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo transit_du: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -1112,7 +1013,7 @@ quietly eststo transit_he: reg transit_dist ib26.dist3 i.lam_seg i.year if year=
 esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") title("Public Transit Distance to Downtown Boston (miles)") 
 	  
-esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he using "$RDPATH/amenities_table_transit_municluster.tex", replace keep(25.dist3) ///
+esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he using "$EXPORTPATH/amenities_table_transit_municluster.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") ///
 	title("Public Transit Distance to Downtown Boston (miles)") 
@@ -1120,7 +1021,6 @@ se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") //
 ********************************************************************************
 ** Mean slope of lot
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo slope_du: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1137,7 +1037,7 @@ quietly eststo slope_he: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==
 esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") title("Mean Slope of Lot (degrees)") 
 	  
-esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he using "$RDPATH/amenities_table_slope_municluster.tex", replace keep(25.dist3) ///
+esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he using "$EXPORTPATH/amenities_table_slope_municluster.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") ///
 	title("Mean Slope of Lot (degrees)") 
@@ -1146,7 +1046,6 @@ se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") //
 ********************************************************************************
 ** percent of lot >15 degrees
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo slope15_du: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -1163,15 +1062,15 @@ quietly eststo slope15_he: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year=
 esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") title("Percent of Lot with Slope >15 Degrees") 
 	  
-esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he using "$RDPATH/amenities_table_slope15_municluster.tex", replace keep(25.dist3) ///
+esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he using "$EXPORTPATH/amenities_table_slope15_municluster.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") ///
 	title("Percent of Lot with Slope >15 Degrees") 
 
+
 ********************************************************************************
 ** depth to restrictive layer
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo depth_du: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1188,15 +1087,15 @@ quietly eststo depth_he: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year=
 esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") title("Depth to Restrictive Layer (cm)") 
 		  
-esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he using "$RDPATH/amenities_table_depth.tex", replace keep(25.dist3) ///
+esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he using "$EXPORTPATH/amenities_table_depth.tex", replace keep(25.dist3) ///
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") ///
 	title("Depth to Restrictive Layer (cm)") 
 	
+
 ********************************************************************************
 ** mean percent sand
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo sand_du: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1213,17 +1112,15 @@ quietly eststo sand_he: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==20
 esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") title("Avg. Percent Sand") 
 	
-*REStat Revision - allow for table - NC check
-*keeping only the first coefficient on the more restrictive side of the boundary, check if correct bin kept
-esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he using "$RDPATH/amenities_table_sand_municluster.tex", replace keep(25.dist3) ///
+esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he using "$EXPORTPATH/amenities_table_sand_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") ///
 	title("Avg. Percent Sand") 
 	
+
 ********************************************************************************
 ** mean percent clay
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo clay_du: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1240,18 +1137,18 @@ quietly eststo clay_he: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==20
 esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") title("Mean Percent Clay") 
 		  
-esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$RDPATH/amenities_table_clay_municluster.tex", replace keep(25.dist3) ///
+esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/amenities_table_clay_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") ///
 	title("Mean Percent Clay") 
 		
+
 ********************************************************************************
 *WALKABILITY VARIABLES
 ********************************************************************************
 ********************************************************************************
 ** National Walkability Index score
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo walk_du: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1268,7 +1165,7 @@ quietly eststo walk_he: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018
 esttab walk_du walk_duhe walk_mfdu walk_mf walk_mfhe walk_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") title("Walkability Index") 
 	  
-esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$RDPATH/amenities_table_walkability_municluster.tex", replace keep(25.dist3) ///
+esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/amenities_table_walkability_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") ///
 	title("Walkability Index") 
@@ -1277,7 +1174,6 @@ esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$RDPATH/amen
 ********************************************************************************
 ** Employment mix  (only tables)
 ********************************************************************************
-capture noisily {
 ** regressions
 quietly eststo empl_du: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1294,22 +1190,17 @@ quietly eststo empl_he: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018
 esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") title("Employment mix") 
 	  
-esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he using "$RDPATH/amenities_table_emplmix_municluster.tex", replace keep(25.dist3) ///
+esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he using "$EXPORTPATH/amenities_table_emplmix_municluster.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") ///
 	title("Employment mix") 
 	
-}
 
-
+********************************************************************************
+** end of do file
+********************************************************************************
+log off
 log close
 clear all
 
-
 display "finished!" 
-	
-
-
-
-
-
