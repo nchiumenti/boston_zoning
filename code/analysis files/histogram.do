@@ -1,45 +1,46 @@
+* start here
 clear all
-
 log close _all
-
 set linesize 255
 
-local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
-local name ="postrestat_histogram" // <--- change when necessry
-log using "$LOGPATH/`name'_log_`date_stamp'.log", replace
+local name ="histogram"  // <--- change when necessry
 
-* create a save directory if none exists
-global RDPATH "$FIGPATH/`name'_`date_stamp'"
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 
-capture confirm file "$RDPATH"
+capture confirm file "$EXPORTPATH"
 
-if _rc!=0 {
-	di "making directory $RDPATH"
-	shell mkdir $RDPATH
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
 }
 
-cd $RDPATH
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
+
 
 ********************************************************************************
-* File name:		"postrestat_histogram"
+* File name:		histogram.do
 *
-* Project title:	Boston Affordable Housing project (visting scholar porject)
+* Project title:	Boston Zoning Paper
 *
-* Description:		makes both histograms and scatter plots
+* Description:		makes a bunch of histograms and scatter plots
 * 				
-* Inputs:		
+* Inputs:			within_town_analysis_data.dta
 *				
-* Outputs:		
+* Outputs:			.gph and .pdf files
 *
-* Created:		09/21/2021
-* Updated:		11/15/2024
+* Created:			09/21/2021
+* Updated:			03/20/2025
 ********************************************************************************
 
-use "$DATAPATH/final_dataset_10-28-2021.dta", clear
 
-do "$DOPATH/archived/wp_within_town_setup.do"
-
-// use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta",clear //created with "$DOPATH/postREStat_within_town_setup_07102024.do"
+********************************************************************************
+** create working dataset
+********************************************************************************
+use "$DATAPATH/within_town_analysis_data.dta", clear
 
 
 ********************************************************************************
@@ -65,8 +66,6 @@ tab winsorized
 * NFC Note 11/18: 1.c has no observations.... have Mike tab res_typex to trouble shoot
 * w/e the valyes for the clear apartment builsings, use it below for 1c and 2c
 tab res_typex
-
-stop
 
 global hist_cond_1ab 		`"!missing(costar_rent) & res_typex!= "Condominiums" & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 global hist_cond_1cd 		`"!missing(costar_rent) & (res_typex== "Four to Eight Units" | res_typex == "More than Eight Units") & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
@@ -109,15 +108,14 @@ twoway
 	name(hist_1a, replace) ;
 #delimit cr
 
-graph save hist_1a "postrestat_histogram_1a.gph", replace
-graph export hist_1a "postrestat_histogram_1a.pdf", replace
+graph save hist_1a "$EXPORTPATH/histogram_1a.gph", replace
+graph export hist_1a "$EXPORTPATH/histogram_1a.pdf", replace
 
 
 ********************************************************************************
 ** Histogram 1.B: winsorized version
 ** global hist_cond_1ab `"!missing(costar_rent) & res_typex!= "Condominiums" & num_units1 > 5"'
 ********************************************************************************
-
 #delimit ;
 twoway  
 	(histogram house_rent if $hist_cond_1ab & winsorized == 1, percent color(red%30) width(100))
@@ -145,15 +143,14 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_histogram_1b.gph", replace
-graph export "postrestat_histogram_1b.pdf", replace
+graph save "$EXPORTPATH/histogram_1b.gph", replace
+graph export "$EXPORTPATH/histogram_1b.pdf", replace
 
 
 ********************************************************************************
 ** Histogram 1.C:
 ** global hist_cond_1cd `"!missing(costar_rent) & <PRIVATE MARKET APARTMENTS ONLY> & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
-
 #delimit ;
 twoway  
 	(histogram house_rent if $hist_cond_1cd, percent color(red%30) width(100))
@@ -181,15 +178,14 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_histogram_1c.gph", replace
-graph export "postrestat_histogram_1c.pdf", replace
+graph save "$EXPORTPATH/histogram_1c.gph", replace
+graph export "$EXPORTPATH/histogram_1c.pdf", replace
 
 
 ********************************************************************************
 ** Histogram 1.D:
 ** global hist_cond_1cd `"!missing(costar_rent) & <PRIVATE MARKET APARTMENTS ONLY> & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
-
 #delimit ;
 twoway  
 	(histogram house_rent if $hist_cond_1cd & winsorized == 1, percent color(red%30) width(100))
@@ -217,8 +213,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_histogram_1d.gph", replace
-graph export "postrestat_histogram_1d.pdf", replace
+graph save "$EXPORTPATH/histogram_1d.gph", replace
+graph export "$EXPORTPATH/histogram_1d.pdf", replace
 
 
 ********************************************************************************
@@ -251,8 +247,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_scatter_2a.gph", replace
-graph export "postrestat_scatter_2a.pdf", replace
+graph save "$EXPORTPATH/scatter_2a.gph", replace
+graph export "$EXPORTPATH/scatter_2a.pdf", replace
 
 
 ********************************************************************************
@@ -285,8 +281,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_scatter_2b.gph", replace
-graph export "postrestat_scatter_2b.pdf", replace
+graph save "$EXPORTPATH/scatter_2b.gph", replace
+graph export "$EXPORTPATH/scatter_2b.pdf", replace
 
 
 ********************************************************************************
@@ -319,8 +315,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_scatter_2c.gph", replace
-graph export "postrestat_scatter_2c.pdf", replace
+graph save "$EXPORTPATH/scatter_2c.gph", replace
+graph export "$EXPORTPATH/scatter_2c.pdf", replace
 
 
 ********************************************************************************
@@ -353,8 +349,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_scatter_2d.gph", replace
-graph export "postrestat_scatter_2d.pdf", replace
+graph save "$EXPORTPATH/scatter_2d.gph", replace
+graph export "$EXPORTPATH/scatter_2d.pdf", replace
 
 
 ********************************************************************************
@@ -387,8 +383,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_binscatter_3a.gph", replace
-graph export "postrestat_binscatter_3a.pdf", replace
+graph save "$EXPORTPATH/binscatter_3a.gph", replace
+graph export "$EXPORTPATH/binscatter_3a.pdf", replace
 
 
 ********************************************************************************
@@ -421,8 +417,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_binscatter_3b.gph", replace
-graph export "postrestat_binscatter_3b.pdf", replace
+graph save "$EXPORTPATH/binscatter_3b.gph", replace
+graph export "$EXPORTPATH/binscatter_3b.pdf", replace
 
 
 ********************************************************************************
@@ -455,8 +451,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_binscatter_3c.gph", replace
-graph export "postrestat_binscatter_3c.pdf", replace
+graph save "$EXPORTPATH/binscatter_3c.gph", replace
+graph export "$EXPORTPATH/binscatter_3c.pdf", replace
 
 
 ********************************************************************************
@@ -489,8 +485,8 @@ twoway
 	name(, replace) ;
 #delimit cr
 
-graph save "postrestat_binscatter_3d.gph", replace
-graph export "postrestat_binscatter_3d.pdf", replace
+graph save "$EXPORTPATH/binscatter_3d.gph", replace
+graph export "$EXPORTPATH/binscatter_3d.pdf", replace
 
 
 ********************************************************************************
@@ -502,4 +498,5 @@ twoway (histogram AvgAskingUnit,  color(red%30)) (histogram pred_cstar if pred_c
 		(histogram comb_rent1 if (res_typex!= "Single Family Res" ) ,  color(purple%30)) ///
 		(histogram rent if acs2019==1 & rent>0, color(yellow%30)), ///
 		 legend(order(1 "CoStar Rent" 2 "Imputed (CoStar)" 3 "Imputed (ACS)" 4 "Imputed (6.29%)" 5 "ACS 2018")) graphregion(color(white))
-graph export "Histogram_imputed_rent_6pct.pdf", replace
+
+graph export "$EXPORTPATH/Histogram_imputed_rent_6pct.pdf", replace

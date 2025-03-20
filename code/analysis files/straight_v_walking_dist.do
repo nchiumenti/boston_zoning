@@ -33,19 +33,21 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 *					distance between these two properties.
 * 				
 * Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
-*			./final_dataset_10-28-2021.dta
+*					within_town_analysis_data.dta
+*					walking_distance_inputs.csv
+*					walking_distance_outputs.csv
 *				
 * Outputs:		
 *
-* Created:		03/24/2022
-* Updated:		10/17/2022
+* Created:			03/24/2022
+* Updated:			10/17/2022
 ********************************************************************************
 
 
 ********************************************************************************
 ** load the mt lines data
 ********************************************************************************
-use "$SHAPEPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
