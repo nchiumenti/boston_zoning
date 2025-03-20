@@ -6,9 +6,10 @@
 *
 * Project title:	Boston Zoning Paper
 *
-* Description:	
+* Description:	    this setup file is specific for no roads analysis, of which
+*                   main_noroads.do is the only real analysis file run currently
 * 				
-* Inputs:	
+* Inputs:	        
 *
 * Outputs:		
 *
@@ -23,6 +24,8 @@ noisily display "Call with <do> to show the output in log file."
 
 confirm file "/shared/boston_zoning/working_paper/data/closest_boundary_matches/closest_boundary_matches_noroads.csv"
 confirm file "/shared/boston_zoning/working_paper/data/final_dataset_10-28-2021.dta"
+confirm file "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+
 
 
 ********************************************************************************
@@ -90,6 +93,7 @@ gen year = fy
 * summarize variables to ensure consistency across runs
 sum fy
 
+* error checks
 noisily noisily assert `r(N)' == 4714809
 noisily noisily assert `r(mean)' == 2014.035230907551
 noisily noisily assert `r(min)' ==  2010
@@ -102,7 +106,9 @@ noisily noisily assert `r(max)' ==  2018
 noisily display "Merging on closest stuff dataset..."
 
 * merge on file with distance to closest school/river/road
-merge m:1 prop_id using "$DATAPATH/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta", keepusing(closest_*)
+local data_file_path = "/shared/boston_zoning/working_paper/data/warren/closest_stuff/warren_MAPC_all_unique_closest_stuff.dta"
+
+merge m:1 prop_id using `data_file_path', keepusing(closest_*)
 	
 	* checks for errors in merge
 	sum _merge
@@ -126,7 +132,9 @@ merge m:1 prop_id using "$DATAPATH/warren/closest_stuff/warren_MAPC_all_unique_c
 noisily display "Merging on CPI dataset..."
 
 * merge con CPI data to adjust rents/prices into 2019 dollars
-merge m:1 year using "$DATAPATH/fred_cpi/CPI_2019.dta"
+local data_file_path = "/shared/boston_zoning/working_paper/data/fred_cpi/CPI_2019.dta"
+
+merge m:1 year using `data_file_path'
 	
 	* checks for errors in merge
 	sum _merge
@@ -153,11 +161,12 @@ is the rent history file. */
 noisily display "Merging on CoStar datasets..."
 
 drop costar_rent costar_status // <-- drop these variables so they update properly in the merge
-
 destring costar_id, replace
 
 * merge on multifamily property characteristics
-merge m:1 costar_id using "$DATAPATH/costar/costar_mf_destring.dta" 
+local data_file_path = "/shared/boston_zoning/working_paper/data/costar/costar_mf_destring.dta"
+
+merge m:1 costar_id using `data_file_path'
 
 	* checks for errors in merge
 	sum _merge
@@ -175,7 +184,9 @@ merge m:1 costar_id using "$DATAPATH/costar/costar_mf_destring.dta"
 	drop _merge
 	
 * merge on historic rents and replace when not missing
-merge m:1 fy costar_id using "$DATAPATH/costar/costar_rent_hist.dta" , keepusing(costar_rent)
+local data_file_path = "/shared/boston_zoning/working_paper/data/costar/costar_rent_hist.dta"
+
+merge m:1 fy costar_id using `data_file_path', keepusing(costar_rent)
 
 	* checks for errors in merge
 	sum _merge
@@ -203,7 +214,10 @@ replace AvgAskingUnit = costar_rent if costar_rent!=. // <-- use the historic re
 ********************************************************************************
 noisily display "Merging on warren group sales price data..."
 
-merge 1:1 prop_id fy using "$DATAPATH/warren/warren_sales_data.dta", keep(1 3)
+* merge on sales data
+local data_file_path = "/shared/boston_zoning/working_paper/data/warren/warren_sales_data.dta"
+
+merge 1:1 prop_id fy using `data_file_path', keep(1 3)
 
 	* checks for errors in merge
 	sum _merge
@@ -590,9 +604,6 @@ gen dist = boundary_dist
 gen dist_1 = boundary_dist
 gen dist_2 = boundary_dist^2
 
-/* differential running var on either side 
-(SUBSTITUTE RELAXED OR RELAXED2 DEPENDING ON WhAT WE DECIDE) */
-
 * distance based on <relaxed>
 gen dist_both = dist if relaxed == 1
 replace dist_both = (-1)*dist if relaxed == 0
@@ -615,7 +626,6 @@ egen dist3 = group(dist_group), label
 * distance group variables for <dist_both2>
 egen dist_group2 = cut(dist_both2), at(-0.5(0.02)0.5)
 egen dist3_2 = group(dist_group2), label
-
 
 * error checking
 sum dist
@@ -718,7 +728,6 @@ noisily assert `r(min)' ==  0
 noisily assert `r(max)' ==  333202639.2473357
 noisily assert `r(sum)' ==  1857039784204.042
 
-
 sum log_combrent1
 noisily assert `r(N)' ==  3216731
 noisily assert `r(sum_w)' ==  3216731
@@ -762,19 +771,10 @@ noisily assert `r(min)' ==  .035919747181273
 noisily assert `r(max)' ==  19.70586683136967
 noisily assert `r(sum)' ==  7599908.022628491
 
-
 	
 ********************************************************************************
 ** End
 ********************************************************************************
-// save "$DATAPATH/postQJE_Within_Town_setup_data.dta", replace
-
-tab year 
-
-noisily noisily assert _N == 3248645
 
 noisily display "Done!"
 noisily display "** END OF SETUP FILE **"
-
-// log close
-// clear all

@@ -1,5 +1,3 @@
-THIS FILE IS NOT CLEAN!!!!! I STOPPED BECAUSE IT REQUIRES SOME EXTRA STEPS
-
 * start here
 clear all
 log close _all
@@ -30,83 +28,64 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 *
 * Description:
 * 				
-* Inputs:
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					soil_quality_matches.dta
+*					dist_south_station_2022_09_29.csv
+*					transit_distance.csv
+*					blocks_2010.dta
+*					acs_amenities.dta
 *				
-* Outputs:
+* Outputs:			multiple .gph files
 *
 * Created:			06/23/2021
-* Updated:			03/18/2025
+* Updated:			03/20/2025
 ********************************************************************************
-* create a save directory if none exists
-global RDPATH "$FIGPATH/`name'_`date_stamp'"
-
-capture confirm file "$RDPATH"
 
 
-if _rc!=0 {
-	di "making directory $RDPATH"
-	shell mkdir $RDPATH
-}
-
-cd $RDPATH
-
-/* NFC Note to self: Mike Corbett ran this setup already and saved the output so it
-would be faster to run. As such the setup code has been commented out */
-
-/* This comments out the entire setup code
-********************************************************************************
-** Setup step 1: Get the no road boundary data
-********************************************************************************
-/* NFC Note: The .do file below is self contained, meaning you do not need to 
-load any .dta file before running it. Ultimately the only variables we need from 
-this step are lam_seg, dist_both, and dist3 */
-
-run "$DOPATH/miscellaneous_dofiles/postQJE_within_town_setup_no_roads.do"  // NFC Note: This uses a postQJE version setup file because we do not need a postREStat version
-
-keep if straight_line == 1 // <-- drops non-straight line properties
-
-keep if (year >= 2010 & year <= 2018)
-
-// NFC flag: do i need to keep the regulation variables too?
-
-* keep only the regulation variables and vars to match
-keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du_he mf_he_du
-
-tab year
-
-* temp save the data
-tempfile noroads
-save `noroads', replace
-clear
-
-/* NFC Note: Now at this point we are going to use the make "baseline" dataset
-to run both calculate the tract weights and use for the background data */
-
-
-********************************************************************************
-** Setup step 2: Compile the baseline data 
 ********************************************************************************
 * load the mt lines data and tempsave
-use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+********************************************************************************
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
 
 destring prop_id, replace
 
 tempfile mtlines
 save `mtlines', replace
 
-* load final dataset and run the setup file
-// use "$DATAPATH/final_dataset_10-28-2021.dta", clear
-// run "$DOPATH/postREStat_within_town_setup.do"
 
-use "$DATAPATH/postQJE_Within_Town_setup_data_07102024_mcgl.dta", clear  // NFC Note: we can use the pre-saved data here
+********************************************************************************
+** Setup step 1 & 2: Get the no road boundary data
+********************************************************************************
+* set to 1 to run setup code
+scalar UPDATE_INT_FILE = 1
+if UPDATE_INT_FILE {
 
-** merge on mt lines to keep straight line properties
+do "$DOPATH/analysis_noroads_setup.do"
+
+save "$DATAPATH/analysis_noroads_data.dta", replace
+
+}
+
+// use "$DATAPATH/analysis_noroads_data.dta", clear
+
+* drop out of scope observations
+keep if straight_line == 1
+
+keep if (year >= 2010 & year <= 2018)
+
+* keep only the regulation variables and vars to match
+keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du_he mf_he_du
+
+tab year
+
+* merge on mt lines to keep straight line properties
 merge m:1 prop_id using `mtlines', keepusing(straight_line)
 
+	tab _merge
 	drop if _merge == 2
 	drop _merge
 
-keep if straight_line == 1 // <-- drops non-straight line properties
+keep if straight_line == 1  // <-- drops non-straight line properties
 
 keep if (year >= 2010 & year <= 2018)  // drops out of scope year observaions
 
@@ -186,7 +165,7 @@ save `tract_pop_weights', replace
 restore
 
 ********************************************************************************
-** Setup step 4Finalize the baseline data
+** Setup step 4: Finalize the baseline data
 ********************************************************************************
 /* NFC Note: The first sub-step here is to just preserve the baseline data and 
 then clear it. The second sub-step is to load and tempsave the characteristics data. 
@@ -213,7 +192,7 @@ clear
 ********************************************************************************
 ** Setup step 4.1: load and tempsave the soil data
 ********************************************************************************
-use "$SHAPEPATH/soil_quality/soil_quality_matches.dta", clear
+use "$DATAPATH/soil_quality_matches.dta", clear
 
 keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
 
@@ -226,12 +205,12 @@ save `soil', replace
 ********************************************************************************
 ** Setup step 4.2: load and tempsave the transit data
 ********************************************************************************
-import delimited "$DATAPATH/train_stops/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
 
 tempfile dist_south_station
 save `dist_south_station', replace
 
-import delimited "$DATAPATH/train_stops/transit_distance.csv", clear stringcols(_all)
+import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
 
 merge m:1 station_id using `dist_south_station'
 		
@@ -307,7 +286,7 @@ keep if (year >= 2010 & year <= 2018)
 tab year
 
 * merge on block data level characteristics
-merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replace
+merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
 	
 	* summarize _merge var and drop
 	tab _merge
@@ -318,7 +297,7 @@ merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replac
     gen BLKGRP = substr(warren_GEOID_full,1,12)
 
 * merge on acs amenities dataset
-merge m:1 year BLKGRP using "$DATAPATH/acs/acs_amenities.dta", keepusing(B19113001)
+merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
 
 	* summarize merge and drop
 	tab _merge
@@ -388,20 +367,15 @@ global char_vars_land dist_school dist_center dist_road dist_river dist_space tr
     1) The "baseline" straight line regulation data and corresponding warren group property data, tagged as "_baseline"
     2) The characteristics (acs, amenities, and distance to stuff)
     3) The tract weights based on the baseline data
-    4) The "noroads" versions of lam_seg, distance to boundary (dist_both and dist3) and boundary types
-*/
-save "$DATAPATH/interim_20240927",replace
-stop
+    4) The "noroads" versions of lam_seg, distance to boundary 
+	(dist_both and dist3) and boundary types */
 
-End of Commented Setup */
+//save "$DATAPATH/analysis_no_roads_interim.dta",replace
+
 
 ********************************************************************************
 ** Beginning of analysis portion of file
 ********************************************************************************
-
-* load the interim dataset for analaysis
-use "$DATAPATH/interim_20240927", clear
-
 * define the globals used for regressions
 global acs_vars frac_under18 frac_over65 frac_black frac_asian frac_hispanic frac_nonhispanicwhite frac_morethan4 median_inc
 global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
@@ -417,7 +391,6 @@ tab no_roads baseline, miss
 
 ********************************************************************************
 ** Define the MAPC town types used in spatial heterogeneity file
-
 /* NFC Note: this code was taken directly from "Final_Spatial_Heterogeneity.do"
 and modified slightly so variable names would not conflict */
 ********************************************************************************
@@ -523,11 +496,8 @@ gen town_type_name = "Inner Core" if town_type_1 == 1 /* Blue  */
 
 tab town_type_name no_roads, miss  // this should show the town types and how many obs in each are no roads
 
+tab town_type_name no_roads, miss col
 
-
-////stop// NFC 12-4-2024: remove this //stopafter verifying things look ok
-
-tab town_type_name no_roads,miss col
 
 /*******************************************************************************
 ** Part 4: Sales prices
@@ -557,7 +527,6 @@ tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roa
 * no roads only
 tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
-stop // NFC 12-9-2024: do not need to run beyond this point
 
 *******************************************
 ** 4a. Basline (same as mt lines main file)
@@ -585,6 +554,7 @@ esttab price_du_4a price_duhe_4a price_mfdu_4a price_mf_4a price_mfhe_4a price_h
 	label mtitles("price_du_baseline" "price_duhe_baseline" "price_mfdu_baseline" "price_mf_baseline" "price_mfhe_baseline" "price_he_baseline") ///
 	title("4a. Sales Prices, baseline") 
 	
+
 *******************************************************************
 ** 4d. No roads w/o tract weights w/ no_roads indicator restriction
 *******************************************************************
@@ -613,15 +583,12 @@ esttab price_du_4d price_duhe_4d price_mfdu_4d price_mf_4d price_mfhe_4d price_h
 	title("4d. Sales Prices, no roads ") 
 
 
-//stop // NFC 12-4-2024: remove this //stopafter verifying things look ok
-
 /*******************************************************************************
 ** Part 4: Generate Graphs
 	- 4.1. Baseline 4a with weighted no roads 4b
 	- 4.2. Baseline 4a with unweighted no roads 4d
 	- 4.3. Baseline 4f with unweighted no roads 4g, no roads tracks only
 *******************************************************************************/
-
 * 4.2. Baseline 4a with no roads 4d
 local plot_list price_du price_duhe price_mfdu price_mf price_mfhe price_he
 local suffix "coef_price_base_unweighted_noroads"
@@ -708,16 +675,16 @@ foreach r in `plot_list'{
 			nobox fcolor()
 			region(fcolor(none) lpattern(blank))
 			margin(t=1 b=1 l=0 r=0)span)
-		name(`r'_42, replace) ;
+		name("`r'_42", replace) ;
 		
-	graph combine `r'_42,
+	graph combine "`r'_42",
 		graphregion(fc(white) lcolor(white))
 		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
 		b1title("`b1_title'", size(2))
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
-		name(`r'_42a, replace);
-	graph save `r'_42a `suffix'_`str', replace;
-	graph close `r'_42a;
+		name("`r'_42", replace);
+	graph save "`r'_42" "$EXPORTPATH/`suffix'_`str'", replace;
+	graph close "`r'_42";
 	#delimit cr
 }
 
@@ -731,11 +698,12 @@ graph combine price_du_42 price_duhe_42 price_mfdu_42 price_mf_42 price_mfhe_42 
 	b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
 	name("final_graph", replace);
 	
-	graph save "final_graph" "`suffix'_all", replace;
+	graph save "final_graph" "$EXPORTPATH/`suffix'_all", replace;
 #delimit cr	
 
 //eststo clear
 graph close _all
+
 
 /*******************************************************************************
 ** Part 6: Rents
@@ -747,7 +715,6 @@ graph close _all
 	- 6f. Baseline boundaries but only in tracts that also have a no roads boundary <-- baseline but just no roads only
 	- 6g. No roads w/o tract weights
 *******************************************************************************/
-
 * summary statistics for baseline
 sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
 
@@ -759,7 +726,6 @@ tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_ty
 
 tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
 
-////stop// NFC 12-4-2024: remove this //stopafter verifying things look ok
 
 *******************************************
 ** 6a. Basline (same as mt lines main file)
@@ -816,13 +782,13 @@ esttab rent_du_6d rent_duhe_6d rent_mfdu_6d rent_mf_6d rent_mfhe_6d rent_he_6d, 
 	label mtitles("rent_du" "rent_duhe" "rent_mfdu" "rent_mf" "rent_mfhe" "rent_he") ///
 	title("6d. Rents, no roads") 
 
+
 /*******************************************************************************
 ** Part 6: Generate Graphs
 	- 6.1. Baseline 6a with weighted no roads 6b
 	- 6.2. Baseline 6a with unweighted no roads 6d
 	- 6.3. Baseline 6f with unweighted no roads 6g, no roads tracks only
 *******************************************************************************/
-
 * 6.2. Baseline 6a with no roads 6d
 local plot_list rent_du rent_duhe rent_mfdu rent_mf rent_mfhe rent_he
 local suffix "coef_rent_base_unweighted_noroads"
@@ -912,17 +878,17 @@ foreach r in `plot_list'{
 			nobox fcolor()
 			region(fcolor(none) lpattern(blank))
 			margin(t=1 b=1 l=0 r=0)span)
-		name(`r'_62, replace) ;
+		name("`r'_62", replace) ;
 		
-	graph combine `r'_62,
+	graph combine "`r'_62",
 		graphregion(fc(white) lcolor(white))
 		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
 		b1title("`b1_title'", size(2))
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
-		name(`r'_62a, replace);
+		name("`r'_62a", replace);
 	
-	graph save `r'_62a `suffix'_`str', replace;
-	graph close `r'_62a;
+	graph save "`r'_62a" "$EXPORTPATH/`suffix'_`str'"", replace;
+	graph close "`r'_62a";
 	#delimit cr
 }
 
@@ -936,7 +902,7 @@ graph combine rent_du_62 rent_duhe_62 rent_mfdu_62 rent_mf_62 rent_mfhe_62 rent_
 	b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
 	name("final_graph", replace);
 	
-	graph save "final_graph" "`suffix'_all", replace;
+	graph save "final_graph" "$EXPORTPATH/`suffix'_all", replace;
 #delimit cr	
 
 //eststo clear
@@ -950,16 +916,16 @@ log off
 log close
 
 ** convert gph to pdf
-local files : dir "$RDPATH" files "*.gph"
+local files : dir "$EXPORTPATH" files "*.gph"
 
 foreach fin in `files'{	
 	local fout : subinstr local fin ".gph" ".pdf"	
 	
 	display "converting `fin' to `fout'..."
 	
-	graph use "$RDPATH/`fin'"
+	graph use "$EXPORTPATH/`fin'"
 	
-	graph export "$RDPATH/`fout'", as(pdf) replace
+	graph export "$EXPORTPATH/`fout'", as(pdf) replace
 	
 	graph close
 }
