@@ -6,7 +6,7 @@
 | File Name| Checked/Cleaned | Run by Mike |
 |----------|:------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ❌ |
-| amenities_muni_boundary.do | ❌ | ❌ |
+| amenities_muni_boundary.do | ✅ | ❌ |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ |
 | bindingness.do | ✅ | ❌ |
