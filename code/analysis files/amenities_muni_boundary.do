@@ -48,6 +48,9 @@ confirm file "$DATAPATH/soil_quality_matches.dta"
 confirm file "$DATAPATH/warren_group_walkability.dta"
 confirm file "$DATAPATH/final_dataset_town_comparisons.dta"
 
+* set to 1 to run setup code
+scalar UPDATE_INT_FILE = 1
+if UPDATE_INT_FILE {
 
 ********************************************************************************
 ** load and tempsave the transit data
@@ -168,7 +171,7 @@ gen soil_avgclay = avg_clay
 
 * save a mid-point version to cut down on run time while error checking code
 // save "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta", replace
-
+}
 * load mid-point version to cut down on run time while error checking code
 // use  "$DATAPATH/final_dataset_town_comparisons_postsetup_20240930.dta", clear
 
@@ -176,6 +179,7 @@ gen soil_avgclay = avg_clay
 ********************************************************************************
 ** distance to highway 
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo road_du: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_road if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -226,12 +230,13 @@ quietly eststo road_he_robust: reg dist_road ib26.dist3 i.lam_seg i.year if year
 esttab road_du_robust road_duhe_robust road_mfdu_robust road_mf_robust road_mfhe_robust road_he_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") title("Distance to Highway (miles), robust s.e.") 
-	
+}	
 	
 	
 ********************************************************************************
 ** distance to water body
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo river_du: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_river if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -280,11 +285,13 @@ quietly eststo river_he_robust: reg dist_river ib26.dist3 i.lam_seg i.year if ye
 
 esttab river_du_robust river_duhe_robust river_mfdu_robust river_mf_robust river_mfhe_robust river_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") title("Distance to River (miles), robust s.e.") 
+}
 
 
 ********************************************************************************
 ** distance to green space
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo space_du: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_space if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -333,11 +340,13 @@ quietly eststo space_he_robust: reg dist_space ib26.dist3 i.lam_seg i.year if ye
 
 esttab space_du_robust space_duhe_robust space_mfdu_robust space_mf_robust space_mfhe_robust space_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") title("Distance to Green Space (miles), robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 * distance to school
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo school_du: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_school if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -386,11 +395,13 @@ quietly eststo school_he_robust: reg dist_school ib26.dist3 i.lam_seg i.year if 
 
 esttab school_du_robust school_duhe_robust school_mfdu_robust school_mf_robust school_mfhe_robust school_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") title("Distance to School (miles), robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 ** distance to city center
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo center_du: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum dist_center if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -439,11 +450,13 @@ quietly eststo center_he_robust: reg dist_center ib26.dist3 i.lam_seg i.year if 
 
 esttab center_du_robust center_duhe_robust center_mfdu_robust center_mf_robust center_mfhe_robust center_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") title("Distance to City Center (miles), robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 ** commuting distance to downtown distance (south station)
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo transit_du: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum transit_dist if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -492,11 +505,13 @@ quietly eststo transit_he_robust: reg transit_dist ib26.dist3 i.lam_seg i.year i
 
 esttab transit_du_robust transit_duhe_robust transit_mfdu_robust transit_mf_robust transit_mfhe_robust transit_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") title("Public Transit Distance to Downtown Boston (miles), robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 ** Mean slope of lot
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo slope_du: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgslope if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -545,11 +560,13 @@ quietly eststo slope_he_robust: reg soil_avgslope ib26.dist3 i.lam_seg i.year if
 
 esttab slope_du_robust slope_duhe_robust slope_mfdu_robust slope_mf_robust slope_mfhe_robust slope_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") title("Mean Slope of Lot (degrees), robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 ** percent of lot >15 degrees
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo slope15_du: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_slope15 if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -598,11 +615,13 @@ quietly eststo slope15_he_robust: reg soil_slope15 ib26.dist3 i.lam_seg i.year i
 
 esttab slope15_du_robust slope15_duhe_robust slope15_mfdu_robust slope15_mf_robust slope15_mfhe_robust slope15_he_robust, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") title("Percent of Lot with Slope >15 Degrees, robust s.e.") 
-	
+}
+
 	
 ********************************************************************************
 ** depth to restrictive layer
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo depth_du: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgrestri if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -651,11 +670,13 @@ quietly eststo depth_he_r: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if yea
 
 esttab depth_du_r depth_duhe_r depth_mfdu_r depth_mf_r depth_mfhe_r depth_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") title("Depth to Restrictive Layer (cm), robust s.e.") 
-	
+}
+
 	
 ********************************************************************************
 ** mean percent sand
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo sand_du: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgsand if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -704,11 +725,13 @@ quietly eststo sand_he_r: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==
 
 esttab sand_du_r sand_duhe_r sand_mfdu_r sand_mf_r sand_mfhe_r sand_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") title("Avg. Percent Sand, robust s.e.") 
-	
+}
+
 
 ********************************************************************************
 ** mean percent clay
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo clay_du: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum soil_avgclay if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -757,13 +780,16 @@ quietly eststo clay_he_r: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==
 
 esttab clay_du_r clay_duhe_r clay_mfdu_r clay_mf_r clay_mfhe_r clay_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") title("Mean Percent Clay, robust s.e.") 
-	
+}
+
+
 ********************************************************************************
 *WALKABILITY VARIABLES
 ********************************************************************************
 ********************************************************************************
 ** National Walkability Index score
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo walk_du: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum natwalkind if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -812,11 +838,13 @@ quietly eststo walk_he_r: reg natwalkind ib26.dist3 i.lam_seg i.year if year==20
 
 esttab walk_du_r walk_duhe_r walk_mfdu_r walk_mf_r walk_mfhe_r walk_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") title("Walkability Index, robust s.e.") 
+}
 
 
 ********************************************************************************
 ** Employment mix  (only tables)
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo empl_du: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster lam_seg)
 sum d2b_e8mixa if only_du == 1 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" 
@@ -865,6 +893,7 @@ quietly eststo empl_he_r: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==20
 
 esttab empl_du_r empl_duhe_r empl_mfdu_r empl_mf_r empl_mfhe_r empl_he_r, se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") title("Employment mix, robust s.e.") 
+}
 
 
 ********************************************************************************
@@ -873,6 +902,7 @@ esttab empl_du_r empl_duhe_r empl_mfdu_r empl_mf_r empl_mfhe_r empl_he_r, se r2 
 ********************************************************************************
 ** distance to highway 
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo road_du: reg dist_road ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -894,10 +924,13 @@ esttab road_du road_duhe road_mfdu road_mf road_mfhe road_he using "$EXPORTPATH/
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("road_du" "road_duhe" "road_mfdu" "road_mf" "road_mfhe" "road_he") ///
 	title("Distance to Highway (miles)") 
-	
+}
+
+
 ********************************************************************************
 ** distance to river
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo river_du: reg dist_river ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -918,11 +951,13 @@ esttab river_du river_duhe river_mfdu river_mf river_mfhe river_he using "$EXPOR
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("river_du" "river_duhe" "river_mfdu" "river_mf" "river_mfhe" "river_he") ///
 	title("Distance to River (miles)") 
+}
 
 
 ********************************************************************************
 ** distance to green space
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo space_du: reg dist_space ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -943,11 +978,13 @@ esttab space_du space_duhe space_mfdu space_mf space_mfhe space_he using "$EXPOR
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("space_du" "space_duhe" "space_mfdu" "space_mf" "space_mfhe" "space_he") ///
 	title("Distance to Green Space (miles)") 
-		
+}
+
 
 ********************************************************************************
 * distance to school
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo school_du: reg dist_school ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -968,11 +1005,13 @@ esttab school_du school_duhe school_mfdu school_mf school_mfhe school_he using "
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("school_du" "school_duhe" "school_mfdu" "school_mf" "school_mfhe" "school_he") ///
 	title("Distance to School (miles)") 
-		
+}
+
 
 ********************************************************************************
 ** distance to city center
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo center_du: reg dist_center ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -993,10 +1032,13 @@ esttab center_du center_duhe center_mfdu center_mf center_mfhe center_he using "
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("center_du" "center_duhe" "center_mfdu" "center_mf" "center_mfhe" "center_he") ///
 	title("Distance to City Center (miles)") 
+}
+
 
 ********************************************************************************
 ** commuting distance to downtown distance (south station)
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo transit_du: reg transit_dist ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -1017,10 +1059,13 @@ esttab transit_du transit_duhe transit_mfdu transit_mf transit_mfhe transit_he u
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("transit_du" "transit_duhe" "transit_mfdu" "transit_mf" "transit_mfhe" "transit_he") ///
 	title("Public Transit Distance to Downtown Boston (miles)") 
+}
+
 
 ********************************************************************************
 ** Mean slope of lot
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo slope_du: reg soil_avgslope ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1041,11 +1086,13 @@ esttab slope_du slope_duhe slope_mfdu slope_mf slope_mfhe slope_he using "$EXPOR
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope_du" "slope_duhe" "slope_mfdu" "slope_mf" "slope_mfhe" "slope_he") ///
 	title("Mean Slope of Lot (degrees)") 
-	
+}
+
 
 ********************************************************************************
 ** percent of lot >15 degrees
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo slope15_du: reg soil_slope15 ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 
@@ -1066,11 +1113,13 @@ esttab slope15_du slope15_duhe slope15_mfdu slope15_mf slope15_mfhe slope15_he u
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("slope15_du" "slope15_duhe" "slope15_mfdu" "slope15_mf" "slope15_mfhe" "slope15_he") ///
 	title("Percent of Lot with Slope >15 Degrees") 
+}
 
 
 ********************************************************************************
 ** depth to restrictive layer
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo depth_du: reg soil_avgrestri ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1091,11 +1140,13 @@ esttab depth_du depth_duhe depth_mfdu depth_mf depth_mfhe depth_he using "$EXPOR
 se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("depth_du" "depth_duhe" "depth_mfdu" "depth_mf" "depth_mfhe" "depth_he") ///
 	title("Depth to Restrictive Layer (cm)") 
-	
+}
+
 
 ********************************************************************************
 ** mean percent sand
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo sand_du: reg soil_avgsand ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1116,11 +1167,13 @@ esttab sand_du sand_duhe sand_mfdu sand_mf sand_mfhe sand_he using "$EXPORTPATH/
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("sand_du" "sand_duhe" "sand_mfdu" "sand_mf" "sand_mfhe" "sand_he") ///
 	title("Avg. Percent Sand") 
-	
+}
+
 
 ********************************************************************************
 ** mean percent clay
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo clay_du: reg soil_avgclay ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1141,7 +1194,8 @@ esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("clay_du" "clay_duhe" "clay_mfdu" "clay_mf" "clay_mfhe" "clay_he") ///
 	title("Mean Percent Clay") 
-		
+}
+
 
 ********************************************************************************
 *WALKABILITY VARIABLES
@@ -1149,6 +1203,7 @@ esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/
 ********************************************************************************
 ** National Walkability Index score
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo walk_du: reg natwalkind ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1169,11 +1224,13 @@ esttab clay_du clay_duhe clay_mfdu clay_mf clay_mfhe clay_he using "$EXPORTPATH/
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("walk_du" "walk_duhe" "walk_mfdu" "walk_mf" "walk_mfhe" "walk_he") ///
 	title("Walkability Index") 
-		
+}
+
 
 ********************************************************************************
 ** Employment mix  (only tables)
 ********************************************************************************
+capture noisily {
 ** regressions
 quietly eststo empl_du: reg d2b_e8mixa ib26.dist3 i.lam_seg i.year if year==2018 & (dist_both<=0.21 & dist_both>=-0.2 & only_du == 1 & res_typex !="Condominiums") , vce(cluster city)
 	
@@ -1194,7 +1251,8 @@ esttab empl_du empl_duhe empl_mfdu empl_mf empl_mfhe empl_he using "$EXPORTPATH/
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("empl_du" "empl_duhe" "empl_mfdu" "empl_mf" "empl_mfhe" "empl_he") ///
 	title("Employment mix") 
-	
+}
+
 
 ********************************************************************************
 ** end of do file
