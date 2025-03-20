@@ -81,22 +81,51 @@ cd $WORKINGDIR
 ********************************************************************************
 /* Description of .do file order:
 Generally the analysis .do files can be run in any order. There are two (2) 
-exceptions, however. 
+exceptions, however. */
 
-1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
-that is used throughout the analysis files.
+/* 1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
+that is used throughout the analysis files.*/
 
-2) the counterfactual files must be run in the order noted by their numerical 
-infix, i.e. counterfactual_01.. is run first, then counterfactual_02.., etc.
+do "analysis_within_town_setup.do"  // leave commented out unless necessary to create dataset
 
-All other analysis .do files can be run in any order.
-*/
+/* 2) the counterfactual files must be run in the order noted by their numerical 
+infix, i.e. counterfactual_01.. is run first, then counterfactual_02.., etc. */
 
 do "counterfactual_01_spatial_hetergeneity.do"
 
 do "counterfactual_02_train_station_means.do"
 
 do "counterfactual_03_means.do"
+
+/* All other analysis .do files can be run in any order. */
+
+do "amenities_mtlines.do"
+
+do "amenities_muni_boundary.do"
+
+do "bindingness.do"
+
+do "chars_mtlines.do"
+
+do "external_effects.do"
+
+do "histogram.do"
+
+do "main_mtlines.do"
+
+do "main_noroads.do"
+
+do "predicted_prices_mtlines.do"
+
+do "residuals.do"
+
+do "robustness_mtlines.do"
+
+do "straight_v_walking.do"
+
+do "within_town_mtlines_robustse.do"
+
+do "within_town_mtlines.do"
 
 
 
