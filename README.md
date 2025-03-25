@@ -16,10 +16,10 @@
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
-| external_effects.do | ✅ | ⚠️ |  <--last run on 3/21 failed 
-| histogram.do | ✅ | ⚠️ |  <--last run on 3/21 failed 
-| main_mtlines.do | ✅ | ⚠️ | <--looks like it failed then work, have mike send corrected code
-| main_noroads.do | ✅ | ⚠️ |  <--last run on 3/24 failed 
+| external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
+| histogram.do | ✅ | ⚠️last run on 3/21 failed |
+| main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
+| main_noroads.do | ✅ | ⚠️last run on 3/24 failed |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
