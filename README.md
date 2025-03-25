@@ -3,7 +3,7 @@
 
 ### Replication File Status
 #### ./analysis_files
-| File Name| Checked/Cleaned | Run by Mike |
+| File Name| Checked/Cleaned | Run Successfully by Mike |
 |----------|:------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ❌ |
 | amenities_muni_boundary.do | ✅ | ❌ |
@@ -11,7 +11,7 @@
 | analysis_noroads_setup.do | ✅ | ❌ |
 | analysis_town_comparisons_setup.do | ✅ | ❌ |
 | analysis_within_town_setup.do | ✅ | ✅ |
-| bindingness.do | ✅ | ❌ |
+| bindingness.do | ✅ | ✅ |
 | chars_mtlines.do | ✅ | ❌ |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
