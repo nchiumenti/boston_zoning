@@ -5,8 +5,8 @@
 #### ./analysis_files
 | File Name| Checked/Cleaned | Run Successfully by Mike |
 |----------|:------------:|:----------------:|
-| amentities_mtlines.do | ✅ | ❌ |
-| amenities_muni_boundary.do | ✅ | ❌ |
+| amentities_mtlines.do | ✅ | ✅ |
+| amenities_muni_boundary.do | ✅ | ⚠️Mike indicated this had issues but it seems like it worked |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
 | analysis_noroads_setup.do | ✅ | ❌ |
 | analysis_town_comparisons_setup.do | ✅ | ❌ |
