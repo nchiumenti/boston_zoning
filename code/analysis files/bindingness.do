@@ -359,7 +359,7 @@ by lam_seg, sort: egen frac_binding_mf = mean(mf_binding)
 count if frac_binding_mls_10 == . 
 count if frac_binding_height_10 == .
 count if frac_binding_maxdu_10 == . 
-count if frac_binding_far_10 == .
+//count if frac_binding_far_10 == .
 count if frac_binding_mf == . 
 
 * all, based on 10% and 20%, what is missing
@@ -508,7 +508,7 @@ esttab price_du price_he price_duhe price_mfdu price_mf, ///
 	title("Sales Prices >15% binding") 
 	
 	
-esttab price_du price_he price_duhe price_mfdu price_mf  using "$RDPATH/salesprice_table_bindingness15_maxdumls.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_he price_duhe price_mfdu price_mf  using "$EXPORTPATH/salesprice_table_bindingness15_maxdumls.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du" "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices >15% binding") 
@@ -544,7 +544,7 @@ esttab price_du price_he price_duhe price_mfdu price_mf, ///
  	label mtitles("price_du"  "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
 	
-esttab price_du price_he price_duhe price_mfdu price_mf  using "$RDPATH/salesprice_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_he price_duhe price_mfdu price_mf  using "$EXPORTPATH/salesprice_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
@@ -595,7 +595,7 @@ esttab rent_du rent_duhe1 , se r2 ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1  using "$RDPATH/rents_table_bindingness15_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1  using "$EXPORTPATH/rents_table_bindingness15_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -627,7 +627,7 @@ esttab rent_du  rent_duhe1 , se r2 ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1 using "$RDPATH/rents_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1 using "$EXPORTPATH/rents_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 

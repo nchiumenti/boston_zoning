@@ -37,7 +37,7 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 *					walking_distance_inputs.csv
 *					walking_distance_outputs.csv
 *				
-* Outputs:		
+* Outputs:			straight_v_walking_dist.gph (.pdf)
 *
 * Created:			03/24/2022
 * Updated:			10/17/2022
@@ -162,3 +162,6 @@ binscatter walking_dist_mi crow_dist , n(20) ///
 	
 	graph save "$EXPORTPATH/straight_v_walking_dist.gph", replace
 	graph export "$EXPORTPATH/straight_v_walking_dist.pdf", replace
+
+log off
+log close

@@ -3,6 +3,7 @@
 #/programs
 #/counterfactual*
 /_archived
+/analysis
 
 ## files
 *.dta

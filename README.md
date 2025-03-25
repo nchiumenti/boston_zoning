@@ -11,21 +11,21 @@
 | analysis_noroads_setup.do | ✅ | ❌ |
 | analysis_town_comparisons_setup.do | ✅ | ❌ |
 | analysis_within_town_setup.do | ✅ | ✅ |
-| bindingness.do | ✅ | ❌ |
-| chars_mtlines.do | ✅ | ❌ |
+| bindingness.do | ✅ | ✅ |
+| chars_mtlines.do | ✅ | ✅ |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
-| external_effects.do | ✅ | ❌ |
-| histogram.do | ❌ | ❌ |
-| main_mtlines.do | ✅ | ❌ |
-| main_noroads.do | ❌ | ❌ |
+| external_effects.do | ✅ | ⚠️ |  <--last run on 3/21 failed 
+| histogram.do | ✅ | ⚠️ |  <--last run on 3/21 failed 
+| main_mtlines.do | ✅ | ⚠️ | <--looks like it failed then work, have mike send corrected code
+| main_noroads.do | ✅ | ⚠️ |  <--last run on 3/24 failed 
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
-| straight_line_v_walking.do[^1] | ❌ | ❌ |
+| straight_line_v_walking.do[^1] | ✅ | ✅ |
 | within_town_mtlines.do | ✅ | ❌ |
-| within_town_mtlines_robustse.do | ✅ | ❌ |
+| within_town_mtlines_robustse.do | ✅ | ⚠️ |  <--last run on 3/24 failed 
 
 [^1]: Requires a python program to run and reproduce
 
