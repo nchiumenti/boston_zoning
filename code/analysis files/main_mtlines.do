@@ -639,7 +639,7 @@ esttab units_du units_duhe units_mfdu units_mf units_mfhe units_he, ///
 	title("Units, baseline") 
 	
 * export table version 	
-esttab units_du units_duhe units_mfdu units_mf units_mfhe units_he using "$RDPATH/units_noyear_table.tex", replace keep(25.dist3) ///
+esttab units_du units_duhe units_mfdu units_mf units_mfhe units_he using "$EXPORTPATH/units_noyear_table.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg") interaction(" X ") ///
 	label mtitles("units_du" "units_duhe" "units_mfdu" "units_mf" "units_mfhe" "units_he") ///
 	title("Units, baseline") 		
@@ -1242,7 +1242,7 @@ esttab land_du land_duhe land_mfdu land_mf land_mfhe land_he, ///
 	title("Land price per squarefoot baseline") 
 	
 * export table version 	
-esttab land_du land_duhe land_mfdu land_mf land_mfhe land_he using "$RDPATH/land_price_table.tex", replace keep(25.dist3) ///
+esttab land_du land_duhe land_mfdu land_mf land_mfhe land_he using "$EXPORTPATH/land_price_table.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("land_du" "land_duhe" "land_mfdu" "land_mf" "land_mfhe" "land_he") ///
 	title("Assessed Land Value Per Squarefoot")	
