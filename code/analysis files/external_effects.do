@@ -128,10 +128,9 @@ forvalues i = 0.15 {
 	********************************************************************************
 	** regressions
 	* set regression conditions
-	*CHECK: Change dist_both distance to relflect above criterum
 	local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>=(`interior_max' * -1)) & res_typex=="Single Family Res"
 
-	*Means (calcualted for boudnary parcel)
+	* means (calcualted for boudnary parcel)
 	sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
 	sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
 		
@@ -171,12 +170,12 @@ forvalues i = 0.15 {
 		title("Sales Prices w/ characteristics") 
 		
 	*Check RESTAT: keep only the coefficients that have interior interaction with them 	  
-	esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2 using "$RDPATH/salesprice_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) ///
+	esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2 using "$EXPORTPATH/salesprice_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) ///
 		se r2 indicate("Boundary f.e.=*lam_seg" "Sale year f.e.=*last_saleyr" "Year built f.e.=*year_built") interaction(" X ") ///
 		label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
 		title("Sales Prices w/ characteristics") 
 		
-	*robust s.e.
+	* robust s.e.
 	quietly eststo price_du2_r: reg log_saleprice i.interior_parcel##c.dupac i.lam_seg i.last_saleyr $char_vars if only_du==1 & `regression_conditions', vce(robust)
 		
 	quietly eststo price_duhe2_r: reg log_saleprice i.interior_parcel##c.height##c.dupac i.lam_seg i.last_saleyr $char_vars if du_he == 1 & `regression_conditions', vce(robust)
@@ -195,9 +194,9 @@ forvalues i = 0.15 {
 		label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
 		title("Sales Prices w/ characteristics, robust s.e.") 
 
-		
 	eststo clear
 	
+
 	********************************************************************************
 	** Part 2: Rents
 	* Part 2a: Rents, baseline
@@ -216,7 +215,6 @@ forvalues i = 0.15 {
 	sum comb_rent2 if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0
 	sum comb_rent2 if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex != "Condominiums" & comb_rent2>0
 		
-		
 	* Part 2b: Rents w/ additional controls
 	quietly eststo rent_du2: reg log_mfrent i.interior_parcel##c.dupac i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions', vce(cluster lam_seg)
 		
@@ -230,13 +228,12 @@ forvalues i = 0.15 {
 		title("Rents, w/ characteristics") 
 		
 	* keep only the coefficients that have interior interaction with them 	  
-	esttab rent_du2 rent_duhe2 rent_he2 using "$RDPATH/rents_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) se r2 ///
+	esttab rent_du2 rent_duhe2 rent_he2 using "$EXPORTPATH/rents_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) se r2 ///
 		indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year" "Year built f.e.=*year_built") interaction(" X ") ///
 		label mtitles("rent_du2" "rent_duhe2" "rent_mfdu2" "rent_mf2" "rent_mfhe2" "rent_he2") ///
 		title("Rents, w/ characteristics") 
 		
-		
-	*robust s.e.	
+	* robust s.e.	
 	quietly eststo rent_du2_r: reg log_mfrent i.interior_parcel##c.dupac i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions', vce(robust)
 		
 	quietly eststo rent_duhe2_r: reg log_mfrent i.interior_parcel##c.height##c.dupac i.lam_seg i.year $char_vars if du_he == 1 & `regression_conditions', vce(robust)
@@ -247,7 +244,6 @@ forvalues i = 0.15 {
 		indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year" "Year built f.e.=*year_built") interaction(" X ") ///
 		label mtitles("rent_du2" "rent_duhe2" "rent_he2") ///
 		title("Rents, w/ characteristics") 
-		
 		
 	eststo clear		
 		
