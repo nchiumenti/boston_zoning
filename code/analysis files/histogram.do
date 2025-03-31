@@ -109,7 +109,6 @@ twoway
 #delimit cr
 
 graph save hist_1a "$EXPORTPATH/histogram_1a.gph", replace
-graph export hist_1a "$EXPORTPATH/histogram_1a.pdf", replace
 
 
 ********************************************************************************
@@ -144,7 +143,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/histogram_1b.gph", replace
-graph export "$EXPORTPATH/histogram_1b.pdf", replace
 
 
 ********************************************************************************
@@ -179,7 +177,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/histogram_1c.gph", replace
-graph export "$EXPORTPATH/histogram_1c.pdf", replace
 
 
 ********************************************************************************
@@ -214,7 +211,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/histogram_1d.gph", replace
-graph export "$EXPORTPATH/histogram_1d.pdf", replace
 
 
 ********************************************************************************
@@ -248,7 +244,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2a.gph", replace
-graph export "$EXPORTPATH/scatter_2a.pdf", replace
 
 
 ********************************************************************************
@@ -282,7 +277,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2b.gph", replace
-graph export "$EXPORTPATH/scatter_2b.pdf", replace
 
 
 ********************************************************************************
@@ -316,7 +310,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2c.gph", replace
-graph export "$EXPORTPATH/scatter_2c.pdf", replace
 
 
 ********************************************************************************
@@ -350,7 +343,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2d.gph", replace
-graph export "$EXPORTPATH/scatter_2d.pdf", replace
 
 
 ********************************************************************************
@@ -384,7 +376,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3a.gph", replace
-graph export "$EXPORTPATH/binscatter_3a.pdf", replace
 
 
 ********************************************************************************
@@ -418,7 +409,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3b.gph", replace
-graph export "$EXPORTPATH/binscatter_3b.pdf", replace
 
 
 ********************************************************************************
@@ -452,7 +442,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3c.gph", replace
-graph export "$EXPORTPATH/binscatter_3c.pdf", replace
 
 
 ********************************************************************************
@@ -486,7 +475,6 @@ twoway
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3d.gph", replace
-graph export "$EXPORTPATH/binscatter_3d.pdf", replace
 
 
 ********************************************************************************
@@ -499,4 +487,29 @@ twoway (histogram AvgAskingUnit,  color(red%30)) (histogram pred_cstar if pred_c
 		(histogram rent if acs2019==1 & rent>0, color(yellow%30)), ///
 		 legend(order(1 "CoStar Rent" 2 "Imputed (CoStar)" 3 "Imputed (ACS)" 4 "Imputed (6.29%)" 5 "ACS 2018")) graphregion(color(white))
 
-graph export "$EXPORTPATH/Histogram_imputed_rent_6pct.pdf", replace
+graph save "$EXPORTPATH/Histogram_imputed_rent_6pct.gph", replace
+
+
+********************************************************************************
+** END
+********************************************************************************
+log off
+log close
+clear all
+
+** convert gph to pdfs
+local files : dir "$EXPORTPATH" files "*.gph"
+
+foreach fin in `files' {	
+	local fout : subinstr local fin ".gph" ".pdf"	
+	
+	display "converting `fin' to `fout'..."
+	
+	graph use "$EXPORTPATH/`fin'"
+	
+	graph export "$EXPORTPATH/`fout'", as(pdf) replace
+	
+	graph close
+}
+
+display "finished!" 
