@@ -5,8 +5,8 @@
 #### ./analysis_files
 | File Name| Checked/Cleaned | Run Successfully by Mike |
 |----------|:------------:|:----------------:|
-| amentities_mtlines.do | ✅ | ❌ |
-| amenities_muni_boundary.do | ✅ | ❌ |
+| amentities_mtlines.do | ✅ | ✅ |
+| amenities_muni_boundary.do | ✅ | ⚠️Mike indicated this had issues but it seems like it worked |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
 | analysis_noroads_setup.do | ✅ | ❌ |
 | analysis_town_comparisons_setup.do | ✅ | ❌ |
@@ -17,7 +17,7 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
 | external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
-| histogram.do | ✅ | ⚠️last run on 3/21 failed |
+| histogram.do | ✅ | ⚠️failed on 3/21, coded a fix |
 | main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
 | main_noroads.do | ✅ | ⚠️last run on 3/24 failed |
 | predicted_prices_mtlines.do | ✅ | ❌ |
