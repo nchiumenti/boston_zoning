@@ -3,8 +3,8 @@
 
 ### Replication File Status
 #### ./analysis_files
-| File Name| Checked/Cleaned | Run Successfully by Mike |
-|----------|:------------:|:----------------:|
+| File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
+|----------|:------------:|:----------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ✅ |
 | amenities_muni_boundary.do | ✅ | ⚠️Mike indicated this had issues but it seems like it worked |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
