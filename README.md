@@ -5,17 +5,17 @@
 #### ./analysis_files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
 |----------|:------------:|:----------------:|:----------------:|
-| amentities_mtlines.do | ✅ | ✅ |
+| amentities_mtlines.do | ✅ | ✅ |✅ |
 | amenities_muni_boundary.do | ✅ | ⚠️Mike indicated this had issues but it seems like it worked |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ |
 | analysis_noroads_setup.do | ✅ | ❌ |
 | analysis_town_comparisons_setup.do | ✅ | ❌ |
 | analysis_within_town_setup.do | ✅ | ✅ |
-| bindingness.do | ✅ | ✅ |
-| chars_mtlines.do | ✅ | ✅ |
-| counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ |
-| counterfactual_02_train_station_means.do | ✅ | ✅ |
-| counterfactual_03_means.do (formerly means.do) | ✅ | ✅ |
+| bindingness.do | ✅ | ✅ |✅ |
+| chars_mtlines.do | ✅ | ✅ |✅ |
+| counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
+| counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
+| counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
 | histogram.do | ✅ | ⚠️failed on 3/21, coded a fix |
 | main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
@@ -23,7 +23,7 @@
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
-| straight_line_v_walking.do[^1] | ✅ | ✅ |
+| straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
 | within_town_mtlines.do | ✅ | ❌ |
 | within_town_mtlines_robustse.do | ✅ | ⚠️last run on 3/24 failed | 
 
