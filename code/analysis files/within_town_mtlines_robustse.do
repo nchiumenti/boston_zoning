@@ -123,7 +123,7 @@ local distance_varlist3 = "r_dist_relax r_dist_strict r_dist_relax2 r_dist_stric
 ********************************************************************************
 ** 6a: gentle density baseline after 1918 @ .20 miles
 * loop over different degrees of distance polynomial trends
-forvalues i = 1/3{
+forvalues i = 1/3 {
 	* A: only_mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1918 & year == 2018, vce(robust) 
@@ -252,7 +252,7 @@ forvalues i = 1/3{
 
 ** 6b: gentle density baseline after 1956 @ .20 miles
 * loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* A: only_mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1956 & year == 2018, vce(robust) 
@@ -504,7 +504,7 @@ forvalues i = 1/3{
 
 ** 7b: high density baseline after 1956 @ .20 miles
 * loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* A: only_mf
 	quietly reg fam4plus_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1956 & year == 2018, vce(robust) 
@@ -624,7 +624,7 @@ forvalues i = 1 {
 ********************************************************************************
 ** 2-3 family buildings, no year-built restriction
 * loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* only mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist<=0.2 & year == 2018, vce(robust) 
@@ -752,7 +752,7 @@ forvalues i = 1 {
 
 ** 4+ family buildings , no year-built restriction
 * loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* only mf
 	quietly reg fam4plus_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist<=0.2  & year == 2018 , vce(robust) 
