@@ -19,7 +19,7 @@
 | external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
 | histogram.do | ✅ | ⚠️failed on 3/21, coded a fix |
 | main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
-| main_noroads.do | ✅ | ⚠️last run on 3/24 failed |
+| main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
