@@ -254,7 +254,7 @@ forvalues i = 1/3 {
 
 ** 6b: gentle density baseline after 1956 @ .20 miles
 * loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* A: only_mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1956 & year == 2018, vce(cluster lam_seg) 
@@ -505,7 +505,7 @@ forvalues i = 1/3{
 
 ** 7b: high density baseline after 1956 @ .20 miles
 *loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* A: only_mf
 	quietly reg fam4plus_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1956 & year == 2018, vce(cluster lam_seg) 
@@ -625,7 +625,7 @@ forvalues i = 1 {
 ********************************************************************************
 ** 2-3 family buildings, no year-built restriction
 *loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* only mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist<=0.2 & year == 2018, vce(cluster lam_seg) 
@@ -753,7 +753,7 @@ forvalues i = 1 {
 
 ** 4+ family buildings , no year-built restriction
 *loop over different degrees of distance polynomial trends
-forvalues i = 1 {
+forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
 	* only mf
 	quietly reg fam4plus_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist<=0.2  & year == 2018 , vce(cluster lam_seg) 
