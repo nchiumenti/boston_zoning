@@ -24,9 +24,10 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 ********************************************************************************
 * File name:		main_noroads.do
 *
-* Project title:
+* Project title:	Boston Zoning Paper
 *
-* Description:
+* Description:		Basically the same as main_mtlines but for boundaries w/
+*					no road overlaps.
 * 				
 * Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
 *					soil_quality_matches.dta
