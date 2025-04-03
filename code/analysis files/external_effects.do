@@ -108,13 +108,13 @@ global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num b
 ********************************************************************************
 gen interior_parcel = .
 
-forvalues i = 0.15 {
+//forvalues i = 0.15
 	
-	display "Current interior cutoff is `i'"
+	display "Current interior cutoff is 0.15"
 	
 	*interior parcel definition 
 	
-	local interior_min = `i'   /*current round*/
+	local interior_min = 0.15   /*current round*/
 	local interior_max = 0.5
 
 	replace interior_parcel = .
@@ -246,5 +246,3 @@ forvalues i = 0.15 {
 		title("Rents, w/ characteristics") 
 		
 	eststo clear		
-		
-}	
