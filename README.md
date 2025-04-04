@@ -16,9 +16,9 @@
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
-| external_effects.do | ✅ | ✅  |
-| histogram.do | ✅ | ⚠️failed on 4/4, coded a fix |
-| main_mtlines.do | ✅ | ✅ |
+| external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
+| histogram.do | ✅ | ⚠️failed on 3/21, coded a fix |
+| main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
 | main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
