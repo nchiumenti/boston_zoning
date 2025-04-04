@@ -1,4 +1,3 @@
----
 title: "Boston Zoning Project Readme"
 author: "Nicholas Chiumenti"
 format:
@@ -6,7 +5,6 @@ format:
     toc: true
     toc_float: true
 editor: visual
----
 
 # Section 1
 
