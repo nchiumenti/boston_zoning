@@ -221,26 +221,25 @@ graph save "$EXPORTPATH/histogram_1d.gph", replace
 twoway 
     scatter house_rent costar_rent if $scat_cond_2ab, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2a.gph", replace
@@ -254,26 +253,25 @@ graph save "$EXPORTPATH/scatter_2a.gph", replace
 twoway 
     scatter house_rent costar_rent if $scat_cond_2ab & winsorized == 1, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2b.gph", replace
@@ -287,26 +285,25 @@ graph save "$EXPORTPATH/scatter_2b.gph", replace
 twoway 
     scatter house_rent costar_rent if $scat_cond_2cd, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2c.gph", replace
@@ -320,26 +317,25 @@ graph save "$EXPORTPATH/scatter_2c.gph", replace
 twoway 
     scatter house_rent costar_rent if $scat_cond_2cd & winsorized == 1, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/scatter_2d.gph", replace
@@ -353,26 +349,25 @@ graph save "$EXPORTPATH/scatter_2d.gph", replace
 twoway 
     binscatter house_rent costar_rent if $bin_cond_3ab, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+				
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3a.gph", replace
@@ -386,31 +381,30 @@ graph save "$EXPORTPATH/binscatter_3a.gph", replace
 twoway 
     binscatter house_rent costar_rent if $bin_cond_3ab & winsorized == 1, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+				
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3b.gph", replace
 
-
+/* commented out because of lack of observations
 ********************************************************************************
 ** BinScatter 3.C:
 ** global bin_cond_3cd `"!missing(costar_rent) & <PRIVATE MARKET APARTMENTS ONLY> & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
@@ -419,59 +413,57 @@ graph save "$EXPORTPATH/binscatter_3b.gph", replace
 twoway 
     binscatter house_rent costar_rent if $bin_cond_3cd, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+				
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3c.gph", replace
 
 
 ********************************************************************************
-** BinScatter 2.D: winsorized
+** BinScatter 3.D: winsorized
 ** global bin_cond_3cd `"!missing(costar_rent) & <PRIVATE MARKET APARTMENTS ONLY> & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
 #delimit ;
 twoway 
     binscatter house_rent costar_rent if $bin_cond_3cd & winsorized == 1, 
     
-	/* plot region */
-	graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+		/* plot region */
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
 
-	/* titles, subtitles, notes */		
-	title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+		/* titles, subtitles, notes */          
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
 
-	/* axis titles and labels */		
-	ylabel("Imputed (6.29%)",labsize(4) gmin gmax) ymtick()	
-	
-	xlabel("CoStar", labsize(3) angle(45) gmax)
-		
-	/* legend */
-	legend(on position(6) 
-		order(1 "Warren Group Property")
-		symy(2) symx(3) 
-		rows(1) cols() size(3) 
-		nobox fcolor()
-		region(fcolor(none) lpattern(blank))
-		margin(t=1 b=1 l=0 r=0)span)
-	name(, replace) ;
+		/* axis titles and labels */            
+		ytitle("Imputed (6.29%)") ylabel(,labsize(4) gmin gmax) 
+		xtitle("CoStar") xlabel(,labsize(3) gmin gmax) 
+				
+		/* legend */
+		legend(on position(6) 
+				order(1 "Warren Group Property")
+				symy(2) symx(3) 
+				rows(1) cols() size(3) 
+				nobox fcolor()
+				region(fcolor(none) lpattern(blank))
+				margin(t=1 b=1 l=0 r=0)span)
+		name(, replace) ;
 #delimit cr
 
 graph save "$EXPORTPATH/binscatter_3d.gph", replace
@@ -488,7 +480,7 @@ twoway (histogram AvgAskingUnit,  color(red%30)) (histogram pred_cstar if pred_c
 		 legend(order(1 "CoStar Rent" 2 "Imputed (CoStar)" 3 "Imputed (ACS)" 4 "Imputed (6.29%)" 5 "ACS 2018")) graphregion(color(white))
 
 graph save "$EXPORTPATH/Histogram_imputed_rent_6pct.gph", replace
-
+*/
 
 ********************************************************************************
 ** END
