@@ -619,7 +619,7 @@ esttab rent_du3 rent_duhe3 rent_he3, se r2 ///
 	label mtitles("rent_du" "rent_duhe" "rent_he") ///
 	title("Rents, baseline") 
 	  
-esttab rent_du3 rent_duhe3 rent_mfdu3 rent_mf3 rent_mfhe3 rent_he3 using "$EXPORTPATH/rents_table_costardummy.tex", replace keep(25.dist3) se r2 ///
+esttab rent_du3 rent_duhe3 rent_he3 using "$EXPORTPATH/rents_table_costardummy.tex", replace keep(25.dist3) se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("rent_du" "rent_duhe" "rent_he") ///
 	title("Rents, baseline") 
