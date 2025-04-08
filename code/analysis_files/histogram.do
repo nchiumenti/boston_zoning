@@ -346,7 +346,7 @@ graph save "$EXPORTPATH/scatter_2d.gph", replace
 ** global bin_cond_3ab `"!missing(costar_rent) & res_typex!= "Condominiums" & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
 #delimit ;
-twoway 
+
     binscatter house_rent costar_rent if $bin_cond_3ab, 
     
 		/* plot region */
@@ -378,7 +378,7 @@ graph save "$EXPORTPATH/binscatter_3a.gph", replace
 ** global $bin_cond_3ab `"!missing(costar_rent) & res_typex!= "Condominiums" & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
 #delimit ;
-twoway 
+
     binscatter house_rent costar_rent if $bin_cond_3ab & winsorized == 1, 
     
 		/* plot region */
@@ -442,7 +442,7 @@ graph save "$EXPORTPATH/binscatter_3c.gph", replace
 ** global bin_cond_3cd `"!missing(costar_rent) & <PRIVATE MARKET APARTMENTS ONLY> & num_units1 > 5 & house_rent>0 & house_rent<=7000"'
 ********************************************************************************
 #delimit ;
-twoway 
+
     binscatter house_rent costar_rent if $bin_cond_3cd & winsorized == 1, 
     
 		/* plot region */
@@ -485,6 +485,7 @@ graph save "$EXPORTPATH/Histogram_imputed_rent_6pct.gph", replace
 ********************************************************************************
 ** END
 ********************************************************************************
+display "finished!" 
 log off
 log close
 clear all
@@ -504,4 +505,3 @@ foreach fin in `files' {
 	graph close
 }
 
-display "finished!" 

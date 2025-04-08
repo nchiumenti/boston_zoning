@@ -1,4 +1,5 @@
 * start here
+/*
 clear all
 log close _all
 set linesize 255
@@ -19,7 +20,7 @@ if _rc != 0 {
 local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
 
 log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
-
+*/
 ********************************************************************************
 * File name:		analysis_town_comparisons_setup.do
 *

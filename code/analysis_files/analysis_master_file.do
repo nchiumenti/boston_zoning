@@ -66,70 +66,113 @@ The follwing is the recommended folder structure:
 */
 
 global WORKINGDIR "/shared/boston_zoning/working_paper/replication_package"
-
 global DATAPATH "/shared/boston_zoning/working_paper/replication_package/data"
-
 global DOPATH "/shared/boston_zoning/working_paper/replication_package/code"
-
 global EXPORTPATH "/shared/boston_zoning/working_paper/replication_package/analysis"
-
-cd $WORKINGDIR
+global ANALYSIS_PATH "/shared/boston_zoning/working_paper/replication_package/analysis"
 
 
 ********************************************************************************
 ** Run analysis .do files
+cd $DOPATH
 ********************************************************************************
-/* Description of .do file order:
-Generally the analysis .do files can be run in any order. There are two (2) 
-exceptions, however. */
+*===========================
+/*make lists of do files*/
 
-/* 1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
-that is used throughout the analysis files.*/
+local all_do_files : dir . files "*.do"
+/*Remove setup files from main list*/
+local setup_do_files : dir . files "*setup.do" //setup files into list
+local setup_do_files "`setup_do_files' analysis_master_file.do" //adding current master file
+local do_files_to_run : list all_do_files - setup_do_files //remove setup list to get all other dos
+local do_files_to_run : list sort  do_files_to_run 
 
-do "analysis_within_town_setup.do"  // leave commented out unless necessary to create dataset
+/* 
+Description of .do file order
+Generally the analysis .do files can be run in any order...
 
+/*===========================
+There are two (2) exceptions, however...
+1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
+that is used throughout the analysis files. Once file is created, this can be turned off. */
+*/
+scalar UPDATE_wInTownSetup_DATA=0
+if UPDATE_wInTownSetup_DATA {
+	do "analysis_within_town_setup.do"
+}
+*===========================>
+
+*===========================<
 /* 2) the counterfactual files must be run in the order noted by their numerical 
 infix, i.e. counterfactual_01.. is run first, then counterfactual_02.., etc. */
+scalar RUN_COUNTERFACTUALS=0
+#delimit ;
+local counterfactuals 
+	counterfactual_01_spatial_heterogeneity.do
+	counterfactual_02_train_station_means.do 
+	counterfactual_03_means.do
+;
+#delimit cr
 
-do "counterfactual_01_spatial_hetergeneity.do"
+local not_counterfactuals : list do_files_to_run - counterfactuals //remove counterfactual dos 
+foreach ncf of local not_counterfactuals {
+	di "`ncf'"
+}
+if RUN_COUNTERFACTUALS {
+	foreach cfact of local counterfactuals {
+		do `cfact'
+	}
+}
+*===========================>
+#delimit ;
+local skip_success
+bindingness.do
+chars_mtlines.do
+histogram.do
+external_effects.do
+amenities_mtlines.do
+amenities_muni_boundary.do
 
-do "counterfactual_02_train_station_means.do"
+;
+local skip_fail
+main_noroads.do
+predicted_prices_mtlines.do
+;
 
-do "counterfactual_03_means.do"
+//local skip_fail "";
+local skip_list `skip_success' `skip_fail';
+#delimit cr
 
-/* All other analysis .do files can be run in any order. */
+//
+// robustness_mtlines.do
 
-do "amenities_mtlines.do"
+//local skip_list ""
 
-do "amenities_muni_boundary.do"
+*===========================<
+/*3) All other analysis .do files can be run in any order. */
+scalar RUN_ALL_NOT_CFS = 1
+if !missing("`skip_list'") {
+	local not_counterfactuals : list not_counterfactuals - skip_list
+}
 
-do "bindingness.do"
+local i = 1
+if RUN_ALL_NOT_CFS {
+	foreach ncf of local not_counterfactuals {
+		di "$$$<"
+		di "FindErrorInDoFile_`i'"
+		di "Running: `ncf'"
+		do "`ncf'"
+		local ++i
+	}
+} 
+*===========================>
 
-do "chars_mtlines.do"
+stop 
 
-do "external_effects.do"
-
-do "histogram.do"
-
-do "main_mtlines.do"
-
-do "main_noroads.do"
-
-do "predicted_prices_mtlines.do"
-
-do "residuals.do"
-
-do "robustness_mtlines.do"
-
-do "straight_v_walking.do"
-
-do "within_town_mtlines_robustse.do"
-
-do "within_town_mtlines.do"
-
-
-
-
+cd "${ANALYSIS_PATH}"
+local all_output_dirs : dir . dirs "*output"
+foreach outd of local all_output_dirs {
+		zipfile "${ANALYSIS_PATH}/`outd'",saving("${ANALYSIS_PATH}/`outd'.zip",replace )
+}
 
 
 

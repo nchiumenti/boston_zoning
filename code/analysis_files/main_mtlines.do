@@ -1057,8 +1057,8 @@ foreach r in `plot_list'{
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
 		name(`r'a, replace);
 	
-	graph save `r'a `suffix'_`str', replace;
-	graph close `r'a;
+	graph save "`r'a" "$EXPORTPATH/`suffix'_`str'", replace;
+	graph close "`r'a";
 	#delimit cr
 }
 
@@ -1072,7 +1072,7 @@ graph combine price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2,
 	b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
 	name("final_graph", replace);
 	
-	graph save "final_graph" "`suffix'_all", replace;
+	graph save "final_graph" "$EXPORTPATH/`suffix'_all", replace;
 #delimit cr	
 }
 
@@ -1708,8 +1708,8 @@ foreach r in `plot_list'{
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
 		name(`r'a, replace);
 	
-	graph save `r'a `suffix'_`str', replace;
-	graph close `r'a;
+	graph save "`r'a" "${EXPORTPATH}/`suffix'_`str'", replace;
+	graph close "`r'a";
 	#delimit cr
 }
 

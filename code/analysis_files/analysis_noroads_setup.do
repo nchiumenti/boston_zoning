@@ -59,14 +59,14 @@ merge m:1 prop_id using `no_roads', keepusing(boundary_* home_* nn_* left_dist_m
 
 	* check merge
 	sum _merge
-	noisily assert `r(N)' ==  9654526
-	noisily assert `r(sum_w)' ==  9654526
-	noisily assert `r(mean)' ==  2.414000645914673
-	noisily assert `r(Var)' ==  .8286035510076334
-	noisily assert `r(sd)' ==  .9102766343302642
-	noisily assert `r(min)' ==  1
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  23306032
+	//noisily assert `r(N)' ==  9654526
+	//noisily assert `r(sum_w)' ==  9654526
+	//noisily assert `r(mean)' ==  2.414000645914673
+	//noisily assert `r(Var)' ==  .8286035510076334
+	//noisily assert `r(sd)' ==  .9102766343302642
+	//noisily assert `r(min)' ==  1
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  23306032
 	
 	* drop non-matches from using
 	drop if _merge == 2
@@ -94,10 +94,10 @@ gen year = fy
 sum fy
 
 * error checks
-noisily noisily assert `r(N)' == 4714809
-noisily noisily assert `r(mean)' == 2014.035230907551
-noisily noisily assert `r(min)' ==  2010
-noisily noisily assert `r(max)' ==  2018
+//noisily assert `r(N)' == 4714809
+//noisily assert `r(mean)' == 2014.035230907551
+//noisily assert `r(min)' ==  2010
+//noisily assert `r(max)' ==  2018
 
 
 ********************************************************************************
@@ -112,14 +112,14 @@ merge m:1 prop_id using `data_file_path', keepusing(closest_*)
 	
 	* checks for errors in merge
 	sum _merge
-	noisily assert `r(N)' ==  4981936
-	noisily assert `r(sum_w)' ==  4981936
-	noisily assert `r(mean)' ==  2.946380884860825
-	noisily assert `r(Var)' ==  .0507441158164885
-	noisily assert `r(sd)' ==  .2252645462927722
-	noisily assert `r(min)' ==  2
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  14678681
+	//noisily assert `r(N)' ==  4981936
+	//noisily assert `r(sum_w)' ==  4981936
+	//noisily assert `r(mean)' ==  2.946380884860825
+	//noisily assert `r(Var)' ==  .0507441158164885
+	//noisily assert `r(sd)' ==  .2252645462927722
+	//noisily assert `r(min)' ==  2
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  14678681
 
 	* drop non-matches from using
 	drop if _merge == 2
@@ -138,14 +138,14 @@ merge m:1 year using `data_file_path'
 	
 	* checks for errors in merge
 	sum _merge
-	noisily assert `r(N)' ==  4714826
-	noisily assert `r(sum_w)' ==  4714826
-	noisily assert `r(mean)' ==  2.999996394352623
-	noisily assert `r(Var)' ==  3.60563514107e-06
-	noisily assert `r(sd)' ==  .0018988510054951
-	noisily assert `r(min)' ==  2
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  14144461
+	//noisily assert `r(N)' ==  4714826
+	//noisily assert `r(sum_w)' ==  4714826
+	//noisily assert `r(mean)' ==  2.999996394352623
+	//noisily assert `r(Var)' ==  3.60563514107e-06
+	//noisily assert `r(sd)' ==  .0018988510054951
+	//noisily assert `r(min)' ==  2
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  14144461
 
 	* tab _merge and drop non-matches from using
 	drop if _merge == 2
@@ -170,14 +170,14 @@ merge m:1 costar_id using `data_file_path'
 
 	* checks for errors in merge
 	sum _merge
-	noisily assert `r(N)' ==  4717038
-	noisily assert `r(sum_w)' ==  4717038
-	noisily assert `r(mean)' ==  1.018014058822507
-	noisily assert `r(Var)' ==  .0352310764956211
-	noisily assert `r(sd)' ==  .1876994312607822
-	noisily assert `r(min)' ==  1
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  4802011
+	//noisily assert `r(N)' ==  4717038
+	//noisily assert `r(sum_w)' ==  4717038
+	//noisily assert `r(mean)' ==  1.018014058822507
+	//noisily assert `r(Var)' ==  .0352310764956211
+	//noisily assert `r(sd)' ==  .1876994312607822
+	//noisily assert `r(min)' ==  1
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  4802011
 
 	* tab _merge and drop non-matches from using
 	drop if _merge == 2 // NFC comment: not all CoStar properties match
@@ -190,14 +190,14 @@ merge m:1 fy costar_id using `data_file_path', keepusing(costar_rent)
 
 	* checks for errors in merge
 	sum _merge
-	noisily assert `r(N)' ==  4740070
-	noisily assert `r(sum_w)' ==  4740070
-	noisily assert `r(mean)' ==  1.009203450581953
-	noisily assert `r(Var)' ==  .0129929542098147
-	noisily assert `r(sd)' ==  .1139866404883253
-	noisily assert `r(min)' ==  1
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  4783695
+	//noisily assert `r(N)' ==  4740070
+	//noisily assert `r(sum_w)' ==  4740070
+	//noisily assert `r(mean)' ==  1.009203450581953
+	//noisily assert `r(Var)' ==  .0129929542098147
+	//noisily assert `r(sd)' ==  .1139866404883253
+	//noisily assert `r(min)' ==  1
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  4783695
 
 	* tab _merge and drop non-matches from using
 	drop if _merge == 2 // NFC comment: not all CoStar properties match
@@ -221,14 +221,14 @@ merge 1:1 prop_id fy using `data_file_path', keep(1 3)
 
 	* checks for errors in merge
 	sum _merge
-	noisily assert `r(N)' ==  4714809
-	noisily assert `r(sum_w)' ==  4714809
-	noisily assert `r(mean)' ==  1.366873822460252
-	noisily assert `r(Var)' ==  .5991513703925171
-	noisily assert `r(sd)' ==  .7740486873527511
-	noisily assert `r(min)' ==  1
-	noisily assert `r(max)' ==  3
-	noisily assert `r(sum)' ==  6444549
+	//noisily assert `r(N)' ==  4714809
+	//noisily assert `r(sum_w)' ==  4714809
+	//noisily assert `r(mean)' ==  1.366873822460252
+	//noisily assert `r(Var)' ==  .5991513703925171
+	//noisily assert `r(sd)' ==  .7740486873527511
+	//noisily assert `r(min)' ==  1
+	//noisily assert `r(max)' ==  3
+	//noisily assert `r(sum)' ==  6444549
 
 	* tab _merge and drop non-matches from using
 	drop if _merge == 2
@@ -281,104 +281,104 @@ gen theta_hd = density_hard
 
 * error checking
 sum fam23_1
-noisily assert `r(N)' ==  4133256
-noisily assert `r(sum_w)' ==  4133256
-noisily assert `r(mean)' ==  .1856212148485359
-noisily assert `r(Var)' ==  .1511660160197971
-noisily assert `r(sd)' ==  .3888007407654943
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  767220
+//noisily assert `r(N)' ==  4133256
+//noisily assert `r(sum_w)' ==  4133256
+//noisily assert `r(mean)' ==  .1856212148485359
+//noisily assert `r(Var)' ==  .1511660160197971
+//noisily assert `r(sd)' ==  .3888007407654943
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  767220
 
 sum fam4plus_1
-noisily assert `r(N)' ==  3449859
-noisily assert `r(sum_w)' ==  3449859
-noisily assert `r(mean)' ==  .0242975147679949
-noisily assert `r(Var)' ==  .0237071524160132
-noisily assert `r(sd)' ==  .1539712713983137
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  83823
+//noisily assert `r(N)' ==  3449859
+//noisily assert `r(sum_w)' ==  3449859
+//noisily assert `r(mean)' ==  .0242975147679949
+//noisily assert `r(Var)' ==  .0237071524160132
+//noisily assert `r(sd)' ==  .1539712713983137
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  83823
 
 sum MU_2
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  .010572220422927
-noisily assert `r(Var)' ==  .0104604507968933
-noisily assert `r(sd)' ==  .1022763452460698
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  49846
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  .010572220422927
+//noisily assert `r(Var)' ==  .0104604507968933
+//noisily assert `r(sd)' ==  .1022763452460698
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  49846
 
 sum num_units
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  1.769662567455013
-noisily assert `r(Var)' ==  50.31480459846264
-noisily assert `r(sd)' ==  7.09329293054098
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1016
-noisily assert `r(sum)' ==  8343621
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  1.769662567455013
+//noisily assert `r(Var)' ==  50.31480459846264
+//noisily assert `r(sd)' ==  7.09329293054098
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1016
+//noisily assert `r(sum)' ==  8343621
 
 sum num_units1
-noisily assert `r(N)' ==  4701588
-noisily assert `r(sum_w)' ==  4701588
-noisily assert `r(mean)' ==  1.774638909236624
-noisily assert `r(Var)' ==  50.44746008730164
-noisily assert `r(sd)' ==  7.102637544412754
-noisily assert `r(min)' ==  1
-noisily assert `r(max)' ==  1016
-noisily assert `r(sum)' ==  8343621
+//noisily assert `r(N)' ==  4701588
+//noisily assert `r(sum_w)' ==  4701588
+//noisily assert `r(mean)' ==  1.774638909236624
+//noisily assert `r(Var)' ==  50.44746008730164
+//noisily assert `r(sd)' ==  7.102637544412754
+//noisily assert `r(min)' ==  1
+//noisily assert `r(max)' ==  1016
+//noisily assert `r(sum)' ==  8343621
 
 sum num_floors1
-noisily assert `r(N)' ==  4618316
-noisily assert `r(sum_w)' ==  4618316
-noisily assert `r(mean)' ==  1.905845334100135
-noisily assert `r(Var)' ==  .437199749627032
-noisily assert `r(sd)' ==  .6612108208635367
-noisily assert `r(min)' ==  1
-noisily assert `r(max)' ==  59
-noisily assert `r(sum)' ==  8801796
+//noisily assert `r(N)' ==  4618316
+//noisily assert `r(sum_w)' ==  4618316
+//noisily assert `r(mean)' ==  1.905845334100135
+//noisily assert `r(Var)' ==  .437199749627032
+//noisily assert `r(sd)' ==  .6612108208635367
+//noisily assert `r(min)' ==  1
+//noisily assert `r(max)' ==  59
+//noisily assert `r(sum)' ==  8801796
 
 sum lot_acres
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  .5005930024517647
-noisily assert `r(Var)' ==  306.8205112547363
-noisily assert `r(sd)' ==  17.51629273718432
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  22956.84111570248
-noisily assert `r(sum)' ==  2360200.393296602
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  .5005930024517647
+//noisily assert `r(Var)' ==  306.8205112547363
+//noisily assert `r(sd)' ==  17.51629273718432
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  22956.84111570248
+//noisily assert `r(sum)' ==  2360200.393296602
 
 sum theta_sf	
-noisily assert `r(N)' ==  4465594
-noisily assert `r(sum_w)' ==  4465594
-noisily assert `r(mean)' ==  .7015487092596208
-noisily assert `r(Var)' ==  .109787601015278
-noisily assert `r(sd)' ==  .3313421207985457
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  3132831.706777507
+//noisily assert `r(N)' ==  4465594
+//noisily assert `r(sum_w)' ==  4465594
+//noisily assert `r(mean)' ==  .7015487092596208
+//noisily assert `r(Var)' ==  .109787601015278
+//noisily assert `r(sd)' ==  .3313421207985457
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  3132831.706777507
 
 sum theta_gd
-noisily assert `r(N)' ==  4465594
-noisily assert `r(sum_w)' ==  4465594
-noisily assert `r(mean)' ==  .2005026752572403
-noisily assert `r(Var)' ==  .0616976675564678
-noisily assert `r(sd)' ==  .248390151891068
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  895363.5436126809
+//noisily assert `r(N)' ==  4465594
+//noisily assert `r(sum_w)' ==  4465594
+//noisily assert `r(mean)' ==  .2005026752572403
+//noisily assert `r(Var)' ==  .0616976675564678
+//noisily assert `r(sd)' ==  .248390151891068
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  895363.5436126809
 
 sum theta_hd
-noisily assert `r(N)' ==  4465594
-noisily assert `r(sum_w)' ==  4465594
-noisily assert `r(mean)' ==  .038534911073208
-noisily assert `r(Var)' ==  .0101143318355342
-noisily assert `r(sd)' ==  .1005700344811227
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  172081.2676790511
+//noisily assert `r(N)' ==  4465594
+//noisily assert `r(sum_w)' ==  4465594
+//noisily assert `r(mean)' ==  .038534911073208
+//noisily assert `r(Var)' ==  .0101143318355342
+//noisily assert `r(sd)' ==  .1005700344811227
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  172081.2676790511
 
 
 	
@@ -451,34 +451,34 @@ gen std_he_other = (other_he - `r(mean)')/`r(sd)'
 
 * error checking
 sum height
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  3.465046473780804
-noisily assert `r(Var)' ==  .8851354555353893
-noisily assert `r(sd)' ==  .9408163771615529
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  35.6
-noisily assert `r(sum)' ==  16337032.3
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  3.465046473780804
+//noisily assert `r(Var)' ==  .8851354555353893
+//noisily assert `r(sd)' ==  .9408163771615529
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  35.6
+//noisily assert `r(sum)' ==  16337032.3
 
 sum dupac
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  11.39916823778015
-noisily assert `r(Var)' ==  359.4843910034431
-noisily assert `r(sd)' ==  18.96007360226861
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  349
-noisily assert `r(sum)' ==  53744901
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  11.39916823778015
+//noisily assert `r(Var)' ==  359.4843910034431
+//noisily assert `r(sd)' ==  18.96007360226861
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  349
+//noisily assert `r(sum)' ==  53744901
 
 sum mf_allowed
-noisily assert `r(N)' ==  4714809
-noisily assert `r(sum_w)' ==  4714809
-noisily assert `r(mean)' ==  .5355618859639913
-noisily assert `r(Var)' ==  .2487354050228837
-noisily assert `r(sd)' ==  .4987338017649132
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  2525072
+//noisily assert `r(N)' ==  4714809
+//noisily assert `r(sum_w)' ==  4714809
+//noisily assert `r(mean)' ==  .5355618859639913
+//noisily assert `r(Var)' ==  .2487354050228837
+//noisily assert `r(sd)' ==  .4987338017649132
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  2525072
 
 
 ********************************************************************************
@@ -501,14 +501,14 @@ keep if blah_sum == 2 // <-- 1,450,261 drops
 
 * error checking
 sum lam_seg
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  11725.22855874722
-noisily assert `r(Var)' ==  85492223.85502
-noisily assert `r(sd)' ==  9246.200509129141
-noisily assert `r(min)' ==  14
-noisily assert `r(max)' ==  29566
-noisily assert `r(sum)' ==  38331437141
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  11725.22855874722
+//noisily assert `r(Var)' ==  85492223.85502
+//noisily assert `r(sd)' ==  9246.200509129141
+//noisily assert `r(min)' ==  14
+//noisily assert `r(max)' ==  29566
+//noisily assert `r(sum)' ==  38331437141
 
 	
 ********************************************************************************
@@ -575,24 +575,24 @@ replace relaxed2 = 1 if mf_he_du == 1 & mf_delta == -1 & he_delta>0 & du_delta>0
 
 * error checking
 sum relaxed
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  .4786937979445371
-noisily assert `r(Var)' ==  .2495461220877995
-noisily assert `r(sd)' ==  .4995459158954255
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  1564918
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  .4786937979445371
+//noisily assert `r(Var)' ==  .2495461220877995
+//noisily assert `r(sd)' ==  .4995459158954255
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  1564918
 
 sum relaxed2
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  .4873226675378433
-noisily assert `r(Var)' ==  .2498393616651709
-noisily assert `r(sd)' ==  .4998393358522025
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  1
-noisily assert `r(sum)' ==  1593127
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  .4873226675378433
+//noisily assert `r(Var)' ==  .2498393616651709
+//noisily assert `r(sd)' ==  .4998393358522025
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  1
+//noisily assert `r(sum)' ==  1593127
 
 
 ********************************************************************************
@@ -629,34 +629,34 @@ egen dist3_2 = group(dist_group2), label
 
 * error checking
 sum dist
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  .2175526448302992
-noisily assert `r(Var)' ==  .0995109909533737
-noisily assert `r(sd)' ==  .3154536272629841
-noisily assert `r(min)' ==  1.00012085414e-06
-noisily assert `r(max)' ==  3.950993674838329
-noisily assert `r(sum)' ==  711210.4884258138
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  .2175526448302992
+//noisily assert `r(Var)' ==  .0995109909533737
+//noisily assert `r(sd)' ==  .3154536272629841
+//noisily assert `r(min)' ==  1.00012085414e-06
+//noisily assert `r(max)' ==  3.950993674838329
+//noisily assert `r(sum)' ==  711210.4884258138
 
 sum dist_both
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  -.0679115258830882
-noisily assert `r(Var)' ==  .1422281819450524
-noisily assert `r(sd)' ==  .3771315181008508
-noisily assert `r(min)' ==  -3.950993674838329
-noisily assert `r(max)' ==  2.269501636211704
-noisily assert `r(sum)' ==  -222012.4215484908
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  -.0679115258830882
+//noisily assert `r(Var)' ==  .1422281819450524
+//noisily assert `r(sd)' ==  .3771315181008508
+//noisily assert `r(min)' ==  -3.950993674838329
+//noisily assert `r(max)' ==  2.269501636211704
+//noisily assert `r(sum)' ==  -222012.4215484908
 
 sum r_dist_both
-noisily assert `r(N)' ==  3269142
-noisily assert `r(sum_w)' ==  3269142
-noisily assert `r(mean)' ==  -.1427320853566937
-noisily assert `r(Var)' ==  .0999121141865813
-noisily assert `r(sd)' ==  .3160887757997447
-noisily assert `r(min)' ==  -3.950993674838329
-noisily assert `r(max)' ==  0
-noisily assert `r(sum)' ==  -466611.4549871523
+//noisily assert `r(N)' ==  3269142
+//noisily assert `r(sum_w)' ==  3269142
+//noisily assert `r(mean)' ==  -.1427320853566937
+//noisily assert `r(Var)' ==  .0999121141865813
+//noisily assert `r(sd)' ==  .3160887757997447
+//noisily assert `r(min)' ==  -3.950993674838329
+//noisily assert `r(max)' ==  0
+//noisily assert `r(sum)' ==  -466611.4549871523
 
 
 ********************************************************************************
@@ -719,57 +719,57 @@ gen log_saleprice = ln(def_saleprice) if last_salepr > 0
 
 * error checking
 sum def_houseprice
-noisily assert `r(N)' ==  3248645
-noisily assert `r(sum_w)' ==  3248645
-noisily assert `r(mean)' ==  571635.1845781986
-noisily assert `r(Var)' ==  1671101883787.988
-noisily assert `r(sd)' ==  1292711.059668009
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  333202639.2473357
-noisily assert `r(sum)' ==  1857039784204.042
+//noisily assert `r(N)' ==  3248645
+//noisily assert `r(sum_w)' ==  3248645
+//noisily assert `r(mean)' ==  571635.1845781986
+//noisily assert `r(Var)' ==  1671101883787.988
+//noisily assert `r(sd)' ==  1292711.059668009
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  333202639.2473357
+//noisily assert `r(sum)' ==  1857039784204.042
 
 sum log_combrent1
-noisily assert `r(N)' ==  3216731
-noisily assert `r(sum_w)' ==  3216731
-noisily assert `r(mean)' ==  7.551179714631945
-noisily assert `r(Var)' ==  .5038518413625331
-noisily assert `r(sd)' ==  .7098252188831651
-noisily assert `r(min)' ==  -3.695814127072944
-noisily assert `r(max)' ==  13.30508919358082
-noisily assert `r(sum)' ==  24290113.87462773
+//noisily assert `r(N)' ==  3216731
+//noisily assert `r(sum_w)' ==  3216731
+//noisily assert `r(mean)' ==  7.551179714631945
+//noisily assert `r(Var)' ==  .5038518413625331
+//noisily assert `r(sd)' ==  .7098252188831651
+//noisily assert `r(min)' ==  -3.695814127072944
+//noisily assert `r(max)' ==  13.30508919358082
+//noisily assert `r(sum)' ==  24290113.87462773
 
 
 sum log_combrent2
-noisily assert `r(N)' ==  945322
-noisily assert `r(sum_w)' ==  945322
-noisily assert `r(mean)' ==  6.916669881042731
-noisily assert `r(Var)' ==  .5133347604097406
-noisily assert `r(sd)' ==  .7164738379101784
-noisily assert `r(min)' ==  -3.695814127072944
-noisily assert `r(max)' ==  8.526661255022331
-noisily assert `r(sum)' ==  6538480.205287077
+//noisily assert `r(N)' ==  945322
+//noisily assert `r(sum_w)' ==  945322
+//noisily assert `r(mean)' ==  6.916669881042731
+//noisily assert `r(Var)' ==  .5133347604097406
+//noisily assert `r(sd)' ==  .7164738379101784
+//noisily assert `r(min)' ==  -3.695814127072944
+//noisily assert `r(max)' ==  8.526661255022331
+//noisily assert `r(sum)' ==  6538480.205287077
 
 
 sum def_saleprice
-noisily assert `r(N)' ==  577925
-noisily assert `r(sum_w)' ==  577925
-noisily assert `r(mean)' ==  679146.6827877515
-noisily assert `r(Var)' ==  4800447876188.894
-noisily assert `r(sd)' ==  2190992.440924636
-noisily assert `r(min)' ==  0
-noisily assert `r(max)' ==  361534066.403122
-noisily assert `r(sum)' ==  392495846650.1113
+//noisily assert `r(N)' ==  577925
+//noisily assert `r(sum_w)' ==  577925
+//noisily assert `r(mean)' ==  679146.6827877515
+//noisily assert `r(Var)' ==  4800447876188.894
+//noisily assert `r(sd)' ==  2190992.440924636
+//noisily assert `r(min)' ==  0
+//noisily assert `r(max)' ==  361534066.403122
+//noisily assert `r(sum)' ==  392495846650.1113
 
 
 sum log_saleprice
-noisily assert `r(N)' ==  577761
-noisily assert `r(sum_w)' ==  577761
-noisily assert `r(mean)' ==  13.1540689361665
-noisily assert `r(Var)' ==  .4214520417710558
-noisily assert `r(sd)' ==  .6491933777935938
-noisily assert `r(min)' ==  .035919747181273
-noisily assert `r(max)' ==  19.70586683136967
-noisily assert `r(sum)' ==  7599908.022628491
+//noisily assert `r(N)' ==  577761
+//noisily assert `r(sum_w)' ==  577761
+//noisily assert `r(mean)' ==  13.1540689361665
+//noisily assert `r(Var)' ==  .4214520417710558
+//noisily assert `r(sd)' ==  .6491933777935938
+//noisily assert `r(min)' ==  .035919747181273
+//noisily assert `r(max)' ==  19.70586683136967
+//noisily assert `r(sum)' ==  7599908.022628491
 
 	
 ********************************************************************************

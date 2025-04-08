@@ -523,7 +523,7 @@ cap n sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_
 cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
 * baseline only boundaries
-cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads==0  & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads ==0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
 * no roads only
 cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
