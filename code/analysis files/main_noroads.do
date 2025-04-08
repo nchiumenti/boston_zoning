@@ -75,7 +75,7 @@ keep if straight_line == 1
 keep if (year >= 2010 & year <= 2018)
 
 * keep only the regulation variables and vars to match
-keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du_he mf_he_du
+keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du_he mf_he_du warren_GEOID_full
 
 tab year
 
@@ -321,7 +321,7 @@ merge m:1 warren_GEOID_full using `tract_pop_weights'
 ********************************************************************************
 ** Setup step 6: merge on no roads variables
 ********************************************************************************
-merge 1:1 prop_id year using `noroads'
+merge 1:1 prop_id year using "$DATAPATH/analysis_noroads_data.dta"
 
     tab _merge
     drop if _merge == 2
@@ -511,22 +511,22 @@ tab town_type_name no_roads, miss col
 	- 4g. No roads w/o tract weights, no roads tracts only
 *******************************************************************************/
 * summary statistics for all boundaries (baseline only + no roads only)
-sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
 
 * summary stats for baseline only boundaries
-sum dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads == 0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads == 0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
 
 * summary statistics for no roads only
-sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+cap n sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
 
 * summary states by town types
-tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
 * baseline only boundaries
-tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads == 0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads==0  & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
 * no roads only
-tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
 
 
 *******************************************
@@ -717,15 +717,15 @@ graph close _all
 	- 6g. No roads w/o tract weights
 *******************************************************************************/
 * summary statistics for baseline
-sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
 
 * summary statistics for no roads
-sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
+cap n sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
 
 * summary states by town types
-tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
 
-tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
+cap n tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
 
 
 *******************************************
@@ -913,6 +913,7 @@ graph close _all
 ********************************************************************************
 ** end
 ********************************************************************************
+display "finished!"
 log off 
 log close
 
@@ -931,4 +932,4 @@ foreach fin in `files'{
 	graph close
 }
 
-display "finished!"
+
