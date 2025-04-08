@@ -16,16 +16,16 @@
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
-| external_effects.do | ✅ | ⚠️last run on 3/21 failed  |
-| histogram.do | ✅ | ⚠️failed on 3/21, coded a fix |
-| main_mtlines.do | ✅ | ⚠️looks like it failed then work, have mike send corrected code |
+| external_effects.do | ✅ | ✅  |
+| histogram.do | ✅ | ✅ |
+| main_mtlines.do | ✅ | ✅ |
 | main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
 | predicted_prices_mtlines.do | ✅ | ❌ |
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
 | within_town_mtlines.do | ✅ | ❌ |
-| within_town_mtlines_robustse.do | ✅ | ⚠️last run on 3/24 failed | 
+| within_town_mtlines_robustse.do | ✅ | ✅ | 
 
 [^1]: Requires a python program to run and reproduce
 
