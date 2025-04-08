@@ -17,7 +17,7 @@ All of the Stata .do files located in this folder create output found in the cur
 - [counterfactual_02_train_station_means.do](#counterfactual_02_train_station_means.do)
 - [counterfactual_03_means.do](#counterfactual_03_means.do)
 - [external_effects.do](#external_effects.do)
-- [histogramdo](#histogram.do)
+- [histogram.do](#histogramdo)
 - [main_mtlines.do](#main_mtlines.do)
 - [main_noroads.do](#main_noroads.do)
 - [predicted_prices_mtlines.do](#predicted_prices_mtlines.do)
