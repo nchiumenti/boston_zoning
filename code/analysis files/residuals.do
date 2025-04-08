@@ -359,7 +359,7 @@ esttab price_du price_duhe price_mfdu price_mf price_mfhe price_he, ///
 ********************************************************************************
 ** end
 ********************************************************************************
+display "finished!" 
 log off
 log close
 clear all
-display "finished!" 
