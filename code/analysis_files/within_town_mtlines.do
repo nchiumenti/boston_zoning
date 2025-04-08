@@ -255,6 +255,7 @@ forvalues i = 1/3 {
 ** 6b: gentle density baseline after 1956 @ .20 miles
 * loop over different degrees of distance polynomial trends
 forvalues i = 1(1)1 {  // <- nfc: fix that I am not sure will work
+
 	* A: only_mf
 	quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
 		if only_mf == 1 & dist <= 0.2 & year_built >= 1956 & year == 2018, vce(cluster lam_seg) 
