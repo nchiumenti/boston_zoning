@@ -1,6 +1,8 @@
 ## Table of Contents
 [Replication File Status](#replication-file-status)
 
+[can I link to analysis folder?](https://github.com/nchiumenti/boston_zoning/tree/main/code/analysis_files)
+
 ### Replication File Status
 #### ./analysis_files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
