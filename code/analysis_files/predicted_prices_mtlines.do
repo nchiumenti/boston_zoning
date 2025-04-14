@@ -99,7 +99,7 @@ save `transit', replace
 ********************************************************************************
 ** load and tempsave the soil data
 ********************************************************************************
-use "$SHAPEPATH/soil_quality_matches.dta", clear  // bringing back the old soil data
+use "$DATAPATH/soil_quality_matches.dta", clear  // bringing back the old soil data
 
 keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
 
@@ -241,13 +241,13 @@ local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_
 quietly eststo rent_0: reg log_mfrent $dist_vars $walk_vars_0 $soil_vars i.lam_seg i.year if `regression_conditions'
 predict amenity_rent_0 if e(sample), xb
 
-
-forvalues i = 0(0)0 {}
+local i = 0
+//forvalues i = 0(0)0 {
 	esttab price_`i' rent_`i', ///
 				se r2 indicate("Boundary f.e.=*lam_seg" "Sale Year f.e.=*last_saleyr" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("price" "rent") ///
 	title("Predicted price/rent coefficients") 
-}
+
 
 
 ********************************************************************************
@@ -256,41 +256,37 @@ forvalues i = 0(0)0 {}
 * regression conditions
 local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res"
 
-forvalues j = 0(0)0 {
+local j = 0
 	quietly eststo price_du_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo price_duhe_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo price_mfdu_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo price_mf_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo price_mfhe_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_he == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo price_he_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
-}
 
-forvalues j = 0(0)0 {
+local j = 0
 	quietly eststo price_du_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(robust)
 	quietly eststo price_duhe_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(robust)
 	quietly eststo price_mfdu_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_du == 1 & `regression_conditions', vce(robust)
 	quietly eststo price_mf_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions', vce(robust)
 	quietly eststo price_mfhe_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_he == 1 & `regression_conditions', vce(robust)
 	quietly eststo price_he_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(robust)
-}
+
 
 * clustered
-forvalues i = 0(0)0 {
+local i = 0
 	esttab price_du_`i' price_duhe_`i' price_mfdu_`i' price_mf_`i' price_mfhe_`i' price_he_`i' using "$EXPORTPATH/predicted_prices_table_`i'.tex", replace keep(25.dist3)  ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
 	title("Amenity sales prices, new amenity list") 
 					
-}
 
 * robust
-forvalues i = 0(0)0 {
+local i = 0 
 	esttab price_du_r_`i' price_duhe_r_`i' price_mfdu_r_`i' price_mf_r_`i' price_mfhe_r_`i' price_he_r_`i' using "$EXPORTPATH/predicted_prices_table_r_`i'.tex", replace keep(25.dist3)  ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
 	title("Amenity sales prices, new amenity list (robust SE)") 
-}
-
 
 ********************************************************************************
 ** Part 3: predicted rents, all amenities + w/o walkscore
@@ -299,35 +295,30 @@ forvalues i = 0(0)0 {
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
 
 * NEW
-forvalues j = 0(0)0 {
+local j = 0
 	quietly eststo rent_du_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo rent_duhe_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
 	quietly eststo rent_he_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
-}
 
 * NEW
-forvalues j = 0(0)0 {
+local j = 0
 	quietly eststo rent_du_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(robust)
 	quietly eststo rent_duhe_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(robust)
 	quietly eststo rent_he_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(robust)
-}
 	
 * (rent), clustered
-forvalues i = 0(0)0 {
+local i = 0
 	esttab rent_du_`i' rent_duhe_`i' rent_he_`i' using "$EXPORTPATH/predicted_rents_table_`i'.tex", replace keep(25.dist3)  ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("rent_du" "rent_duhe" "rent_he") ///
 	title("Amenity rents prices, new amenity list") 
 					
-}
-
 * (rent), robust
-forvalues i = 0(0)0 {
+local i = 0
 	esttab rent_du_r_`i' rent_duhe_r_`i' rent_he_r_`i' using "$EXPORTPATH/predicted_rents_table_r_`i'.tex", replace keep(25.dist3)  ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
 	label mtitles("rent_du" "rent_duhe" "rent_he") ///
 	title("Amenity rents prices, new amenity list (robust SE)") 
-}
 
 ********************************************************************************
 ** end

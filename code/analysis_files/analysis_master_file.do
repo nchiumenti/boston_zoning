@@ -125,27 +125,26 @@ if RUN_COUNTERFACTUALS {
 *===========================>
 #delimit ;
 local skip_success
-bindingness.do
-chars_mtlines.do
-histogram.do
+main_mtlines.do
 external_effects.do
-amenities_mtlines.do
+chars_mtlines.do
+bindingness.do
 amenities_muni_boundary.do
-
+amenities_mtlines.do
+predicted_prices_mtlines.do
+main_noroads.do
+robustness_mtlines.do
+within_town_mtlines_robustse.do
 ;
 local skip_fail
-main_noroads.do
-predicted_prices_mtlines.do
+histogram.do 
 ;
 
-//local skip_fail "";
+//predicted_prices_mtlines -- success after editing SHAPEPATH, and forval errors - 2025-04-11
 local skip_list `skip_success' `skip_fail';
 #delimit cr
 
-//
-// robustness_mtlines.do
-
-//local skip_list ""
+// local skip_list ""
 
 *===========================<
 /*3) All other analysis .do files can be run in any order. */
@@ -160,7 +159,7 @@ if RUN_ALL_NOT_CFS {
 		di "$$$<"
 		di "FindErrorInDoFile_`i'"
 		di "Running: `ncf'"
-		do "`ncf'"
+		*do "`ncf'"
 		local ++i
 	}
 } 
@@ -173,6 +172,8 @@ local all_output_dirs : dir . dirs "*output"
 foreach outd of local all_output_dirs {
 		zipfile "${ANALYSIS_PATH}/`outd'",saving("${ANALYSIS_PATH}/`outd'.zip",replace )
 }
+
+
 
 
 

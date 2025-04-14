@@ -58,17 +58,16 @@ save `mtlines', replace
 ** Setup step 1 & 2: Get the no road boundary data
 ********************************************************************************
 * set to 1 to run setup code
-scalar UPDATE_INT_FILE = 1
+scalar UPDATE_INT_FILE = 0
 if UPDATE_INT_FILE {
 
-do "$DOPATH/analysis_noroads_setup.do"
-
-save "$DATAPATH/analysis_noroads_data.dta", replace
+	do "$DOPATH/analysis_noroads_setup.do"
+	save "$DATAPATH/analysis_noroads_data.dta", replace
 
 }
-
-// use "$DATAPATH/analysis_noroads_data.dta", clear
-
+else {
+	use "$DATAPATH/analysis_noroads_data.dta", clear
+}
 * drop out of scope observations
 keep if straight_line == 1
 
@@ -597,7 +596,7 @@ local l1_title "Log Sales Price"
 local b1_title "<- More restrictive  |  Less restrictive ->"
 local b2_title "Distance to Boundary (miles)"
 
-foreach r in `plot_list'{
+foreach r in `plot_list' {
 	
 	local pos = ustrpos("`r'", "_") + 1
 	local str = substr("`r'", `pos', .)
@@ -677,17 +676,20 @@ foreach r in `plot_list'{
 			region(fcolor(none) lpattern(blank))
 			margin(t=1 b=1 l=0 r=0)span)
 		name("`r'_42", replace) ;
-		
-	graph combine "`r'_42",
+
+
+	
+	graph combine `r'_42,
 		graphregion(fc(white) lcolor(white))
 		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
 		b1title("`b1_title'", size(2))
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
-		name("`r'_42", replace);
-	graph save "`r'_42" "$EXPORTPATH/`suffix'_`str'", replace;
+		name(`r'_42, replace);
+	graph save `r'_42 "$EXPORTPATH/`suffix'_`str'", replace;
 	graph close "`r'_42";
-	#delimit cr
+		#delimit cr
 }
+
 
 * combine all ##
 #delimit ;
@@ -881,14 +883,14 @@ foreach r in `plot_list'{
 			margin(t=1 b=1 l=0 r=0)span)
 		name("`r'_62", replace) ;
 		
-	graph combine "`r'_62",
+	graph combine `r'_62,
 		graphregion(fc(white) lcolor(white))
 		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
 		b1title("`b1_title'", size(2))
 		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
-		name("`r'_62a", replace);
+		name(`r'_62a, replace);
 	
-	graph save "`r'_62a" "$EXPORTPATH/`suffix'_`str'"", replace;
+	graph save `r'_62a "$EXPORTPATH/`suffix'_`str'", replace;
 	graph close "`r'_62a";
 	#delimit cr
 }
