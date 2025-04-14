@@ -18,11 +18,11 @@
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
-| external_effects.do | ✅ | ✅ |
+| external_effects.do | ✅ | ✅ | ✅ |
 | histogram.do | ✅ | ⚠️3.D amnd 3.D failed due to lack of obs, O.G. failed due missing var |
-| main_mtlines.do | ✅ | ✅ |
+| main_mtlines.do | ✅ | ✅ | ✅|
 | main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
-| predicted_prices_mtlines.do | ✅ | ❌ |
+| predicted_prices_mtlines.do | ✅ | ✅ | ✅|
 | residuals.do | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ❌ |
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
