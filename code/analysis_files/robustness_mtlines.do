@@ -1403,9 +1403,9 @@ quietly eststo rent_duhe_robust: reg log_mfrent ib26.dist3_3 i.lam_seg i.year if
 
 quietly eststo rent_he_robust: reg log_mfrent ib26.dist3_3 i.lam_seg i.year if only_he == 1 & `regression_conditions', vce(robust)
 	
-esttab rent_du_robust rent_duhe_robust rent_mfdu_robust rent_mf_robust rent_mfhe_robust rent_he_robust, se r2 ///
+esttab rent_du_robust rent_duhe_robust rent_he_robust, se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
-	label mtitles("rent_du" "rent_duhe" "rent_mfdu" "rent_mf" "rent_mfhe" "rent_he") ///
+	label mtitles("rent_du" "rent_duhe" "rent_he") ///
 	title("Rents, baseline, robust s.e.") 
 
 eststo clear
@@ -1657,22 +1657,17 @@ sum comb_rent2 if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_
 
 * number of boundaries
 unique lam_seg if du_he==1 & `regression_conditions' 
-
-quietly eststo rent_mfdu: reg log_mfrent ib26.dist3 i.lam_seg i.year if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
-sum comb_rent2 if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
-sum comb_rent2 if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & comb_rent2>0 & mnls_esval==0
-
 * number of boundaries
 unique lam_seg if mf_du==1 & `regression_conditions' 
 
-esttab rent_du rent_duhe rent_mfdu, se r2 ///
+esttab rent_du rent_duhe, se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
-	label mtitles("rent_du" "rent_duhe" "rent_mfdu") ///
+	label mtitles("rent_du" "rent_duhe") ///
 	title("Rents, minimum lot size in bylaws, clustered s.e.") 
 	
-esttab rent_du rent_duhe rent_mfdu using "$EXPORTPATH/rents_table_minlotsize.tex", replace keep(25.dist3) se r2 ///
+esttab rent_du rent_duhe using "$EXPORTPATH/rents_table_minlotsize.tex", replace keep(25.dist3) se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
-	label mtitles("rent_du" "rent_duhe" "rent_mfdu" ) ///
+	label mtitles("rent_du" "rent_duhe" ) ///
 	title("Rents, minimum lot size in bylaws, clustered s.e.") 
 	
 * robust s.e.
@@ -1680,16 +1675,14 @@ quietly eststo rent_du_robust: reg log_mfrent ib26.dist3 i.lam_seg i.year if onl
 	
 quietly eststo rent_duhe_robust: reg log_mfrent ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions', vce(robust)
 
-quietly eststo rent_mfdu_robust: reg log_mfrent ib26.dist3 i.lam_seg i.year if mf_du == 1 & `regression_conditions', vce(robust)
-
-esttab rent_du_robust rent_duhe_robust rent_mfdu_robust , se r2 ///
+esttab rent_du_robust rent_duhe_robust, se r2 ///
 	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
-	label mtitles("rent_du" "rent_duhe" "rent_mfdu") ///
+	label mtitles("rent_du" "rent_duhe" ) ///
 	title("Rents, minimum lot size in bylaws, robust s.e.") 
 	
 ** coefplots
 
-local plot_list rent_du rent_duhe rent_mfdu
+local plot_list rent_du rent_duhe
 local suffix "coef_rent_minlotsize_clustered"
 local l1_title "Log Monthly Rent"
 local b1_title "<- More restrictive  |  Less restrictive ->"
@@ -1767,7 +1760,7 @@ foreach r in `plot_list' {
 
 * combine all
 #delimit ;
-graph combine rent_du rent_duhe rent_mfdu,
+graph combine rent_du rent_duhe,
 	rows(3) cols(2) ysize() xsize() iscale() imargin(0)
 	graphregion(fc(white) lcolor(white))
 	l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
