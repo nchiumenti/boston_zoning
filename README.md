@@ -10,8 +10,8 @@
 | amentities_mtlines.do | ✅ | ✅ |✅ |
 | amenities_muni_boundary.do | ✅ | ✅ | ✅ |
 | analysis_master_file.do (ongoing updates) | ⚠️ | ✅ | ✅ |
-| analysis_noroads_setup.do | ✅ | ❌ | ✅ |
-| analysis_town_comparisons_setup.do | ✅ | ❌ | ✅ |
+| analysis_noroads_setup.do | ✅ | ✅ | ✅ |
+| analysis_town_comparisons_setup.do | ✅ | ✅ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ | ✅ |
 | bindingness.do | ✅ | ✅ |✅ |
 | chars_mtlines.do | ✅ | ✅ |✅ |
