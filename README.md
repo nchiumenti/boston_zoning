@@ -19,7 +19,7 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | external_effects.do | ✅ | ✅ | ✅ |
-| histogram.do | ✅ | ⚠️3.D amnd 3.D failed due to lack of obs, O.G. failed due missing var |
+| histogram.do | ✅ | ⚠️makes the bin scatter but not the histogram A.3 from the paper <- where is this made |
 | main_mtlines.do | ✅ | ✅ | ✅|
 | main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
 | predicted_prices_mtlines.do | ✅ | ✅ | ✅|
