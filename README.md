@@ -27,7 +27,7 @@
 | robustness_mtlines.do | ✅ | ❌ |
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
 | within_town_mtlines.do | ✅ | ❌ |
-| within_town_mtlines_robustse.do | ✅ | ✅ | 
+| within_town_mtlines_robustse.do | ✅ | ❌ | 
 
 [^1]: Requires a python program to run and reproduce
 
