@@ -39,7 +39,7 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 * Outputs:			multiple .gph files
 *
 * Created:			06/23/2021
-* Updated:			03/20/2025
+* Updated:			04/15/2025
 ********************************************************************************
 
 
@@ -78,95 +78,147 @@ keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du
 
 tab year
 
-* merge on mt lines to keep straight line properties
-merge m:1 prop_id using `mtlines', keepusing(straight_line)
+* temp save the data
+tempfile noroads
+save `noroads', replace
+clear
 
-	tab _merge
+
+********************************************************************************
+** load and tempsave the transit data
+********************************************************************************
+import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+
+tempfile dist_south_station
+save `dist_south_station', replace
+
+import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
+
+merge m:1 station_id using `dist_south_station'
+		
+		* merge error check
+		sum _merge
+		assert `r(N)' ==  821248
+		assert `r(sum_w)' ==  821248
+		assert `r(mean)' ==  2.999986605751247
+		assert `r(Var)' ==  .0000133940856566
+		assert `r(sd)' ==  .0036597931166456
+		assert `r(min)' ==  2
+		assert `r(max)' ==  3
+		assert `r(sum)' ==  2463733
+
+		drop if _merge == 2
+		drop _merge
+	
+keep prop_id station_id station_name distance_m_* length_m
+
+destring prop_id distance_m_* length_m, replace
+
+gen transit_dist_m = distance_m_man + length_m
+
+tempfile transit
+save `transit', replace
+
+
+********************************************************************************
+** load and tempsave the soil data
+********************************************************************************
+use "$DATAPATH/soil_quality_matches.dta", clear
+
+keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
+
+destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
+
+tempfile soil
+save `soil', replace
+
+
+********************************************************************************
+** create working dataset
+********************************************************************************
+use "$DATAPATH/within_town_analysis_data.dta", clear
+
+** merge on transit data
+merge m:1 prop_id using `transit'
+	
+	/* merge error check
+	sum _merge
+	assert `r(N)' ==  3642292
+	assert `r(sum_w)' ==  3642292
+	assert `r(mean)' ==  2.878361207723049
+	assert `r(Var)' ==  .1068428258243096
+	assert `r(sd)' ==  .3268682086473226
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  10483832 */
+
+	drop if _merge == 2
+	drop _merge
+	
+** merge on soil quality data
+merge m:1 prop_id using `soil'
+	
+	/* merge error check
+	sum _merge
+	assert `r(N)' ==  3642292
+	assert `r(sum_w)' ==  3642292
+	assert `r(mean)' ==  2.878361207723049
+	assert `r(Var)' ==  .1068428258243096
+	assert `r(sd)' ==  .3268682086473226
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  10483832 */
+	
 	drop if _merge == 2
 	drop _merge
 
+** merge on mt lines to keep straight line properties
+merge m:1 prop_id using `mtlines', keepusing(straight_line)
+	
+	* checks for errors in merge
+	sum _merge
+	assert `r(N)' ==  3400297
+	assert `r(sum_w)' ==  3400297
+	assert `r(mean)' ==  2.940873106084557
+	assert `r(Var)' ==  .0556309206919615
+	assert `r(sd)' ==  .235862079809285
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  9999842
+
+	drop if _merge == 2
+	drop _merge
+
+** merge on block data level characteristics
+merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replace
+	
+	* summarize _merge var and drop
+	tab _merge
+	drop if _merge == 2
+	drop _merge 
+
+    * create block group making variable
+    gen BLKGRP = substr(warren_GEOID_full,1,12)
+
+** merge on acs amenities dataset
+merge m:1 year BLKGRP using "$DATAPATH/acs/acs_amenities.dta", keepusing(B19113001)
+
+	* summarize merge and drop
+	tab _merge
+	drop if _merge == 2
+	drop _merge 
+
+	* rename median income variable
+	rename B19113001 median_inc
+
 keep if straight_line == 1  // <-- drops non-straight line properties
 
-keep if (year >= 2010 & year <= 2018)  // drops out of scope year observaions
+** drop out of scope years
+keep if (year >= 2010 & year <= 2018)
 
+tab year
 
-********************************************************************************
-** Setup step 3: Calculate the tract weights
-********************************************************************************
-* preserve the data
-preserve
-
-* calculate share of total observations in each census tract
-by warren_GEOID_full, sort: gen num_obs_tract = _N
-gen total_obs = _N
-
-gen pop_perc_tract = num_obs_tract/total_obs
-
-* calculate share of census tract observations in each boundary type
-by only_du, sort: gen total_obs_du = _N
-by only_mf, sort: gen total_obs_mf = _N
-by only_he, sort: gen total_obs_he = _N
-by mf_du, sort: gen total_obs_mfdu = _N
-by du_he, sort: gen total_obs_duhe = _N
-by mf_he, sort: gen total_obs_mfhe = _N
-
-by warren_GEOID_full only_du, sort: gen tract_obs_du = _N
-by warren_GEOID_full only_mf, sort: gen tract_obs_mf = _N
-by warren_GEOID_full only_he, sort: gen tract_obs_he = _N
-by warren_GEOID_full mf_du, sort: gen tract_obs_mfdu = _N
-by warren_GEOID_full du_he, sort: gen tract_obs_duhe = _N
-by warren_GEOID_full mf_he, sort: gen tract_obs_mfhe = _N
-
-gen pop_perc_tract_du = tract_obs_du/total_obs_du
-gen pop_perc_tract_mf = tract_obs_mf/total_obs_mf
-gen pop_perc_tract_he = tract_obs_he/total_obs_he
-gen pop_perc_tract_mfdu = tract_obs_mfdu/total_obs_mfdu
-gen pop_perc_tract_duhe = tract_obs_duhe/total_obs_duhe
-gen pop_perc_tract_mfhe = tract_obs_mfhe/total_obs_mfhe
-
-replace pop_perc_tract_du = . if only_du == 0
-replace pop_perc_tract_mf = . if only_mf == 0
-replace pop_perc_tract_he = . if only_he == 0
-replace pop_perc_tract_mfdu = . if mf_du == 0 
-replace pop_perc_tract_duhe = . if du_he == 0
-replace pop_perc_tract_mfhe = . if mf_he == 0
-
-* for each census tract, set the share in the boundary type to the same value
-sort warren_GEOID_full pop_perc_tract_du
-by warren_GEOID_full: replace pop_perc_tract_du = pop_perc_tract_du[_n-1] if pop_perc_tract_du==. & pop_perc_tract_du[_n-1]!=.
-
-sort warren_GEOID_full pop_perc_tract_mf
-by warren_GEOID_full: replace pop_perc_tract_mf = pop_perc_tract_mf[_n-1] if pop_perc_tract_mf==. & pop_perc_tract_mf[_n-1]!=.
-
-sort warren_GEOID_full pop_perc_tract_he
-by warren_GEOID_full: replace pop_perc_tract_he = pop_perc_tract_he[_n-1] if pop_perc_tract_he==. & pop_perc_tract_he[_n-1]!=.
-
-sort warren_GEOID_full pop_perc_tract_mfdu
-by warren_GEOID_full: replace pop_perc_tract_mfdu = pop_perc_tract_mfdu[_n-1] if pop_perc_tract_mfdu==. & pop_perc_tract_mfdu[_n-1]!=.
-
-sort warren_GEOID_full pop_perc_tract_duhe
-by warren_GEOID_full: replace pop_perc_tract_duhe = pop_perc_tract_duhe[_n-1] if pop_perc_tract_duhe==. & pop_perc_tract_duhe[_n-1]!=.
-
-sort warren_GEOID_full pop_perc_tract_mfhe
-by warren_GEOID_full: replace pop_perc_tract_mfhe = pop_perc_tract_mfhe[_n-1] if pop_perc_tract_mfhe==. & pop_perc_tract_mfhe[_n-1]!=.
-
-* for all census tracts, keep all proportions when types == 1
-by warren_GEOID_full, sort: gen nvals = _n == 1
-keep if nvals == 1
-
-* trim variable list
-keep warren_GEOID_full pop_perc_*
-
-* temp save the tract population weights that will be merged back after no-roads setup
-tempfile tract_pop_weights
-save `tract_pop_weights', replace 
-
-* restore the data
-restore
-
-********************************************************************************
-** Setup step 4: Finalize the baseline data
-********************************************************************************
+** Finalize the baseline data
 /* NFC Note: The first sub-step here is to just preserve the baseline data and 
 then clear it. The second sub-step is to load and tempsave the characteristics data. 
 The third and final sub-step is to merge the characteristics variables back onto
@@ -184,138 +236,16 @@ rename mf_du mf_du_baseline
 rename du_he du_he_baseline
 rename mf_he_du mf_he_du_baseline
 
-tempfile baseline
-save`baseline', replace
-clear
-
 
 ********************************************************************************
-** Setup step 4.1: load and tempsave the soil data
+** Setup step 6: merge on no roads variables
 ********************************************************************************
-use "$DATAPATH/soil_quality_matches.dta", clear
-
-keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
-
-destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
-
-tempfile soil
-save `soil', replace
-
-
-********************************************************************************
-** Setup step 4.2: load and tempsave the transit data
-********************************************************************************
-import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
-
-tempfile dist_south_station
-save `dist_south_station', replace
-
-import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
-
-merge m:1 station_id using `dist_south_station'
-		
-		/* * merge error check
-		sum _merge
-		assert `r(N)' ==  821248
-		assert `r(sum_w)' ==  821248
-		assert `r(mean)' ==  2.999986605751247
-		assert `r(Var)' ==  .0000133940856566
-		assert `r(sd)' ==  .0036597931166456
-		assert `r(min)' ==  2
-		assert `r(max)' ==  3
-		assert `r(sum)' ==  2463733 */
-
-		drop if _merge == 2
-		drop _merge
-	
-keep prop_id station_id station_name distance_m_* length_m
-
-destring prop_id distance_m_* length_m, replace
-
-gen transit_dist_m = distance_m_man + length_m
-
-tempfile transit
-save `transit', replace
-
-
-********************************************************************************
-** Setup step 4.3: merge on characteristics data
-********************************************************************************
-use `baseline', clear
-
-* soil data
-merge m:1 prop_id using `soil'
-	/*
-	* merge error check
-	sum _merge
-	assert `r(N)' ==  3642292
-	assert `r(sum_w)' ==  3642292
-	assert `r(mean)' ==  2.878361207723049
-	assert `r(Var)' ==  .1068428258243096
-	assert `r(sd)' ==  .3268682086473226
-	assert `r(min)' ==  2
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  10483832
-    */
-   
-    tab _merge
-	drop if _merge == 2
-	drop _merge
-
-* transit data
-merge m:1 prop_id using `transit'
-	
-	* merge error check
-	/* sum _merge
-	assert `r(N)' ==  3642292
-	assert `r(sum_w)' ==  3642292
-	assert `r(mean)' ==  2.878361207723049
-	assert `r(Var)' ==  .1068428258243096
-	assert `r(sd)' ==  .3268682086473226
-	assert `r(min)' ==  2
-	assert `r(max)' ==  3
-	assert `r(sum)' ==  10483832 */
-	
-    tab _merge
-	drop if _merge == 2
-	drop _merge
-
-* drop out of scope years just to be safe
-keep if (year >= 2010 & year <= 2018)
-
-tab year
-
-* merge on block data level characteristics
-merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
-	
-	* summarize _merge var and drop
-	tab _merge
-	drop if _merge == 2
-	drop _merge 
-
-    * create block group making variable
-    gen BLKGRP = substr(warren_GEOID_full,1,12)
-
-* merge on acs amenities dataset
-merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
-
-	* summarize merge and drop
-	tab _merge
-	drop if _merge == 2
-	drop _merge 
-
-	* rename median income variable
-	rename B19113001 median_inc
-
-
-********************************************************************************
-** Setup step 5: merge on tract weights
-********************************************************************************
-merge m:1 warren_GEOID_full using `tract_pop_weights'
+merge 1:1 prop_id year using `noroads'
 
     tab _merge
     drop if _merge == 2
     drop _merge 
+
 
 ********************************************************************************
 ** Setup step 6: merge on no roads variables
@@ -330,7 +260,6 @@ merge 1:1 prop_id year using "$DATAPATH/analysis_noroads_data.dta"
 ********************************************************************************
 ** property characteristic variables
 ********************************************************************************
-
 * define a global set of acs variable controls
 global acs_vars frac_under18 frac_over65 frac_black frac_asian frac_hispanic frac_nonhispanicwhite frac_morethan4 median_inc
 
