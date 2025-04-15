@@ -50,7 +50,7 @@ use "$DATAPATH/within_town_analysis_data.dta", clear
 ** append on acs data
 preserve 
 
-use "$DATAPATH/ACS/ACS_2019_rent.dta", replace
+use "WHERE IS THIS DATA???/ACS/ACS_2019_rent.dta", replace
 	keep if unitsstr>=5
 	keep if statefip == 25
 	keep if rent>0
