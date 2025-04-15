@@ -19,15 +19,15 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | external_effects.do | ✅ | ✅ | ✅ |
-| histogram.do | ✅ | ⚠️makes the bin scatter but not the histogram A.3 from the paper <- where is this made |
+| histogram.do | ✅ | ⚠️makes the bin scatter but not the histogram A.3 from the paper <- where is this made | ❌ |
 | main_mtlines.do | ✅ | ✅ | ✅|
-| main_noroads.do | ✅ | ⚠️failed cuz not right GEOID |
+| main_noroads.do | ✅ | ⚠️failed cuz not right GEOID | ❌ |
 | predicted_prices_mtlines.do | ✅ | ✅ | ✅|
-| residuals.do | ✅ | ✅ |
-| robustness_mtlines.do | ✅ | ✅ |
+| residuals.do | ✅ | ✅ | ❌ |
+| robustness_mtlines.do | ✅ | ✅ | ❌ |
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
-| within_town_mtlines.do | ✅ | ✅ |
-| within_town_mtlines_robustse.do | ✅ | ✅ | 
+| within_town_mtlines.do | ✅ | ✅ | ❌ |
+| within_town_mtlines_robustse.do | ✅ | ✅ |  ❌ |
 
 [^1]: Requires a python program to run and reproduce
 
