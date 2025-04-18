@@ -19,9 +19,9 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | external_effects.do | ✅ | ✅ | ✅ |
-| histogram.do | ✅ | ⚠️makes the bin scatter but not the histogram A.3 from the paper <- where is this made | ❌ |
+| histogram.do | ✅ | ✅ | ❌ |
 | main_mtlines.do | ✅ | ✅ | ✅|
-| main_noroads.do | ✅ | ⚠️failed cuz not right GEOID | ❌ |
+| main_noroads.do | ✅ | ✅ | ❌ |
 | predicted_prices_mtlines.do | ✅ | ✅ | ✅|
 | residuals.do | ✅ | ✅ | ❌ |
 | robustness_mtlines.do | ✅ | ✅ | ❌ |
