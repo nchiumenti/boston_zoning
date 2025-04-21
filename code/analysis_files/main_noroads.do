@@ -190,7 +190,7 @@ merge m:1 prop_id using `mtlines', keepusing(straight_line)
 	drop _merge
 
 ** merge on block data level characteristics
-merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replace
+merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
 	
 	* summarize _merge var and drop
 	tab _merge
@@ -201,7 +201,7 @@ merge m:1 warren_GEOID_full using "$DATAPATH/acs/blocks_2010.dta", update replac
     gen BLKGRP = substr(warren_GEOID_full,1,12)
 
 ** merge on acs amenities dataset
-merge m:1 year BLKGRP using "$DATAPATH/acs/acs_amenities.dta", keepusing(B19113001)
+merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
 
 	* summarize merge and drop
 	tab _merge

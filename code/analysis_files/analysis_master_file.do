@@ -62,7 +62,6 @@ The follwing is the recommended folder structure:
      |    |-- analysis_master_file.do
      |    |-- analysis_within_town_setup.do
      |-- ./data (this will be DATAPATH)
-
 */
 
 global WORKINGDIR "/shared/boston_zoning/working_paper/replication_package"
@@ -75,6 +74,11 @@ global ANALYSIS_PATH "/shared/boston_zoning/working_paper/replication_package/an
 ********************************************************************************
 ** Run analysis .do files
 cd $DOPATH
+
+scalar UPDATE_wInTownSetup_DATA=0
+scalar RUN_COUNTERFACTUALS=1
+
+
 ********************************************************************************
 *===========================
 /*make lists of do files*/
@@ -95,7 +99,7 @@ There are two (2) exceptions, however...
 1) analysis_within_town_setup.do MUST be run first as it creates a .dta file 
 that is used throughout the analysis files. Once file is created, this can be turned off. */
 */
-scalar UPDATE_wInTownSetup_DATA=0
+
 if UPDATE_wInTownSetup_DATA {
 	do "analysis_within_town_setup.do"
 }
@@ -104,7 +108,7 @@ if UPDATE_wInTownSetup_DATA {
 *===========================<
 /* 2) the counterfactual files must be run in the order noted by their numerical 
 infix, i.e. counterfactual_01.. is run first, then counterfactual_02.., etc. */
-scalar RUN_COUNTERFACTUALS=0
+
 #delimit ;
 local counterfactuals 
 	counterfactual_01_spatial_heterogeneity.do
@@ -122,50 +126,36 @@ if RUN_COUNTERFACTUALS {
 		do `cfact'
 	}
 }
+
+*===========================<
+/*3) All other analysis .do files can be run in any order. */
+
 *===========================>
 #delimit ;
 local skip_success
-main_mtlines.do
-external_effects.do
-chars_mtlines.do
-bindingness.do
-amenities_muni_boundary.do
-amenities_mtlines.do
-predicted_prices_mtlines.do
-main_noroads.do
-robustness_mtlines.do
-within_town_mtlines_robustse.do
 ;
 local skip_fail
-histogram.do 
 ;
-
 //predicted_prices_mtlines -- success after editing SHAPEPATH, and forval errors - 2025-04-11
 local skip_list `skip_success' `skip_fail';
 #delimit cr
 
-// local skip_list ""
 
-*===========================<
-/*3) All other analysis .do files can be run in any order. */
-scalar RUN_ALL_NOT_CFS = 1
+
 if !missing("`skip_list'") {
 	local not_counterfactuals : list not_counterfactuals - skip_list
 }
-
 local i = 1
-if RUN_ALL_NOT_CFS {
-	foreach ncf of local not_counterfactuals {
-		di "$$$<"
-		di "FindErrorInDoFile_`i'"
-		di "Running: `ncf'"
-		*do "`ncf'"
-		local ++i
-	}
-} 
+foreach ncf of local not_counterfactuals {
+	di "$$$<"
+	di "FindErrorInDoFile_`i'"
+	di "Running: `ncf'"
+	do "`ncf'"
+	local ++i
+}
 *===========================>
 
-stop 
+//stop 
 
 cd "${ANALYSIS_PATH}"
 local all_output_dirs : dir . dirs "*output"
