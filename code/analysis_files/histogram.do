@@ -50,7 +50,8 @@ use "$DATAPATH/within_town_analysis_data.dta", clear
 ** append on acs data
 preserve 
 
-use "WHERE IS THIS DATA???/ACS/ACS_2019_rent.dta", replace
+
+use "${DATAPATH}/ACS_2019_rent.dta", replace
 	keep if unitsstr>=5
 	keep if statefip == 25
 	keep if rent>0
@@ -94,7 +95,7 @@ twoway	(histogram comb_rent1 if res_typex!= "Single Family Res", percent color(r
 	name(, replace) ;
 #delimit cr
 
-graph save "$FIGPATH/histogram_A3.gph", replace
+graph save "$EXPORTPATH/histogram_A3.gph", replace
 
 drop if acs2019 == 1
 
