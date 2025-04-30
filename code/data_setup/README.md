@@ -50,9 +50,20 @@ After cleaning several distinct .dta datasets are saved:
 **10_warren_data_compile_.do:**
 ```mermaid
 flowchart TD
-  A(MA_assessor_annual_expanded.dta);
-  B@{ shape: subproc, label: "This is a subprocess" };
-  A --> B;
+  d1(MA_assessor_annual_expanded.dta);
+  f1@{ shape: subproc, label: "11_geocoding.do" };
+  f2@{ shape: subproc, label: "12_res_types.do" };
+  f3@{ shape: subproc, label: "13_condo_collapse.do " };
+  d2(warren_MA_all_annual.dta);
+  d3(warren_MAPC_all_annual.dta);
+  d4(warren_MAPC_all_unique.dta);
+
+  d1 --> f1;
+  f1 --> f2;
+  f2 --> f3;
+  f3 --> d2;
+  f3 --> d3;
+  f3 --> d4;
 ```
 
 
