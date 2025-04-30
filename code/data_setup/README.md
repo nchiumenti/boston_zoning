@@ -57,8 +57,7 @@ flowchart TD
   f3@{ shape: subproc, label: "13_condo_collapse.do" }
 
   subgraph TOP
-    f1-->f2-->f3
-
+    f1-->f2;
 ```
 
 
