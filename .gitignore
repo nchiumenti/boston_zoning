@@ -5,6 +5,7 @@
 !/analysis
 !/code
 !/.git
+!/docs
 
 # Ignore the following file tpyes
 *.dta
