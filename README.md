@@ -9,7 +9,7 @@
 |----------|:------------:|:----------------:|:----------------:|
 | amentities_mtlines.do | ✅ | ✅ |✅ |
 | amenities_muni_boundary.do | ✅ | ✅ | ✅ |
-| analysis_master_file.do (ongoing updates) | ⚠️ | ✅ | ✅ |
+| analysis_master_file.do | ✅ | ✅ | ✅ |
 | analysis_noroads_setup.do | ✅ | ✅ | ✅ |
 | analysis_town_comparisons_setup.do | ✅ | ✅ | ✅ |
 | analysis_within_town_setup.do | ✅ | ✅ | ✅ |
@@ -19,15 +19,15 @@
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
 | counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | external_effects.do | ✅ | ✅ | ✅ |
-| histogram.do | ✅ | ✅ | ❌ |
+| histogram.do | ✅ | ✅ | ✅ |
 | main_mtlines.do | ✅ | ✅ | ✅|
-| main_noroads.do | ✅ | ✅ | ❌ |
+| main_noroads.do | ✅ | ✅ | ✅ |
 | predicted_prices_mtlines.do | ✅ | ✅ | ✅|
-| residuals.do | ✅ | ✅ | ❌ |
-| robustness_mtlines.do | ✅ | ✅ | ❌ |
+| residuals.do | ✅ | ✅ | ✅ |
+| robustness_mtlines.do | ✅ | ✅ | ✅ |
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
-| within_town_mtlines.do | ✅ | ✅ | ❌ |
-| within_town_mtlines_robustse.do | ✅ | ✅ |  ❌ |
+| within_town_mtlines.do | ✅ | ✅ | ✅ |
+| within_town_mtlines_robustse.do | ✅ | ✅ |  ✅ |
 
 [^1]: Requires a python program to run and reproduce
 
