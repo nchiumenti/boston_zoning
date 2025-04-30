@@ -65,10 +65,7 @@ flowchart TD
   subgraph one
     f0 --> f1 --> f2 --> f3
 
-  d0 --> one
-  one --> d2
-  one --> d3
-  one --> d4
+
 ```
 
 
