@@ -64,7 +64,7 @@ graph TD;
 ```mermaid
 flowchart TD
   A(MA_assessor_annual_expanded.dta);
-  B[boobs];
+  B@{ shape: subproc, label: "This is a subprocess" };
   A --> B;
 ```
 
