@@ -54,20 +54,19 @@ flowchart TD
   d0(MA_assessor_annual_expanded.dta);
 
   f1@{ shape: subproc, label: ["`11_geocoding.do
-12_res_types.do
-13_condo_collapse.do`"] };
   f2@{ shape: subproc, label: "12_res_types.do" };
   f3@{ shape: subproc, label: "13_condo_collapse.do" };
+  f4[10_warren_data_compile_.do]
 
   d2(warren_MA_all_annual.dta);
   d3(warren_MAPC_all_annual.dta);
   d4(warren_MAPC_all_unique.dta);
   
   d0 --> f0;
-  f0 --> f1 --> f2 --> f3;
-  f3 --> d2;
-  f3 --> d3;
-  f3 --> d4;
+  f0 --> f1 --> f2 --> f3 --> f4;
+  f4 --> d2;
+  f4 --> d3;
+  f4 --> d4;
 ```
 
 
