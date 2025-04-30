@@ -1,19 +1,16 @@
-# Ignore all directories
-/*
+# Ignore all root directories
+*/*
+
 
 # Except the following directories
-!analysis/*
-!analysis/*/*
-!code/*
-!code/*/data_setup/*
-!code/*/analysis_files/*
-!docs/*
-!docs/*/*
+!/analysis/*
+!/code/*
+!/docs/*
 
 # Ignore the following file tpyes
 
 # Except the following file types
-!*.md
+#!*.md
 
 # in subdirectories
 
