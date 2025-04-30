@@ -1,18 +1,22 @@
 # Ignore all directories
-*/
+/*
 
 # Except the following directories
-!/analysis/*
-!/code/*
-!/.git
-!/docs/*
-!*/data_setup
+!analysis/*
+!analysis/*/*
+!code/*
+!code/*/data_setup/*
+!code/*/analysis_files/*
+!docs/*
+!docs/*/*
 
 # Ignore the following file tpyes
-*.dta
 
 # Except the following file types
 !*.md
+
+# in subdirectories
+
 
 # Ignore the following files
 boston_zoning.code-workspace
