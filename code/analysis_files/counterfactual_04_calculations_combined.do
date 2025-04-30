@@ -1,41 +1,57 @@
-********************************************************************************
-*			Policy value calculations for:
-*		How to Increase Housing Affordability? Understanding
-*		  Local Deterrents to Building Multifamily Housing
-*	
-********************************************************************************
+* start here
+clear all
+log close _all
+set linesize 255
+
+local name = "counterfactual_03_means"  // <--- change when necessry
+
+local short_name = "counterfactual" // <-- specific to the counterfactual files to make an output dir
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`short_name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 
 ********************************************************************************
-* This dofile 
-*-imports the means calculated and prepare the data set to be merged with data on 
-*coefficients
-*-calculates policy numbers
-*- plots them on a  map
+* File name:		counterfactual_04_calculations_combined.do
+*
+* Project title:	Boston Zoning Project
+*
+* Description:		This dofile imports the means calculated prior and prepares 
+*					the dataset to be merged with data on coefficients,
+*					calculates policy numbers plots them on a  map.
+* 				
+* Inputs:			various outputs found in ./counterfactual
+*				
+* Outputs:			
+*
+* Created:			04/28/2025		
+* Updated:			04/28/2025
 ********************************************************************************
-
-clear 
-set more off 
-
-global dir "C:\Users\User\Dropbox\Boston Affordable Housing Project (Aradhya, Nick)\REStat Replication Package\analysis_files_short\counterfactual\Int"
-global code_dir "C:\Users\User\Dropbox\Boston Affordable Housing Project (Aradhya, Nick)\REStat Replication Package\analysis_files_short\counterfactual"
 
 ********************************************************************************
 * Means by town
 ********************************************************************************
+* First, prepeare the sample getting the cousub match
+use "$EXPORTPATH/means_town_train_stations.dta", clear
 
-*** First, prepeare the sample getting the cousub match
-clear
-use "$dir\postQJE_means_town_train_stations.dta", clear
-
-*drop the empty values
+* drop the empty values
 drop if mean_height == . 
 
-*keep only particular boundaries with one station nearby 
-*keep if boundary_n == 1 /*only stations with one boundary within 0.5 miles*/
+* keep only particular boundaries with one station nearby 
+* keep if boundary_n == 1  // only stations with one boundary within 0.5 miles
+
 keep if boundary_type == "du_he" | boundary_type == "mf_du" | boundary_type == "only_du"  | boundary_type == "only_mf"
-
-*--> 194 to 185 stations
-
 
 destring station_id, replace
 encode boundary_type, gen(boundary_type_int)
@@ -44,25 +60,18 @@ encode side, gen(side_int)
 order  side_int, after(side)
 encode cousub_name, gen(town)
 
-
-*Count the number of cases by station by boundary, drop if only one
-
+* Count the number of cases by station by boundary, drop if only one
 bysort station_id boundary_type_int: gen number = _N
 
-*save stops that don't have both sides for completeness
+* save stops that don't have both sides for completeness
 preserve
 
 keep if number==1
-save "$dir\stations_without_two_sides.dta", replace
+save "$EXPORTPATH/stations_without_two_sides.dta", replace
 
 restore
 
-
-
-
-drop if number == 1     /*for these boundaries we don't have one of the two sides*/
-
-
+drop if number == 1  // for these boundaries we don't have one of the two sides
 
 *--> now 148 stations, don't have anything on the strict/relaxed side
 
@@ -71,7 +80,7 @@ rename def_1 county_fip
 
 *149 unique stations
 
-save "$dir\means_clean_town.dta", replace
+save "$EXPORTPATH/means_clean_town.dta", replace
 
 clear
 
@@ -83,44 +92,27 @@ export excel "$dir\means_clean_town_sample.xls", firstrow(variable) replace
 
 
 ********************************************************************************
-*calculate policy numbers*******************************************************
+** Calculate policy numbers ****************************************************
 ********************************************************************************
+** Means by town
 
-////////////////////////////////////////////////////////////////////////////////
-//			  Means by town
-////////////////////////////////////////////////////////////////////////////////
+* A. Units 
 
-********************************************************************************
-*		A.	Units 
-********************************************************************************
-
-*use "C:\Users\User\Dropbox\Boston Affordable Housing Project (Aradhya, Nick)\Results\Post QJE\Amrita Welfare\means_clean_town.dta", clear
-
-/*
-merge n:n county_fip using "$dir\spatial_units_coef.dta"
-drop if _merge==2
-drop _merge
-*/
- 
-*-------------------------------------------------------------------------------
-*	Calculations
-*-------------------------------------------------------------------------------
-
-use "$dir\spatial_unit_coeff_MAPCdefinition.dta", clear
+use "$EXPORTPATH/patial_unit_coeff_MAPCdefinition.dta", clear
 
 drop if county == ""
 reshape wide *u18* , i(county_fip) j(spec) string
 
 * Keep only linear coefficient for 0.20 miles + linear coefficient for 0.02 miles for only du boundaries
 keep *_20_x1 *_2_x1 county_fip
+
 * Drop standard errors
 drop *_se_* *_s_*
+
 * Drop coefficients for 1956
 *drop *_u56_*
 
 *drop dupac_coeff_u18_c_20_x1 t_dupac_coeff_u18_c_20_x1 
-
-
 drop dupac_coeff_u18_c_20_x1 t_dupac_coeff_u18_c_20_x1 dupac_dXh_c_u18_c_2_x1 height_dXh_c_u18_c_2_x1 duXhe_dXh_c_u18_c_2_x1 mf_dXmf_c_u18_c_2_x1 mf_coeff_u18_c_2_x1 t_dupac_dXh_c_u18_c_2_x1 t_height_dXh_c_u18_c_2_x1 t_duXhe_dXh_c_u18_c_2_x1 t_dupac_dXmf_c_u18_c_2_x1 t_mf_dXmf_c_u18_c_2_x1 t_duXmf_dXmf_c_u18_c_2_x1 t_mf_coeff_u18_c_2_x1 dupac_dXmf_c_u18_c_2_x1 duXmf_dXmf_c_u18_c_2_x1
 
 *Rename variables to make it simpler
@@ -144,7 +136,7 @@ save `spatial_units_coef', replace
 
 * Now, we want to merge this data set with the coefficients data set, using 
 * counties/comunities as the merger variable. 
-use "$dir\means_clean_town.dta", clear
+use "$EXPORTPATH/means_clean_town.dta", clear
 
 *use "$dir\means_clean_town.dta"
 merge n:n county_fip using `spatial_units_coef'
@@ -229,17 +221,17 @@ replace unit_effect_percent = unit_effect_mf_percent	if boundary_type_int ==4
 
 * Save lables of stations for the collapse
 local stations_name: variable label name
-label save using "$code_dir\labels.do", replace
+label save using "$EXPORTPATH/labels.do", replace
 
 * Save the table with values
 preserve
 collapse (mean) name county_fip unit_effect unit_effect_percent, by (station_id boundary_type_int)
-do "$code_dir\labels.do"
+do "$EXPORTPATH/labels.do"
 label value name name
 label define county_fip 1 "Inner Core" 2 "Regional Urban" 3 "Mature Suburbs" 4 "Developing Suburbs"
 label value  county_fip county_fip
-export excel "$dir\values_units_town_C2.xls", firstrow(variables) replace
-save "$dir\values_units_town_C2.dta", replace
+export excel "$EXPORTPATH/values_units_town_C2.xls", firstrow(variables) replace
+save "$EXPORTPATH/values_units_town_C2.dta", replace
 restore
 
 
@@ -247,12 +239,12 @@ restore
 *		B.	Prices 
 ********************************************************************************
 
-use "$dir\spatial_price_coeff_MAPCdefinition.dta", clear
+use "$EXPORTPATH/spatial_price_coeff_MAPCdefinition.dta", clear
 
 drop if county == ""
 reshape wide *_c , i(county_fip) j(spec) string
 
-merge n:n county_fip using "$dir\means_clean_town.dta"
+merge n:n county_fip using "$EXPORTPATH/means_clean_town.dta"
 drop _merge
 encode station_name, gen(name)
 encode def_name, gen(type)
@@ -282,7 +274,7 @@ save `spatial_price_coef',replace
 
 * Now, we want to merge this data set with the coefficients data set, using 
 * counties/comunities as the merger variable. 
-use "$dir\means_clean_town.dta", clear
+use "$EXPORTPATH/means_clean_town.dta", clear
 
 *use "$dir\means_clean_town.dta"
 merge n:n county_fip using `spatial_price_coef'
@@ -292,8 +284,6 @@ encode def_name, gen(type)
 
 *dorp regional urban
 drop if county_fip == 2
-
-
 
 
 *-------------------------------------------------------------------------------
@@ -452,19 +442,19 @@ label save using "$code_dir\labels.do", replace
 * Save the table with values
 preserve
 collapse (mean) name county_fip dupac_relax dupac_strict mean_rent rent_relax rent_strict mean_saleprice price_relax price_strict coef_sig_r interaction_r price_effect_r price_effect_r_percent coef_sig_o interaction_o price_effect_o price_effect_o_percent, by (station_id boundary_type_int)
-do "$code_dir\labels.do"
+do "$EXPORTPATH/labels.do"
 label value name name
 label define county_fip 1 "Inner Core" 2 "Regional Urban" 3 "Mature Suburbs" 4 "Developing Suburbs"
 label value  county_fip county_fip
-export excel "$dir\values_prices_town_C2.xls", firstrow(variables) replace
-save "$dir\values_prices_town_C2.dta", replace
+export excel "$EXPORTPATH/values_prices_town_C2.xls", firstrow(variables) replace
+save "$EXPORTPATH/values_prices_town_C2.dta", replace
 restore
 
-use "$dir\values_prices_town_C2.dta", clear
+use "$EXPORTPATH/values_prices_town_C2.dta", clear
 
-merge n:n station_id using "$dir\values_units_town_C2.dta", nogen
+merge n:n station_id using "$EXPORTPATH/values_units_town_C2.dta", nogen
 
-export excel "$dir\values_town_new_C2.xls", replace firstrow(variables)
+export excel "$EXPORTPATH/values_town_new_C2.xls", replace firstrow(variables)
 
 
 ***************************************************************************
@@ -475,7 +465,7 @@ export excel "$dir\values_town_new_C2.xls", replace firstrow(variables)
 clear 
 
 *Counterfactual 1: chapter 40a
-import excel "$dir\values_town_new_C2.xls", sheet("Sheet1") firstrow
+import excel "$EXPORTPATH/values_town_new_C2.xls", sheet("Sheet1") firstrow
 by station_id boundary_type_int, sort: gen nvals = _n == 1
 keep if nvals == 1
 drop nvals 
@@ -493,7 +483,7 @@ clear
 set more off 
 
 *Counterfactual 1: chapter 40a
-use "$dir\values_units_town_C2.dta"
+use "$EXPORTPATH/values_units_town_C2.dta"
 
 *recast str7 boundary_type_int
 
@@ -566,7 +556,7 @@ tab num_station_regs
 rename name STATION
 
 
-export delimited using "$dir\units_40a.csv", replace
+export delimited using "$EXPORTPATH/units_40a.csv", replace
 
 
 
@@ -577,7 +567,7 @@ clear
 set more off 
 
 *Counterfactual 1: chapter 40a
-import excel "$dir\values_town_new_C2.xls", sheet("Sheet1") firstrow
+import excel "$EXPORTPATH/values_town_new_C2.xls", sheet("Sheet1") firstrow
 
 drop if county_fip == "4"
 drop if station_id == .
@@ -665,7 +655,7 @@ by station_id, sort: gen num_station_regs = _N
 rename name STATION
 
 
-export delimited using "$dir\prices_units_40a.csv", replace
+export delimited using "$EXPORTPATH/prices_units_40a.csv", replace
 
 
 
@@ -677,7 +667,7 @@ export delimited using "$dir\prices_units_40a.csv", replace
 ** load and tempsave the city/town outlines for MAPC area
 ********************************************************************************
 * load city/town shapefile
-use "C:/Users/User/Dropbox/Boston Affordable Housing Project (Aradhya, Nick)/bosfed_files/Bos_Fed_NonWarren_Data_July2024/originals/cb_2018_25_cousub_500k.dta", clear
+use "<WILL NEED TO LOCATE THIS FILE IN ORDER TO RUN>/cb_2018_25_cousub_500k.dta", clear
 
 * correct town names for merge
 gen MUNI = NAME
@@ -688,7 +678,7 @@ gen MUNI = NAME
 	replace MUNI = "MANCHESTER" if MUNI=="MANCHESTER-BY-THE-SEA"
 
 * merge on mapc town list 
-merge 1:1 MUNI using "C:/Users/User/Dropbox/Boston Affordable Housing Project (Aradhya, Nick)/bosfed_files/working_paper/data/geocoding/MAPC_town_list.dta",
+merge 1:1 MUNI using "$DATAPATH/MAPC_town_list.dta",
 
 	* validate merge results
 	sum _merge
@@ -742,7 +732,7 @@ foreach c in "`city'" {
 keep _ID MUNI muninotused ALAND _CX _CY COUNTYFP
 
 * merge on city/town coordinates
-merge 1:m _ID using "C:/Users/User/Dropbox/Boston Affordable Housing Project (Aradhya, Nick)/bosfed_files/Bos_Fed_NonWarren_Data_July2024/originals/cb_2018_25_cousub_500k_shp.dta", keepusing(_X _Y shape_order)
+merge 1:m _ID using "$EXPORTPATH/cb_2018_25_cousub_500k_shp.dta", keepusing(_X _Y shape_order)
 	
 	* validate merge
 	sum _merge
@@ -770,7 +760,7 @@ save `outline', replace
 ********************************************************************************
 ** load list of all train stops
 ********************************************************************************
-import delimited "C:/Users/User/Dropbox/Boston Affordable Housing Project (Aradhya, Nick)/bosfed_files/Bos_Fed_NonWarren_Data_July2024/train_stops/all_stations.csv", clear
+import delimited "$DATAPATH/all_stations.csv", clear
 
 keep station_id station_name station_lat station_lon
 
@@ -781,7 +771,7 @@ save `stations', replace
 ********************************************************************************
 ** load list of train stops without enough data
 ********************************************************************************
-use "$dir/stations_without_two_sides.dta", clear
+use "$EXPORTPATH/stations_without_two_sides.dta", clear
 
 drop if def_name == "Regional Urban"
 
@@ -801,7 +791,7 @@ save `no_two_sides', replace
 /* Note: the unit effects data are incorrect in this file and so we should use
 the units_40a.csv file for those instead */
 ********************************************************************************
-import delimited "$dir/prices_units_40a.csv", clear
+import delimited "$EXPORTPATH/prices_units_40a.csv", clear
 
 merge 1:1 station_id using `no_two_sides'
 	replace no_two_sides = . if _merge == 3 
@@ -859,7 +849,7 @@ save `prices', replace
 ********************************************************************************
 ** load units effect data
 ********************************************************************************
-import delimited "$dir/units_40a.csv", clear
+import delimited "$EXPORTPATH/units_40a.csv", clear
 
 drop _merge
 
@@ -962,8 +952,8 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(rents, replace)	;	
 #delimit cr
 
-graph save rents "$dir/station_rents_map.gph", replace
-graph export "$dir/station_rents_map.pdf", replace name(rents)
+graph save rents "$EXPORTPATH/station_rents_map.gph", replace
+graph export "$EXPORTPATH/station_rents_map.pdf", replace name(rents)
 
 #delimit ;
 twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15) fcol(gs8)
@@ -1007,8 +997,8 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(rents, replace)	;	
 #delimit cr
 
-graph save rents "$dir/station_rents_map_noleg.gph", replace
-graph export "$dir/station_rents_map_noleg.pdf", replace name(rents)
+graph save rents "$EXPORTPATH/station_rents_map_noleg.gph", replace
+graph export "$EXPORTPATH/station_rents_map_noleg.pdf", replace name(rents)
 
 graph close _all
 
@@ -1071,8 +1061,8 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(prices, replace)	;	
 #delimit cr
 
-graph save prices "$dir/station_prices_map.gph", replace
-graph export "$dir/station_prices_map.pdf", replace name(prices)
+graph save prices "$EXPORTPATH/station_prices_map.gph", replace
+graph export "$EXPORTPATH/station_prices_map.pdf", replace name(prices)
 
 #delimit ;
 twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15) fcol(gs8)
@@ -1116,8 +1106,8 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(prices, replace)	;	
 #delimit cr
 
-graph save prices "$dir/station_prices_map_noleg.gph", replace
-graph export "$dir/station_prices_map_noleg.pdf", replace name(prices)
+graph save prices "$EXPORTPATH/station_prices_map_noleg.gph", replace
+graph export "$EXPORTPATH/station_prices_map_noleg.pdf", replace name(prices)
 
 
 graph close _all
@@ -1172,8 +1162,8 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(units, replace)	;	
 #delimit cr
 
-graph save units "$dir/station_units_map.gph", replace
-graph export "$dir/station_units_map.pdf", replace name(units)
+graph save units "$EXPORTPATH/station_units_map.gph", replace
+graph export "$EXPORTPATH/station_units_map.pdf", replace name(units)
 
 #delimit ;
 twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15) fcol(gs8)
@@ -1213,11 +1203,9 @@ twoway	area _Y _X if _ID!=., nodropbase cmiss(n) lwidth(.05) lcolor(black) fi(15
 	name(units, replace)	;	
 #delimit cr
 
-graph save units "$dir/station_units_map_noleg.gph", replace
-graph export "$dir/station_units_map_noleg.pdf", replace name(units)
+graph save units "$EXPORTPATH/station_units_map_noleg.gph", replace
+graph export "$EXPORTPATH/station_units_map_noleg.pdf", replace name(units)
 
 graph close _all
 
-
-
-
+print("finished!")
