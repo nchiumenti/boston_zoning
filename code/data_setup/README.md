@@ -50,7 +50,7 @@ After cleaning several distinct .dta datasets are saved:
 **10_warren_data_compile_.do:**
 ```mermaid
 flowchart TD
-  f0[10_warren_data_compile_.do]:
+  f0[10_warren_data_compile_.do];
   d0(MA_assessor_annual_expanded.dta);
 
   f1@{ shape: subproc, label: "11_geocoding.do" };
