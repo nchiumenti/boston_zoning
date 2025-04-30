@@ -63,7 +63,7 @@ graph TD;
 
 ```mermaid
 flowchart TD
-  A[(MA_assessor_annual_expanded.dta)];
+  A(MA_assessor_annual_expanded.dta);
   B[boobs];
   A --> B;
 ```
