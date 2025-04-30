@@ -47,6 +47,14 @@ After cleaning several distinct .dta datasets are saved:
 - warren_MAPC_all_annual.dta --> all residential properties in the MAPC region (used as Greater Boston definition), unique by year and prop_id
 - warren_MAPC_all_unique.dta --> unique list of properties in the MAPC region
 
+10_warren_data_compile_.do:
+
+```mermaid
+flowchart RD;
+A[MA_assessor_annual_expanded.dta];
+B[boobs];
+A --> B;
+```
 
 
 
