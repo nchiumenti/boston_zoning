@@ -52,6 +52,7 @@ After cleaning several distinct .dta datasets are saved:
 flowchart TD
 
   d0(MA_assessor_annual_expanded.dta)
+  f0[10_warren_data_compile_.do];
   f1@{ shape: subproc, label: 11_geocoding.do}
   f2@{ shape: subproc, label: "12_res_types.do" }
   f3@{ shape: subproc, label: "13_condo_collapse.do" }
@@ -64,37 +65,11 @@ flowchart TD
   d3(warren_MAPC_all_annual.dta);
   d4(warren_MAPC_all_unique.dta);
 
-  d0 --> subscripts
-  subscripts ==> d2
-  subscripts ==> d3
-  subscripts ==> d4
-
+  d0 --> f0 --> subscripts
+  subscripts --> d2
+  subscripts --> d3
+  subscripts --> d4
 ```
-
-
-    subgraph B1
-        direction RL
-        i1 -->f1
-    end
-    subgraph B2
-        direction BT
-        i2 -->f2
-    end
-  end
-  A --> TOP --> B
-  B1 --> B2
-
-flowchart TD
-  
-  f0[10_warren_data_compile_.do];
-  
-
-
-  f4[10_warren_data_compile_.do];
-
-
-  subgraph one
-    f0 --> f1 --> f2 --> f3;
 
 ### counterfactual_01_spatial_hetergeneity.do
 ```mermaid
