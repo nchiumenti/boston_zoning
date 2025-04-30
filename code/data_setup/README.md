@@ -51,7 +51,7 @@ After cleaning several distinct .dta datasets are saved:
 
 ```mermaid
 sequenceDiagram TD
-  A[MA_assessor_annual_expanded.dta];
+  A@{shape: cyl, label: "MA_assessor_annual_expanded.dta"};
   B[boobs];
   A --> B;
 ```
