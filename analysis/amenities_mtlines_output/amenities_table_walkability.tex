@@ -1,0 +1,22 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Walkability Index}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{walk\_du}&\multicolumn{1}{c}{walk\_duhe}&\multicolumn{1}{c}{walk\_mfdu}&\multicolumn{1}{c}{walk\_mf}&\multicolumn{1}{c}{walk\_mfhe}&\multicolumn{1}{c}{walk\_he}\\
+\hline
+-.02                &      -0.125         &      -0.197         &      -0.176\sym{*}  &      -0.925\sym{*}  &       0.511         &      -0.313         \\
+                    &    (0.0955)         &     (0.123)         &    (0.0807)         &     (0.400)         &     (0.382)         &     (0.172)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &       42702         &        4570         &       17184         &        2298         &         753         &        2593         \\
+\(R^{2}\)           &       0.862         &       0.848         &       0.870         &       0.855         &       0.887         &       0.875         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}
