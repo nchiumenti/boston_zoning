@@ -3,6 +3,32 @@
 ## Introduction
 All of the Stata .do files located in this folder create output found in the current submitted ReStat version of the paper. This folder is *just* analaysis files and minor setup files related to that analysis. It does not contain any files pertaining to overall data setup for the paper. Those files can be found under ./data_setup.
 
+### Replication File Status
+#### ./analysis_files
+| File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
+|----------|:------------:|:----------------:|:----------------:|
+| amentities_mtlines.do | ✅ | ✅ |✅ |
+| amenities_muni_boundary.do | ✅ | ✅ | ✅ |
+| analysis_master_file.do | ✅ | ✅ | ✅ |
+| analysis_noroads_setup.do | ✅ | ✅ | ✅ |
+| analysis_town_comparisons_setup.do | ✅ | ✅ | ✅ |
+| analysis_within_town_setup.do | ✅ | ✅ | ✅ |
+| bindingness.do | ✅ | ✅ |✅ |
+| chars_mtlines.do | ✅ | ✅ |✅ |
+| counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
+| counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
+| counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
+| counterfactual_04_calculations_combined.do | run by AK ✅ |||
+| external_effects.do | ✅ | ✅ | ✅ |
+| histogram.do | ✅ | ✅ | ✅ |
+| main_mtlines.do | ✅ | ✅ | ✅|
+| main_noroads.do | ✅ | ✅ | ✅ |
+| predicted_prices_mtlines.do | ✅ | ✅ | ✅|
+| residuals.do | ✅ | ✅ | ✅ |
+| robustness_mtlines.do | ✅ | ✅ | ✅ |
+| straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
+| within_town_mtlines.do | ✅ | ✅ | ✅ |
+| within_town_mtlines_robustse.do | ✅ | ✅ |  ✅ |
 
 ## Skip to a File
 - [analysis_master_file.do](#analysis_master_filedo)
