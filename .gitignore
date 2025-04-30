@@ -6,6 +6,7 @@
 !/code/*
 !/.git
 !/docs/*
+!*/data_setup
 
 # Ignore the following file tpyes
 *.dta

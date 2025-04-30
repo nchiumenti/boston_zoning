@@ -31,4 +31,3 @@
 
 ## File descriptions
 
-test text
