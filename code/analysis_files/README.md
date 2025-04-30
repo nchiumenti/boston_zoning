@@ -57,7 +57,7 @@ be run in the specific order they are named based on their numbering.
 | chars_mtlines.do | ✅ | ✅ |✅ |
 | counterfactual_01_spatial_heterogeneity.do | ✅ | ✅ | ✅ |
 | counterfactual_02_train_station_means.do | ✅ | ✅ | ✅ |
-| counterfactual_03_means.do (formerly means.do) |  | ✅ | ✅ |
+| counterfactual_03_means.do (formerly means.do) | ✅ | ✅ | ✅ |
 | counterfactual_04_calculations_combined.do | ✅ | run by AK ✅ | ✅ |
 | external_effects.do | ✅ | ✅ | ✅ |
 | histogram.do | ✅ | ✅ | ✅ |
