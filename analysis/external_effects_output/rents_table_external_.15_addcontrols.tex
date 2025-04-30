@@ -1,0 +1,45 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Rents, w/ characteristics}
+\begin{tabular}{l*{3}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}\\
+                    &\multicolumn{1}{c}{rent\_du2}&\multicolumn{1}{c}{rent\_duhe2}&\multicolumn{1}{c}{rent\_mfdu2}\\
+\hline
+interior\_parcel=0   &           0         &           0         &           0         \\
+                    &         (.)         &         (.)         &         (.)         \\
+[1em]
+interior\_parcel=1   &     -0.0129         &       0.859\sym{**} &      0.0514         \\
+                    &    (0.0333)         &     (0.316)         &     (0.863)         \\
+[1em]
+interior\_parcel=0 X dupac&           0         &           0         &                     \\
+                    &         (.)         &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X dupac&   -0.000279         &     -0.0183         &                     \\
+                    &   (0.00205)         &    (0.0176)         &                     \\
+[1em]
+interior\_parcel=0 X height&                     &           0         &           0         \\
+                    &                     &         (.)         &         (.)         \\
+[1em]
+interior\_parcel=1 X height&                     &      -0.239\sym{**} &     0.00120         \\
+                    &                     &    (0.0854)         &     (0.153)         \\
+[1em]
+interior\_parcel=0 X height X dupac&                     &           0         &                     \\
+                    &                     &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X height X dupac&                     &     0.00544         &                     \\
+                    &                     &   (0.00400)         &                     \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year built f.e.     &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &       49681         &       21817         &        3503         \\
+\(R^{2}\)           &       0.704         &       0.759         &       0.770         \\
+\hline\hline
+\multicolumn{4}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

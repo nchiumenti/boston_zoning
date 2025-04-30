@@ -1,0 +1,81 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Sales Prices w/ characteristics}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{price\_du2}&\multicolumn{1}{c}{price\_duhe2}&\multicolumn{1}{c}{price\_mfdu2}&\multicolumn{1}{c}{price\_mf2}&\multicolumn{1}{c}{price\_mfhe2}&\multicolumn{1}{c}{price\_he2}\\
+\hline
+interior\_parcel=0   &           0         &           0         &           0         &           0         &           0         &           0         \\
+                    &         (.)         &         (.)         &         (.)         &         (.)         &         (.)         &         (.)         \\
+[1em]
+interior\_parcel=1   &      0.0344\sym{**} &      -0.415\sym{*}  &     -0.0150         &    -0.00649         &      -2.377\sym{***}&      -0.259\sym{***}\\
+                    &    (0.0106)         &     (0.206)         &    (0.0163)         &    (0.0690)         &     (0.435)         &    (0.0710)         \\
+[1em]
+interior\_parcel=0 X dupac&           0         &           0         &           0         &                     &                     &                     \\
+                    &         (.)         &         (.)         &         (.)         &                     &                     &                     \\
+[1em]
+interior\_parcel=1 X dupac&    -0.00600\sym{**} &      0.0668         &     0.00208         &                     &                     &                     \\
+                    &   (0.00226)         &    (0.0701)         &   (0.00233)         &                     &                     &                     \\
+[1em]
+interior\_parcel=0 X height&                     &           0         &                     &                     &           0         &           0         \\
+                    &                     &         (.)         &                     &                     &         (.)         &         (.)         \\
+[1em]
+interior\_parcel=1 X height&                     &       0.111\sym{*}  &                     &                     &       0.661\sym{***}&      0.0556\sym{*}  \\
+                    &                     &    (0.0443)         &                     &                     &     (0.129)         &    (0.0218)         \\
+[1em]
+interior\_parcel=0 X height X dupac&                     &           0         &                     &                     &                     &                     \\
+                    &                     &         (.)         &                     &                     &                     &                     \\
+[1em]
+interior\_parcel=1 X height X dupac&                     &     -0.0160         &                     &                     &                     &                     \\
+                    &                     &    (0.0174)         &                     &                     &                     &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=0&                     &                     &           0         &           0         &           0         &                     \\
+                    &                     &                     &         (.)         &         (.)         &         (.)         &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=1&                     &                     &           0         &           0         &           0         &                     \\
+                    &                     &                     &         (.)         &         (.)         &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=0&                     &                     &           0         &           0         &           0         &                     \\
+                    &                     &                     &         (.)         &         (.)         &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=1&                     &                     &      0.0224         &      0.0468         &      -0.350\sym{**} &                     \\
+                    &                     &                     &    (0.0407)         &    (0.0797)         &     (0.109)         &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=0 X dupac&                     &                     &           0         &                     &                     &                     \\
+                    &                     &                     &         (.)         &                     &                     &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=1 X dupac&                     &                     &           0         &                     &                     &                     \\
+                    &                     &                     &         (.)         &                     &                     &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=0 X dupac&                     &                     &           0         &                     &                     &                     \\
+                    &                     &                     &         (.)         &                     &                     &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=1 X dupac&                     &                     &   -0.000165         &                     &                     &                     \\
+                    &                     &                     &   (0.00459)         &                     &                     &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=0 X height&                     &                     &                     &                     &           0         &                     \\
+                    &                     &                     &                     &                     &         (.)         &                     \\
+[1em]
+interior\_parcel=0 X mf\_allowed=1 X height&                     &                     &                     &                     &           0         &                     \\
+                    &                     &                     &                     &                     &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=0 X height&                     &                     &                     &                     &           0         &                     \\
+                    &                     &                     &                     &                     &         (.)         &                     \\
+[1em]
+interior\_parcel=1 X mf\_allowed=1 X height&                     &                     &                     &                     &           0         &                     \\
+                    &                     &                     &                     &                     &         (.)         &                     \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Sale year f.e.      &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year built f.e.     &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &       64864         &        3105         &       18850         &        2354         &         594         &        4024         \\
+\(R^{2}\)           &       0.787         &       0.915         &       0.821         &       0.826         &       0.970         &       0.817         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

@@ -1,0 +1,22 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Public Transit Distance to Downtown Boston (miles)}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{transit\_du}&\multicolumn{1}{c}{transit\_duhe}&\multicolumn{1}{c}{transit\_mfdu}&\multicolumn{1}{c}{transit\_mf}&\multicolumn{1}{c}{transit\_mfhe}&\multicolumn{1}{c}{transit\_he}\\
+\hline
+-.02                &       0.161         &      0.0571         &       0.235\sym{*}  &       0.111\sym{***}&      0.0513         &      0.0429         \\
+                    &     (0.332)         &     (0.126)         &     (0.114)         &  (7.10e-15)         &     (0.109)         &    (0.0696)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &        3768         &       16794         &        4522         &         129         &        1930         &       10336         \\
+\(R^{2}\)           &       0.997         &       0.995         &       0.997         &       0.302         &       0.994         &       0.997         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

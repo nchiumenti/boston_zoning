@@ -1,0 +1,594 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_mtlines_log_2025-04-18.log
+  log type:  text
+ opened on:  18 Apr 2025, 14:16:56
+
+. 
+. 
+. ********************************************************************************
+. * File name:            predicted_prices_mtlines.do
+. *
+. * Project title:        Boston Zoning Project
+. *
+. * Description:          This is a shortened version of older predicted prices files,
+. *                                       only the relevant bits found in the final analysis were kept.
+. *
+. *                                       It otherwise has not been changed so the updated date is
+. *                                       the same as the longer version last run with MC on 10/18/2024.
+. *                       
+. *                                       Contents:
+. *                                       Part 1: placebo check - predict outcomes at boundaries
+. *                                       Part 2: predicted sales prices, all amenties + w/o walkscore
+. *                                       Part 3: predicted rents, all amenities + w/o walkscore
+. *                               
+. * Inputs:                       mt_orthogonal_dist_100m_07-01-22_v2.dta
+. *                                       transit_distance.csv
+. *                                       soil_quality_matches.dta
+. *                                       warren_group_walkability.dta
+. *
+. * Outputs:                      log output only
+. *
+. * Created:                      06/10/2024
+. * Updated:                      02/27/2025
+. ********************************************************************************
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the mt lines flag data
+. ********************************************************************************
+. use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+
+. 
+. destring prop_id, replace
+prop_id: all characters numeric; replaced as long
+
+. 
+. tempfile mtlines
+
+. save `mtlines', replace
+(file /tmp/343956.1.sta.q/St2124155.000001 not found)
+file /tmp/343956.1.sta.q/St2124155.000001 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the transit data
+. ********************************************************************************
+. import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(10 vars, 303 obs)
+
+. 
+. tempfile dist_south_station
+
+. save `dist_south_station', replace
+(file /tmp/343956.1.sta.q/St2124155.000002 not found)
+file /tmp/343956.1.sta.q/St2124155.000002 saved as .dta format
+
+. 
+. import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(10 vars, 821,237 obs)
+
+. 
+. merge m:1 station_id using `dist_south_station'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                            11
+        from master                         0  (_merge==1)
+        from using                         11  (_merge==2)
+
+    Matched                           821,237  (_merge==3)
+    -----------------------------------------
+
+.                 
+.                 /* * merge error check
+>                 sum _merge
+>                 assert `r(N)' ==  821248
+>                 assert `r(sum_w)' ==  821248
+>                 assert `r(mean)' ==  2.999986605751247
+>                 assert `r(Var)' ==  .0000133940856566
+>                 assert `r(sd)' ==  .0036597931166456
+>                 assert `r(min)' ==  2
+>                 assert `r(max)' ==  3
+>                 assert `r(sum)' ==  2463733 */
+. 
+.                 drop if _merge == 2
+(11 observations deleted)
+
+.                 drop _merge
+
+.         
+. keep prop_id station_id station_name distance_m_* length_m
+
+. 
+. destring prop_id distance_m_* length_m, replace
+prop_id: all characters numeric; replaced as long
+distance_m_euc: all characters numeric; replaced as double
+distance_m_man: all characters numeric; replaced as double
+length_m: all characters numeric; replaced as long
+(3660 missing values generated)
+
+. 
+. gen transit_dist_m = distance_m_man + length_m
+(3,660 missing values generated)
+
+. 
+. tempfile transit
+
+. save `transit', replace
+(file /tmp/343956.1.sta.q/St2124155.000003 not found)
+file /tmp/343956.1.sta.q/St2124155.000003 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the soil data
+. ********************************************************************************
+. use "$DATAPATH/soil_quality_matches.dta", clear  // bringing back the old soil data
+
+. 
+. keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
+
+. 
+. destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
+avg_slope: all characters numeric; replaced as double
+(164372 missing values generated)
+slope_15: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_restri: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_sand: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_clay: all characters numeric; replaced as double
+(164372 missing values generated)
+
+. 
+. tempfile soil
+
+. save `soil', replace
+(file /tmp/343956.1.sta.q/St2124155.000004 not found)
+file /tmp/343956.1.sta.q/St2124155.000004 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the walk score data 19.05.2024
+. ********************************************************************************
+. use "$DATAPATH/warren_group_walkability.dta" // set to file path
+
+. 
+. keep prop_id d2b_e8mixa d2a_ephhm d3b d2a_ranked d2b_ranked d3b_ranked natwalkind
+
+. 
+. tempfile walkscore
+
+. save `walkscore', replace
+(file /tmp/343956.1.sta.q/St2124155.000005 not found)
+file /tmp/343956.1.sta.q/St2124155.000005 saved as .dta format
+
+. 
+. ********************************************************************************
+. ** create working dataset
+. ********************************************************************************
+. use "$DATAPATH/within_town_analysis_data.dta", clear
+
+. 
+. * merge on transit data
+. merge m:1 prop_id using `transit'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       443,044
+        from master                         0  (_merge==1)
+        from using                    443,044  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         /* * merge error check
+>         sum _merge
+>         assert `r(N)' ==  3642292
+>         assert `r(sum_w)' ==  3642292
+>         assert `r(mean)' ==  2.878361207723049
+>         assert `r(Var)' ==  .1068428258243096
+>         assert `r(sd)' ==  .3268682086473226
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  10483832 */
+.         
+.         drop if _merge == 2
+(443,044 observations deleted)
+
+.         drop _merge
+
+. 
+. * merge on soil quality data
+. merge m:1 prop_id using `soil'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       443,044
+        from master                         0  (_merge==1)
+        from using                    443,044  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         /* * merge error check
+>         sum _merge
+>         assert `r(N)' ==  3642292
+>         assert `r(sum_w)' ==  3642292
+>         assert `r(mean)' ==  2.878361207723049
+>         assert `r(Var)' ==  .1068428258243096
+>         assert `r(sd)' ==  .3268682086473226
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  10483832 */
+. 
+.         drop if _merge == 2
+(443,044 observations deleted)
+
+.         drop _merge
+
+. 
+. * merge on mt lines to keep straight line properties
+. merge m:1 prop_id using `mtlines', keepusing(straight_line)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       201,049
+        from master                         0  (_merge==1)
+        from using                    201,049  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         /* * merge error check
+>         sum _merge
+>         assert `r(N)' ==  3400297
+>         assert `r(sum_w)' ==  3400297
+>         assert `r(mean)' ==  2.940873106084557
+>         assert `r(Var)' ==  .0556309206919615
+>         assert `r(sd)' ==  .235862079809285
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  9999842 */
+. 
+.         drop if _merge == 2
+(201,049 observations deleted)
+
+.         drop _merge
+
+. 
+. keep if straight_line == 1  // <-- drops non-straight line properties
+(2,237,233 observations deleted)
+
+. 
+. * merge on walkscore variables 
+. merge m:1 prop_id using `walkscore', 
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       466,112
+        from master                         0  (_merge==1)
+        from using                    466,112  (_merge==2)
+
+    Matched                           962,015  (_merge==3)
+    -----------------------------------------
+
+.     sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  1,428,127     2.67362    .4688883          2          3
+
+.     drop if _merge == 2
+(466,112 observations deleted)
+
+.     drop _merge 
+
+. 
+. * drop out of scope years
+. keep if (year >= 2010 & year <= 2018)
+(0 observations deleted)
+
+. 
+. tab year
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2010 |    104,264       10.84       10.84
+       2011 |    107,230       11.15       21.98
+       2012 |    106,561       11.08       33.06
+       2013 |    106,732       11.09       44.16
+       2014 |    105,275       10.94       55.10
+       2015 |    107,440       11.17       66.27
+       2016 |    107,865       11.21       77.48
+       2017 |    108,234       11.25       88.73
+       2018 |    108,414       11.27      100.00
+------------+-----------------------------------
+      Total |    962,015      100.00
+
+. 
+. 
+. ********************************************************************************
+. ** gen amenity variables
+. ********************************************************************************
+. gen dist_school = closest_school_dist
+
+. gen dist_center = closest_city_dist
+
+. gen dist_road = closest_road_dist
+
+. gen dist_river = closest_river_dist
+
+. gen dist_space = closest_green_dist
+
+. 
+. gen transit_dist = transit_dist_m/1609
+(6,421 missing values generated)
+
+. 
+. gen soil_avgslope = avg_slope
+(182,953 missing values generated)
+
+. gen soil_slope15 = slope_15
+(182,953 missing values generated)
+
+. gen soil_avgrestri = avg_restri
+(182,953 missing values generated)
+
+. gen soil_avgsand = avg_sand
+(182,953 missing values generated)
+
+. gen soil_avgclay = avg_clay
+(182,953 missing values generated)
+
+. 
+. 
+. ********************************************************************************
+. ** Part 1: placebo check - predict outcomes at boundaries
+. ********************************************************************************
+. * define dist vars macro 
+. global dist_vars dist_school dist_center dist_road dist_river dist_space transit_dist
+
+. 
+. * soil macro
+. global soil_vars soil_avgslope soil_slope15 soil_avgrestri soil_avgsand soil_avgclay
+
+. 
+. * define new macro for walkscore vars
+. global walk_vars_0 d2b_e8mixa natwalkind 
+
+. 
+. ** sales price
+. local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res"
+
+. 
+. * NEW
+. quietly eststo price_0: reg log_saleprice $dist_vars $walk_vars_0 $soil_vars i.lam_seg i.last_saleyr if `regression_conditions'
+
+. predict amenity_price_0 if e(sample), xb
+(891,997 missing values generated)
+
+. 
+. // quietly eststo price_1: reg log_saleprice $dist_vars $soil_vars_1 i.lam_seg i.last_saleyr if `regression_conditions'
+. // predict amenity_price_1, xb
+. 
+. * predict prices, amenity vars w/o walkability
+. quietly eststo price_1: reg log_saleprice $dist_vars d2b_e8mixa $soil_vars i.lam_seg i.last_saleyr if `regression_conditions'
+
+. 
+. predict amenity_price_1 if e(sample), xb
+(891,997 missing values generated)
+
+. 
+. ** rents
+. local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums"
+
+. 
+. * NEW
+. quietly eststo rent_0: reg log_mfrent $dist_vars $walk_vars_0 $soil_vars i.lam_seg i.year if `regression_conditions'
+
+. predict amenity_rent_0 if e(sample), xb
+(828,980 missing values generated)
+
+. 
+. local i = 0
+
+. //forvalues i = 0(0)0 {
+.         esttab price_`i' rent_`i', ///
+>                                 se r2 indicate("Boundary f.e.=*lam_seg" "Sale Year f.e.=*last_saleyr" "Year f.e.=*year") interaction(" X ") ///
+>         label mtitles("price" "rent") ///
+>         title("Predicted price/rent coefficients") 
+
+Predicted price/rent coefficients
+----------------------------------------------------
+                              (1)             (2)   
+                            price            rent   
+----------------------------------------------------
+dist_school                0.0851***      -0.0171   
+                        (0.00866)        (0.0151)   
+
+dist_center               0.00582           0.128***
+                        (0.00696)        (0.0125)   
+
+dist_road                   0.189***        0.207***
+                         (0.0101)        (0.0220)   
+
+dist_river                -0.0515***       0.0424** 
+                         (0.0120)        (0.0153)   
+
+dist_space                -0.0521***       0.0792***
+                        (0.00602)        (0.0132)   
+
+transit_dist             -0.00938***      -0.0149***
+                        (0.00193)       (0.00255)   
+
+D2B_E8MIXA                  0.111***     -0.00276   
+                         (0.0149)        (0.0111)   
+
+NatWalkInd                -0.0123***     -0.00175   
+                       (0.000923)       (0.00103)   
+
+soil_avgslope             0.00185***   -0.0000440   
+                       (0.000557)      (0.000913)   
+
+soil_slope15               0.0492***     -0.00706   
+                        (0.00967)        (0.0151)   
+
+soil_avgrestri          -0.000221***    -0.000275***
+                      (0.0000338)     (0.0000500)   
+
+soil_avgsand            -0.000496***     0.000328*  
+                       (0.000108)      (0.000142)   
+
+soil_avgclay              0.00239**     -0.000232   
+                       (0.000849)       (0.00136)   
+
+Constant                    13.50***        5.920***
+                         (0.0915)         (0.227)   
+
+Boundary f.e.                 Yes             Yes   
+
+Sale Year f.e.                Yes              No   
+
+Year f.e.                      No             Yes   
+----------------------------------------------------
+Observations                70018          133035   
+R-squared                   0.675           0.630   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. ********************************************************************************
+. * Part 2: predicted sales prices, all amenties + w/o walkscore
+. ********************************************************************************
+. * regression conditions
+. local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res"
+
+. 
+. local j = 0
+
+.         quietly eststo price_du_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo price_duhe_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo price_mfdu_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo price_mf_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo price_mfhe_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo price_he_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+. local j = 0
+
+.         quietly eststo price_du_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo price_duhe_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo price_mfdu_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_du == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo price_mf_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo price_mfhe_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if mf_he == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo price_he_r_`j': reg amenity_price_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. 
+. * clustered
+. local i = 0
+
+.         esttab price_du_`i' price_duhe_`i' price_mfdu_`i' price_mf_`i' price_mfhe_`i' price_he_`i' using "$EXPORTPATH/predicted_prices_table_`i'.tex", replace keep(25.dist3)  ///
+>         se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+>         label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
+>         title("Amenity sales prices, new amenity list") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_table_0.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_table_0.tex)
+
+.                                         
+. 
+. * robust
+. local i = 0 
+
+.         esttab price_du_r_`i' price_duhe_r_`i' price_mfdu_r_`i' price_mf_r_`i' price_mfhe_r_`i' price_he_r_`i' using "$EXPORTPATH/predicted_prices_table_r_`i'.tex", replace keep(25.dist3)  ///
+>         se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+>         label mtitles("price_du" "price_duhe" "price_mfdu" "price_mf" "price_mfhe" "price_he") ///
+>         title("Amenity sales prices, new amenity list (robust SE)") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_table_r_0.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_table_r_0.tex)
+
+. 
+. ********************************************************************************
+. ** Part 3: predicted rents, all amenities + w/o walkscore
+. ********************************************************************************
+. * regression conditions
+. local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
+
+. 
+. * NEW
+. local j = 0
+
+.         quietly eststo rent_du_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo rent_duhe_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.         quietly eststo rent_he_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+. * NEW
+. local j = 0
+
+.         quietly eststo rent_du_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_du == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo rent_duhe_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions', vce(robust)
+
+.         quietly eststo rent_he_r_`j': reg amenity_rent_`j' ib26.dist3 i.lam_seg i.last_saleyr if only_he == 1 & `regression_conditions', vce(robust)
+
+.         
+. * (rent), clustered
+. local i = 0
+
+.         esttab rent_du_`i' rent_duhe_`i' rent_he_`i' using "$EXPORTPATH/predicted_rents_table_`i'.tex", replace keep(25.dist3)  ///
+>         se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+>         label mtitles("rent_du" "rent_duhe" "rent_he") ///
+>         title("Amenity rents prices, new amenity list") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_rents_table_0.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_rents_table_0.tex)
+
+.                                         
+. * (rent), robust
+. local i = 0
+
+.         esttab rent_du_r_`i' rent_duhe_r_`i' rent_he_r_`i' using "$EXPORTPATH/predicted_rents_table_r_`i'.tex", replace keep(25.dist3)  ///
+>         se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+>         label mtitles("rent_du" "rent_duhe" "rent_he") ///
+>         title("Amenity rents prices, new amenity list (robust SE)") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_rents_table_r_0.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_rents_table_r_0.tex)
+
+. 
+. ********************************************************************************
+. ** end
+. ********************************************************************************
+. display "finished!" 
+finished!
+
+. log close
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/predicted_prices_mtlines_output/predicted_prices_mtlines_log_2025-04-18.log
+  log type:  text
+ closed on:  18 Apr 2025, 14:22:53
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

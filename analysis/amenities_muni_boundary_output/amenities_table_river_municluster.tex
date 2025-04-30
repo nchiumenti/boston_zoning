@@ -1,0 +1,22 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Distance to River (miles)}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{river\_du}&\multicolumn{1}{c}{river\_duhe}&\multicolumn{1}{c}{river\_mfdu}&\multicolumn{1}{c}{river\_mf}&\multicolumn{1}{c}{river\_mfhe}&\multicolumn{1}{c}{river\_he}\\
+\hline
+-.02                &     -0.0635         &     -0.0278         &     -0.0409         &      0.0469\sym{***}&     -0.0234         &      0.0155         \\
+                    &    (0.0525)         &    (0.0225)         &    (0.0523)         &  (1.89e-16)         &    (0.0302)         &    (0.0167)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &        3768         &       17020         &        4522         &         129         &        1930         &       10336         \\
+\(R^{2}\)           &       0.935         &       0.836         &       0.820         &       0.876         &       0.930         &       0.907         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

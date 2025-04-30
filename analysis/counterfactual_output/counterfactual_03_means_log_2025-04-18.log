@@ -1,0 +1,865 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/counterfactual_03_means_log_2025-04-18.log
+  log type:  text
+ opened on:  18 Apr 2025, 10:58:50
+
+. 
+. 
+. ********************************************************************************
+. * File name:            counterfactual_03_means.do
+. *
+. * Project title:        Boston Zoning Project
+. *
+. * Description:          This is part 3 of the counterfactual analysis. Some analysis
+. *                                       might be used in other parts of the paper.
+. *                                       
+. *                                       This file calcs a bunch of means at different levels (property,
+. *                                       boundary, etc.). It then creates a town level version that also
+. *                                       has train station level means attached. If run in order, on the
+. *                                       same day, counterfactual output should be in the same folder.
+. *                               
+. * Inputs:                       mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
+. *                                       within_town_analysis_data.dta
+. *                                       means_town_lvl.dta
+. *                                       means_town_lvl_tomerge.dta
+. *                               
+. * Outputs:                      means_lpm.dta
+. *                                       means_property_lvl.dta
+. *                                       means_boundary_lvl.dta
+. *                                       means_town_lvl.dta
+. *                                       means_town_lvl_tomerge.dta
+. *                                       means_town_train_stations.dta
+. *
+. * Created:                      11/10/2021
+. * Updated:                      02/27/2025
+. ********************************************************************************
+. 
+. ********************************************************************************
+. ** load the mt lines data
+. ********************************************************************************
+. use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+
+. 
+. destring prop_id, replace
+prop_id: all characters numeric; replaced as long
+
+. 
+. tempfile mtlines
+
+. save `mtlines', replace
+(file /tmp/343956.1.sta.q/St2124155.000001 not found)
+file /tmp/343956.1.sta.q/St2124155.000001 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** create working dataset
+. ********************************************************************************
+. use "$DATAPATH/within_town_analysis_data.dta", clear
+
+. 
+. * merge on mt lines to keep straight line properties
+. merge m:1 prop_id using `mtlines', keepusing(straight_line)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       201,049
+        from master                         0  (_merge==1)
+        from using                    201,049  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         * check merge for errors
+.         sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  3,400,297    2.940873    .2358621          2          3
+
+.         assert `r(N)' ==  3400297
+
+.         assert `r(sum_w)' ==  3400297
+
+.         assert `r(mean)' ==  2.940873106084557
+
+.         assert `r(Var)' ==  .0556309206919615
+
+.         assert `r(sd)' ==  .235862079809285
+
+.         assert `r(min)' ==  2
+
+.         assert `r(max)' ==  3
+
+.         assert `r(sum)' ==  9999842
+
+.         
+.         drop if _merge == 2
+(201,049 observations deleted)
+
+.         drop _merge
+
+. 
+. keep if straight_line == 1  // <-- drops non-straight line properties
+(2,237,233 observations deleted)
+
+. 
+. * drop out of scope years
+. keep if (year >= 2010 & year <= 2018)
+(0 observations deleted)
+
+. 
+. tab year
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2010 |    104,264       10.84       10.84
+       2011 |    107,230       11.15       21.98
+       2012 |    106,561       11.08       33.06
+       2013 |    106,732       11.09       44.16
+       2014 |    105,275       10.94       55.10
+       2015 |    107,440       11.17       66.27
+       2016 |    107,865       11.21       77.48
+       2017 |    108,234       11.25       88.73
+       2018 |    108,414       11.27      100.00
+------------+-----------------------------------
+      Total |    962,015      100.00
+
+. 
+. 
+. ********************************************************************************
+. ** define mean variables
+. ********************************************************************************
+. gen side = ""
+(962,015 missing values generated)
+
+. replace side = "relaxed" if relaxed == 1
+variable side was str1 now str7
+(513,326 real changes made)
+
+. replace side = "strict" if relaxed == 0
+(448,689 real changes made)
+
+. 
+. * gen boundary type var
+. gen boundary_type = ""
+(962,015 missing values generated)
+
+.         replace boundary_type = "only_mf" if only_mf == 1
+variable boundary_type was str1 now str7
+(25,622 real changes made)
+
+.         replace boundary_type = "only_he" if only_he == 1
+(30,167 real changes made)
+
+.         replace boundary_type = "only_du" if only_du == 1
+(566,407 real changes made)
+
+.         replace boundary_type = "mf_he" if mf_he == 1
+(9,483 real changes made)
+
+.         replace boundary_type = "mf_du" if mf_du == 1
+(214,331 real changes made)
+
+.         replace boundary_type = "du_he" if du_he == 1
+(55,309 real changes made)
+
+.         replace boundary_type = "mf_he_du" if mf_he_du == 1
+variable boundary_type was str7 now str8
+(60,289 real changes made)
+
+. 
+. * units prices rents variables
+. gen units = num_units1 if year_built>=1918 & year==2018 & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
+(908,089 missing values generated)
+
+. gen rent = comb_rent2 if (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
+(812,973 missing values generated)
+
+. gen price = def_saleprice if (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res"
+(873,590 missing values generated)
+
+. 
+. * fam 2-3 4+ and single fam variables
+. /* note, these are the same definitions used in within_town_setup */
+. gen fam23_1918 = 0 if res_typex == "Single Family Res" & (year_built >= 1918 & year == 2018)
+(895,071 missing values generated)
+
+.         replace fam23_1918 = 1 if (res_typex == "Two Family Res" | res_typex == "Three Family Res") & (year_built >= 1918 & year == 2018)
+(5,591 real changes made)
+
+. 
+. gen fam23_1956 = 0 if res_typex == "Single Family Res" & (year_built >= 1956 & year == 2018)
+(918,637 missing values generated)
+
+.         replace fam23_1956 = 1 if (res_typex == "Two Family Res" | res_typex == "Three Family Res") & (year_built >= 1956 & year == 2018)
+(1,293 real changes made)
+
+. 
+. gen fam4plus_1918 = 0 if res_typex == "Single Family Res" & (year_built >= 1918 & year == 2018)
+(895,071 missing values generated)
+
+.         replace fam4plus_1918 = 1 if (res_typex == "4-8 Unit Res" | res_typex == "9+ Unit Res") & (year_built >= 1918 & year == 2018)
+(734 real changes made)
+
+. 
+. gen fam4plus_1956 = 0 if res_typex == "Single Family Res" & (year_built >= 1956 & year == 2018)
+(918,637 missing values generated)
+
+.         replace fam4plus_1956 = 1 if (res_typex == "4-8 Unit Res" | res_typex == "9+ Unit Res") & (year_built >= 1956 & year == 2018)
+(334 real changes made)
+
+.         
+. gen singlefam = (res_typex == "Single Family Res" & (last_saleyr >= 2010 & last_saleyr <= 2018))
+
+.         replace singlefam = . if (last_saleyr < 2010 | last_saleyr > 2018)
+(790,911 real changes made, 790,911 to missing)
+
+. 
+. * error check
+. sum units
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       units |     53,926    1.466918    6.465397          1        601
+
+.         // assert `r(N)' ==  53926
+.         // assert `r(sum_w)' ==  53926
+.         // assert `r(mean)' ==  1.466917627860401
+.         // assert `r(Var)' ==  41.80136265272328
+.         // assert `r(sd)' ==  6.465397331388325
+.         // assert `r(min)' ==  1
+.         // assert `r(max)' ==  601
+.         // assert `r(sum)' ==  79105
+. 
+. sum rent
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        rent |    149,042    1190.582    665.1793          0   4995.378
+
+.         // assert `r(N)' ==  149042
+.         // assert `r(sum_w)' ==  149042
+.         // assert `r(mean)' ==  1190.58200293449
+.         // assert `r(Var)' ==  442463.4875743266
+.         // assert `r(sd)' ==  665.179289796613
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  4995.37758772267
+.         // assert `r(sum)' ==  177446722.8813623
+. 
+. sum price
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       price |     88,425    586028.4    336592.7   2731.735    2099133
+
+.         // assert `r(N)' ==  88425
+.         // assert `r(sum_w)' ==  88425
+.         // assert `r(mean)' ==  586028.3923129035
+.         // assert `r(Var)' ==  113294638707.3995
+.         // assert `r(sd)' ==  336592.689622635
+.         // assert `r(min)' ==  2731.73488174657
+.         // assert `r(max)' ==  2099133.386838418
+.         // assert `r(sum)' ==  51819560590.26849
+.         
+. sum fam23_1918 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam23_1918 |     72,535      .07708    .2667202          0          1
+
+.         // assert `r(N)' ==  72535
+.         // assert `r(sum_w)' ==  72535
+.         // assert `r(mean)' ==  .0770800303301854
+.         // assert `r(Var)' ==  .0711396800179769
+.         // assert `r(sd)' ==  .2667202279880115
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  5591
+. 
+. sum fam23_1956 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam23_1956 |     44,671     .028945    .1676537          0          1
+
+.         // assert `r(N)' ==  44671
+.         // assert `r(sum_w)' ==  44671
+.         // assert `r(mean)' ==  .0289449531015648
+.         // assert `r(Var)' ==  .0281077720089473
+.         // assert `r(sd)' ==  .1676537264988384
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  1293
+. 
+. sum fam4plus_1918 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+fam4plu~1918 |     67,678    .0108455    .1035761          0          1
+
+.         // assert `r(N)' ==  67678
+.         // assert `r(sum_w)' ==  67678
+.         // assert `r(mean)' ==  .0108454741570377
+.         // assert `r(Var)' ==  .0107280083627929
+.         // assert `r(sd)' ==  .1035760993800833
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  734
+. 
+. sum fam4plus_1956 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+fam4plu~1956 |     43,712    .0076409    .0870788          0          1
+
+.         // assert `r(N)' ==  43712
+.         // assert `r(sum_w)' ==  43712
+.         // assert `r(mean)' ==  .0076409224011713
+.         // assert `r(Var)' ==  .0075827121758369
+.         // assert `r(sd)' ==  .0870787699490349
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  334
+. 
+. sum singlefam
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+   singlefam |    171,104    .7039111     .456532          0          1
+
+.         // assert `r(N)' ==  171104
+.         // assert `r(sum_w)' ==  171104
+.         // assert `r(mean)' ==  .7039110716289508
+.         // assert `r(Var)' ==  .2084214929654413
+.         // assert `r(sd)' ==  .4565320284114153
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  120442
+. 
+. sum height
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      height |    962,015    3.449135    .7844533          0       35.6
+
+.         // assert `r(N)' ==  962015
+.         // assert `r(sum_w)' ==  962015
+.         // assert `r(mean)' ==  3.449134576903687
+.         // assert `r(Var)' ==  .6153669665846871
+.         // assert `r(sd)' ==  .7844532915251788
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  35.6
+.         // assert `r(sum)' ==  3318119.2
+. 
+. sum dupac
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |    962,015    9.719478    14.75484          0        349
+
+.         // assert `r(N)' ==  962015
+.         // assert `r(sum_w)' ==  962015
+.         // assert `r(mean)' ==  9.719478386511645
+.         // assert `r(Var)' ==  217.705447898112
+.         // assert `r(sd)' ==  14.754844895766
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  349
+.         // assert `r(sum)' ==  9350284
+. 
+. sum mf_allow
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  mf_allowed |    962,015    .5402473    .4983778          0          1
+
+.         // assert `r(N)' ==  962015
+.         // assert `r(sum_w)' ==  962015
+.         // assert `r(mean)' ==  .5402472934413705
+.         // assert `r(Var)' ==  .2483804135583165
+.         // assert `r(sd)' ==  .4983777819669698
+.         // assert `r(min)' ==  0
+.         // assert `r(max)' ==  1
+.         // assert `r(sum)' ==  519726
+. 
+.         
+. ********************************************************************************
+. ** calculate means for single, 2-3 unit, 4+ unit for >=1918 and >=1956 at
+. ** property level
+. ********************************************************************************
+. preserve
+
+. 
+. * collapse to calc means
+. collapse (mean) mean_fam23_1918 = fam23_1918 ///
+>                 mean_fam23_1956 = fam23_1956 ///
+>                 mean_fam4plus_1918 = fam4plus_1918 ///
+>                 mean_fam4plus_1956 = fam4plus_1956 ///
+>                 mean_singlefam = singlefam ///
+>         (sum) n_fam23_1918 = fam23_1918 ///
+>                 n_fam23_1956 = fam23_1956 ///
+>                 n_fam4plus_1918 = fam4plus_1918 ///
+>                 n_fam4plus_1956 = fam4plus_1956 ///
+>                 n_singlefam = singlefam ///
+>                 if (dist_both<=0.21 & dist_both>=-0.2) ///
+>                 , by(boundary_type side)
+
+. 
+. drop if boundary_type == ""
+(1 observation deleted)
+
+. 
+. * label export variables
+. lab var side "relaxed/strict boundary side"
+
+. 
+. lab var mean_fam23_1918 "mean share of props 2-3 units >=1918 in 2018"
+
+. lab var mean_fam23_1956 "mean share of props 2-3 units >=1956 in 2018"
+
+. lab var mean_fam4plus_1918 "mean share of props 4+ units >=1918 in 2018"
+
+. lab var mean_fam4plus_1956 "mean share of props 4+ units >=1956 in 2018"
+
+. lab var mean_singlefam "mean share of props single fam last sale year 2010 to 2018"
+
+. 
+. lab var n_fam23_1918 "count of props 2-3 units >=1918 in 2018"
+
+. lab var n_fam23_1956 "count of props 2-3 units >=1956 in 2018"
+
+. lab var n_fam4plus_1918 "count of props 4+ units >=1918 in 2018"
+
+. lab var n_fam4plus_1956 "count of props 4+ units >=1956 in 2018"
+
+. lab var n_singlefam "count of props single fam last sale year 2010 to 2018"
+
+.         
+. * save as .dta file
+. save "$EXPORTPATH/means_lpm.dta", replace
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_lpm.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_lpm.dta saved
+
+. 
+. * display output in log file
+. tabdisp boundary_type, cell(mean_*)
+
+------------------------------------------------------------------------------------------------------------------------
+boundary_ |
+type      |      mean_fam23_1918       mean_fam23_1956    mean_fam4plus_1918    mean_fam4plus_1956        mean_singlefam
+----------+-------------------------------------------------------------------------------------------------------------
+    du_he |              .359375             .30588235              .1915493             .19178082             .22465409
+    mf_du |            .23356009             .10654628             .02138085             .02656173             .49244505
+    mf_he |            .21610169             .19565217             .01069519             .01333333             .36600173
+ mf_he_du |                   .5             .18343195             .11411992             .17365269             .25393164
+  only_du |            .03779543             .01785575              .0081373             .00450486             .80050759
+  only_he |            .02419355             .02478315             .01480385             .01747815             .83617871
+  only_mf |            .42514124             .18128655             .03095238             .06040268             .31640625
+------------------------------------------------------------------------------------------------------------------------
+
+. 
+. restore
+
+.         
+.         
+. ********************************************************************************
+. ** calc property level means for units, prices, rents
+. ********************************************************************************
+. preserve
+
+. 
+. * collapse to calc means
+. collapse (mean) mean_units=units mean_rent=rent mean_price=price ///
+>         (count) n_units=units n_rent=rent n_price=price ///
+>         , by(boundary_type side)
+
+. 
+. * export data as a .dta file
+. drop if boundary_type == ""
+(1 observation deleted)
+
+. 
+. * label export variables
+. lab var boundary_type "regulation boundary type"
+
+. lab var mean_units "avg. number of units"
+
+. lab var mean_rent "avg. rent"
+
+. lab var mean_price "avg sales price"
+
+. lab var n_units "count of properties used in mean_units"
+
+. lab var n_rent "count of properties used in mean_rent"
+
+. lab var n_price "count of properties used in mean_price"
+
+. 
+. * save as .dta file
+. save "$EXPORTPATH/means_property_lvl.dta", replace
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_property_lvl.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_property_lvl.dta saved
+
+. 
+. * display output in log file
+. di "Property level MEANS for units, rent, prices"
+Property level MEANS for units, rent, prices
+
+. tabdisp boundary_type side, cell(mean_units mean_rent mean_price)
+
+--------------------------------
+regulatio |
+n         |
+boundary  |         side        
+type      |   relaxed     strict
+----------+---------------------
+    du_he | 6.6631206  2.1819646
+          |  1110.069  1286.6214
+          | 566025.31  495696.95
+          | 
+    mf_du | 1.7018887   1.253178
+          |  1133.961  934.38619
+          | 483933.84  608811.29
+          | 
+    mf_he | 1.7428571  1.7953668
+          |  1011.902  1403.3637
+          | 495048.63  776640.52
+          | 
+ mf_he_du | 3.5792031  1.6114725
+          | 1154.3416  911.35526
+          | 489908.59  591396.96
+          | 
+  only_du | 1.2614884  1.2647174
+          | 1287.4475  1464.8361
+          | 565264.89  647468.51
+          | 
+  only_he | 1.6188437   1.781457
+          | 1025.7476  1038.4013
+          | 707307.27  710266.16
+          | 
+  only_mf |  1.739782  1.1685393
+          | 1309.8458   937.7345
+          | 525081.48  628203.32
+--------------------------------
+
+. 
+. di "Property level COUNTS for units, rent, prices"
+Property level COUNTS for units, rent, prices
+
+. tabdisp boundary_type side, cell(n_units n_rent n_price)
+
+----------------------------
+regulatio |
+n         |
+boundary  |       side      
+type      | relaxed   strict
+----------+-----------------
+    du_he |     564     1242
+          |    8298    13652
+          |     893     2224
+          | 
+    mf_du |    5877     5664
+          |   26311    16394
+          |    9321     9494
+          | 
+    mf_he |     245      259
+          |    1025      371
+          |     422      568
+          | 
+ mf_he_du |    1029     1691
+          |   10917    10523
+          |    1211     2407
+          | 
+  only_du |   21217    12723
+          |   26978    23457
+          |   35011    21550
+          | 
+  only_he |    1401      453
+          |    1586     2024
+          |    2302      838
+          | 
+  only_mf |     734      801
+          |    5203     2094
+          |     810     1368
+----------------------------
+
+. 
+. restore
+
+. 
+. 
+. ********************************************************************************
+. ** calc boundary level means for height, dupac, mf allowed
+. ********************************************************************************
+. preserve
+
+. 
+. unique lam_seg boundary_side boundary_type height dupac mf_allow
+Number of unique values of lam_seg boundary_side boundary_type height dupac mf_allowed is  3431
+Number of records is  962015
+
+. 
+. * error check uniuqe vals
+. assert `r(N)' ==  962015
+
+. assert `r(sum)' ==  3431
+
+. assert `r(unique)' ==  3431
+
+. 
+. bysort lam_seg boundary_side boundary_type: keep if _n==1
+(958,584 observations deleted)
+
+. 
+. * error check
+. assert _N == 3431
+
+. 
+. * collapse to calc means
+. collapse (mean) mean_height=height mean_dupac=dupac mean_mfallow=mf_allow ///
+>         (count) n_height=height n_dupac=dupac n_mfallow=mf_allow ///
+>         , by(boundary_type side)
+
+. 
+. drop if boundary_type == ""
+(1 observation deleted)
+
+. 
+. * error check
+. assert _N == 14
+
+. 
+. * label export variables
+. lab var boundary_type "regulation boundary type"
+
+. lab var mean_height "avg. height regulation"
+
+. lab var mean_dupac "avg dupac regulation"
+
+. lab var mean_mfallow "avg share allowing mf"
+
+. lab var n_height "count of boundaries used in mean_height"
+
+. lab var n_dupac "count of boundaries used in mean_dupac"
+
+. lab var n_mfallow "count of boundaries used in mean_mfallow"
+
+. 
+. save "$EXPORTPATH/means_boundary_lvl.dta", replace
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_boundary_lvl.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_boundary_lvl.dta saved
+
+. 
+. * display output in log
+. di "Boundary level MEANS for height, dupac, mf_allow"
+Boundary level MEANS for height, dupac, mf_allow
+
+. tabdisp boundary_type side, cell(mean_height mean_dupac mean_mfallow)
+
+--------------------------------
+regulatio |
+n         |
+boundary  |         side        
+type      |   relaxed     strict
+----------+---------------------
+    du_he | 5.3772512  3.3060465
+          | 51.317536  20.144186
+          | .81516588  .83255814
+          | 
+    mf_du | 3.4491094  3.4437173
+          | 12.012723  10.363874
+          |         1          0
+          | 
+    mf_he | 3.3258065  3.6833333
+          | 11.225806  12.566667
+          |         1          0
+          | 
+ mf_he_du | 3.9731034  2.9226744
+          | 23.310345  13.668605
+          | .75862069        .25
+          | 
+  only_du | 3.3892768  3.3811921
+          | 18.315461  9.1443709
+          | .62593516  .63708609
+          | 
+  only_he | 5.3254237  3.0461538
+          | 8.6610169  7.2461538
+          | .52542373  .47692308
+          | 
+  only_mf |   3.50625   3.508642
+          |    9.6625  9.0123457
+          |         1          0
+--------------------------------
+
+. 
+. di "Boundary level COUNTS for height, dupac, mf_allow"
+Boundary level COUNTS for height, dupac, mf_allow
+
+. tabdisp boundary_type side, cell(n_height n_dupac n_mfallow)
+
+----------------------------
+regulatio |
+n         |
+boundary  |       side      
+type      | relaxed   strict
+----------+-----------------
+    du_he |     211      215
+          |     211      215
+          |     211      215
+          | 
+    mf_du |     393      382
+          |     393      382
+          |     393      382
+          | 
+    mf_he |      31       30
+          |      31       30
+          |      31       30
+          | 
+ mf_he_du |     145      172
+          |     145      172
+          |     145      172
+          | 
+  only_du |     802      755
+          |     802      755
+          |     802      755
+          | 
+  only_he |      59       65
+          |      59       65
+          |      59       65
+          | 
+  only_mf |      80       81
+          |      80       81
+          |      80       81
+----------------------------
+
+.         
+. restore
+
+. 
+. ********************************************************************************
+. ** gen and export town level means for units, rents, prices by relaxed/strict
+. ********************************************************************************
+. preserve
+
+. 
+. unique cousub_name boundary_type side
+Number of unique values of cousub_name boundary_type side is  400
+Number of records is  962015
+
+.         assert `r(N)' ==  962015
+
+.         assert `r(sum)' ==  400
+
+.         assert `r(unique)' ==  400
+
+.         
+. collapse (mean) mean_units=units mean_rent=rent mean_price=price ///
+>         (mean) mean_fam23_1918 = fam23_1918 ///
+>                 mean_fam23_1956 = fam23_1956 ///
+>                 mean_fam4plus_1918 = fam4plus_1918 ///
+>                 mean_fam4plus_1956 = fam4plus_1956 ///
+>                 mean_singlefam = singlefam ///
+>         (count) n_units=units n_rent=rent n_price=price ///
+>         (count) n_fam23_1918 = fam23_1918 ///
+>                 n_fam23_1956 = fam23_1956 ///
+>                 n_fam4plus_1918 = fam4plus_1918 ///
+>                 n_fam4plus_1956 = fam4plus_1956 ///
+>                 n_singlefam = singlefam ///
+>         , by(cousub_name boundary_type side)
+
+. 
+. drop if boundary_type == ""
+(5 observations deleted)
+
+.         
+. * error check
+. assert _N == 395
+
+.         
+. * export data as a .dta file
+. 
+. lab var cousub_name "municipality name"
+
+. lab var boundary_type "regulation boundary type"
+
+. lab var side "strict vs. relaxed"
+
+. lab var mean_units "avg. number of units"
+
+. lab var mean_rent "avg. rent"
+
+. lab var mean_price "avg sales price"
+
+. lab var n_units "count of properties used in mean_units"
+
+. lab var n_rent "count of properties used in mean_rent"
+
+. lab var n_price "count of properties used in mean_price"
+
+. 
+. save "$EXPORTPATH/means_town_lvl.dta", replace
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_lvl.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_lvl.dta saved
+
+. 
+. restore
+
+. 
+. 
+. ********************************************************************************
+. ** create one final means file with town and train station means
+. ********************************************************************************
+. * begin by loading the town means file
+. use "$EXPORTPATH/means_town_lvl.dta", clear 
+
+. 
+. * rename variables so the merge works correctly
+. rename (mean_units mean_rent mean_price n_units n_rent n_price) (mean_units_town mean_rent_town mean_price_town n_units_town n_rent_town n_price_town)
+
+. 
+. * save
+. save "$EXPORTPATH/means_town_lvl_tomerge.dta", replace
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_lvl_tomerge.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_lvl_tomerge.dta saved
+
+. 
+. * load the train station means file
+. use "$EXPORTPATH/train_station_means.dta"
+
+. 
+. * merge on down means
+. merge m:1 cousub_name boundary_type side using "$EXPORTPATH/means_town_lvl_tomerge.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           291
+        from master                         6  (_merge==1)
+        from using                        285  (_merge==2)
+
+    Matched                               598  (_merge==3)
+    -----------------------------------------
+
+. 
+. drop mean_units mean_rent mean_saleprice _merge
+
+. 
+. rename (mean_units_town mean_rent_town mean_price_town)(mean_units mean_rent mean_saleprice)
+
+. 
+. save "$EXPORTPATH/means_town_train_stations.dta", replace  // new save file name 2/17/2025
+(file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_train_stations.dta not found)
+file /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/means_town_train_stations.dta saved
+
+. 
+. 
+. ********************************************************************************
+. ** end
+. ********************************************************************************
+. log close
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/counterfactual_output/counterfactual_03_means_log_2025-04-18.log
+  log type:  text
+ closed on:  18 Apr 2025, 11:00:24
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

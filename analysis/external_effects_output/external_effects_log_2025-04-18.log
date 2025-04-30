@@ -1,0 +1,1540 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/external_effects_log_2025-04-18.log
+  log type:  text
+ opened on:  18 Apr 2025, 13:26:53
+
+. 
+. 
+. ********************************************************************************
+. * File name:            external_effects.do
+. *
+. * Project title:        Boston Zoning Project
+. *
+. * Description:          A shortened and cleaned version of the external effects 
+. *                   file, last run by MC on 2/3/2025. 
+. *
+. *                   Near-far external lot analysis following Turner et al.
+. *                               striaght line boundaries (matt turner orthogona lines)
+. *                               for house prices, rents. regression output is tables only.
+. *                               printed w/o characteristics or exclusions (a) and w/ (b).
+. *
+. *                                       Contents:
+. *                                               Part 1(a-b): Sales prices baseline + controls 
+. *                                               Part 2(a-b): Rents baseline + controls 
+. *                               
+. * Inputs:               mt_orthogonal_dist_100m_07-01-22_moreregs.dta
+. *                               within_town_analysis_data.dta
+. *                               
+. * Outputs:              log output only
+. *
+. * Created:              04/11/2024
+. * Updated:      02/27/2025
+. ********************************************************************************
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the mt lines data
+. ********************************************************************************
+. use  "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta", clear
+
+. 
+. destring prop_id, replace
+prop_id already numeric; no replace
+
+. 
+. tempfile mtlines
+
+. save `mtlines', replace
+(file /tmp/343956.1.sta.q/St2124155.000001 not found)
+file /tmp/343956.1.sta.q/St2124155.000001 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** create working dataset
+. ********************************************************************************
+. use "$DATAPATH/within_town_analysis_data.dta", clear
+
+. 
+. ** merge on mt lines to keep straight line properties
+. merge m:1 prop_id using `mtlines', keepusing(straight_line)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       201,049
+        from master                         0  (_merge==1)
+        from using                    201,049  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         * checks for errors in merge
+.         sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  3,400,297    2.940873    .2358621          2          3
+
+.         assert `r(N)' ==  3400297
+
+.         assert `r(sum_w)' ==  3400297
+
+.         assert `r(mean)' ==  2.940873106084557
+
+.         assert `r(Var)' ==  .0556309206919615
+
+.         assert `r(sd)' ==  .235862079809285
+
+.         assert `r(min)' ==  2
+
+.         assert `r(max)' ==  3
+
+.         assert `r(sum)' ==  9999842
+
+. 
+.         drop if _merge == 2
+(201,049 observations deleted)
+
+.         drop _merge
+
+. 
+. keep if straight_line == 1  // <-- drops non-straight line properties
+(2,237,233 observations deleted)
+
+. 
+. ** drop out of scope years
+. keep if (year >= 2010 & year <= 2018)
+(0 observations deleted)
+
+. 
+. tab year
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2010 |    104,264       10.84       10.84
+       2011 |    107,230       11.15       21.98
+       2012 |    106,561       11.08       33.06
+       2013 |    106,732       11.09       44.16
+       2014 |    105,275       10.94       55.10
+       2015 |    107,440       11.17       66.27
+       2016 |    107,865       11.21       77.48
+       2017 |    108,234       11.25       88.73
+       2018 |    108,414       11.27      100.00
+------------+-----------------------------------
+      Total |    962,015      100.00
+
+. 
+. 
+. ********************************************************************************
+. ** property characteristic variables
+. ********************************************************************************
+. gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0  // lot size in acres, excl zero acre --> NOW IN LOGS
+(74,533 missing values generated)
+
+. gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0  // living area in XX per unit, excl zero --> NOW IN LOGS
+(11,228 missing values generated)
+
+. gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0  // num bedrooms per unit, atleast 1
+(43,879 missing values generated)
+
+. gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0  // num full bathrooms per unit, atleast 1
+(21,608 missing values generated)
+
+. 
+. gen log_lotacres = ln(lot_acres) if lot_acres!=0
+(74,483 missing values generated)
+
+. gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
+(113,706 missing values generated)
+
+. 
+. global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
+
+. 
+. 
+. ********************************************************************************
+. ** loop over different definitions of interior parcels
+. ********************************************************************************
+. gen interior_parcel = .
+(962,015 missing values generated)
+
+. 
+. //forvalues i = 0.15
+.         
+.         display "Current interior cutoff is 0.15"
+Current interior cutoff is 0.15
+
+.         
+.         *interior parcel definition 
+.         
+.         local interior_min = 0.15   /*current round*/
+
+.         local interior_max = 0.5
+
+. 
+.         replace interior_parcel = .
+(0 real changes made)
+
+.         replace interior_parcel = 1 if (dist_both>`interior_min' & dist_both<=`interior_max') | (dist_both<(`interior_min' * -1) & dist_both>=(`interior_max' * -1))
+(210,402 real changes made)
+
+.         replace interior_parcel = 0 if dist_both<=`interior_min' & dist_both>=(`interior_min' * -1)
+(683,261 real changes made)
+
+.         
+.         ********************************************************************************
+.         ** Part 1: Sales prices
+.         * Part 1a: Sales prices, baseline
+.         * Part 1b: Sales prices, w/ control for characteristics
+.         ********************************************************************************
+.         ** regressions
+.         * set regression conditions
+.         local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>=(`interior_max' * -1)) & res_typex=="Single Family Res"
+
+. 
+.         * means (calcualted for boudnary parcel)
+.         sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |     43,177    571057.1    305510.9   3180.805    2093627
+
+.         sum def_saleprice if only_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |     29,599    647905.5    341138.3    20619.3    2099133
+
+.                 
+.         sum def_saleprice if du_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |        943    571345.4    423756.7   131963.5    2036085
+
+.         sum def_saleprice if du_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |      2,465    490920.2      357005      68731    2080830
+
+. 
+.         sum def_saleprice if mf_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |     10,128      483097    311845.2   2731.735    2082549
+
+.         sum def_saleprice if mf_du == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |     11,231      592801    362162.2   2944.943    2091146
+
+. 
+.         sum def_saleprice if only_mf == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |        851      547884    270478.6   138504.2    1517835
+
+.         sum def_saleprice if only_mf == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |      1,524    637697.3    277032.2   177045.4    2074492
+
+. 
+.         sum def_saleprice if mf_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |        456    486251.4    348266.6     130968    1947619
+
+.         sum def_saleprice if mf_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |        605      756040    462130.8   170421.9    2059382
+
+. 
+.         sum def_saleprice if only_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |      3,204      693325    352546.5   148144.8    2075727
+
+.         sum def_saleprice if only_he == 1 & (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex=="Single Family Res" & last_salepr > 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+def_salepr~e |        842      708104    442911.9   119796.6    2045119
+
+. 
+.                         
+.         * Part 1b: Sales price w/ additional controls
+.         quietly eststo price_du2: reg log_saleprice i.interior_parcel##c.dupac i.lam_seg i.last_saleyr $char_vars if only_du==1 & `regression_conditions', vce(cluster lam_seg)
+
+.                 
+.         quietly eststo price_duhe2: reg log_saleprice i.interior_parcel##c.height##c.dupac i.lam_seg i.last_saleyr $char_vars if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         quietly eststo price_mfdu2: reg log_saleprice i.interior_parcel##i.mf_allowed##c.dupac i.lam_seg i.last_saleyr $char_vars if  mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         quietly eststo price_mf2: reg log_saleprice i.interior_parcel##i.mf_allowed i.lam_seg i.last_saleyr $char_vars if only_mf== 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         quietly eststo price_mfhe2: reg log_saleprice i.interior_parcel##i.mf_allowed##c.height i.lam_seg i.last_saleyr $char_vars if mf_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         quietly eststo price_he2: reg log_saleprice i.interior_parcel##c.height i.lam_seg i.last_saleyr $char_vars if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         * older esttab version, pre REStat
+.         esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2, ///
+>                 se r2 indicate("Boundary f.e.=*lam_seg" "Sale year f.e.=*last_saleyr" "Year built f.e.=*year_built" ) interaction(" X ") ///
+>                 label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
+>                 title("Sales Prices w/ characteristics") 
+
+Sales Prices w/ characteristics
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                        price_du2     price_duhe2     price_mfdu2       price_mf2     price_mfhe2       price_he2   
+--------------------------------------------------------------------------------------------------------------------
+interior_parcel=0               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+interior_parcel=1          0.0344**        -0.415*        -0.0150        -0.00649          -2.377***       -0.259***
+                         (0.0106)         (0.206)        (0.0163)        (0.0690)         (0.435)        (0.0710)   
+
+dupac                    -0.00193**       0.00397        -0.00250                                                   
+                       (0.000693)       (0.00284)       (0.00223)                                                   
+
+interior_parcel=0 ~c            0               0               0                                                   
+                              (.)             (.)             (.)                                                   
+
+interior_parcel=1 ~c     -0.00600**        0.0668         0.00208                                                   
+                        (0.00226)        (0.0701)       (0.00233)                                                   
+
+log_lotacres               0.0498***        0.104**        0.0505***        0.109*          0.269          0.0215   
+                        (0.00687)        (0.0314)        (0.0116)        (0.0412)         (0.145)        (0.0220)   
+
+Number of Floors i~g       0.0286**       0.00448          0.0333***       0.0122           0.122*         0.0827***
+                         (0.0103)        (0.0255)       (0.00982)        (0.0454)        (0.0417)        (0.0182)   
+
+log_bldgarea                0.318***        0.285***        0.294***        0.223**       0.00713           0.449***
+                         (0.0248)        (0.0467)        (0.0188)        (0.0740)        (0.0360)        (0.0473)   
+
+Number of Bedrooms~g       0.0363***      0.00909          0.0237***       0.0485*         0.0255          0.0175   
+                        (0.00415)        (0.0137)       (0.00514)        (0.0223)        (0.0286)        (0.0165)   
+
+Number of Full Bat~l       0.0537***       0.0585***       0.0466***       0.0635**        0.0198          0.0596***
+                        (0.00526)        (0.0153)       (0.00654)        (0.0213)        (0.0375)       (0.00664)   
+
+height                                     0.0145                                         -0.0797*        -0.0514   
+                                         (0.0177)                                        (0.0312)        (0.0362)   
+
+interior_parcel=0 ~t                            0                                               0               0   
+                                              (.)                                             (.)             (.)   
+
+interior_parcel=1 ~t                        0.111*                                          0.661***       0.0556*  
+                                         (0.0443)                                         (0.129)        (0.0218)   
+
+height X dupac                          -0.000395                                                                   
+                                       (0.000233)                                                                   
+
+interior_parcel=0 ~p                            0                                                                   
+                                              (.)                                                                   
+
+interior_parcel=1 ~p                      -0.0160                                                                   
+                                         (0.0174)                                                                   
+
+mf_allowed=0                                                    0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+mf_allowed=1                                              -0.0372        -0.00528         -0.0882                   
+                                                         (0.0227)        (0.0372)        (0.0774)                   
+
+interior_parcel=0 ~0                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=0 ~1                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=1 ~0                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=1 ~1                                       0.0224          0.0468          -0.350**                 
+                                                         (0.0407)        (0.0797)         (0.109)                   
+
+mf_allowed=0 X dupac                                            0                                                   
+                                                              (.)                                                   
+
+mf_allowed=1 X dupac                                     0.000417                                                   
+                                                        (0.00205)                                                   
+
+interior_parcel=0 ~0                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=0 ~1                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=1 ~0                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=1 ~1                                    -0.000165                                                   
+                                                        (0.00459)                                                   
+
+mf_allowed=0 X hei~t                                                                            0                   
+                                                                                              (.)                   
+
+mf_allowed=1 X hei~t                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=0 ~0                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=0 ~1                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=1 ~0                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=1 ~1                                                                            0                   
+                                                                                              (.)                   
+
+Constant                    10.58***        9.688***        10.32***        10.31***        12.11***        8.986***
+                          (0.197)         (0.441)         (0.170)         (0.587)         (0.268)         (0.271)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+
+Sale year f.e.                Yes             Yes             Yes             Yes             Yes             Yes   
+
+Year built f.e.               Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                64864            3105           18850            2354             594            4024   
+R-squared                   0.787           0.915           0.821           0.826           0.970           0.817   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.                 
+.         *Check RESTAT: keep only the coefficients that have interior interaction with them        
+.         esttab price_du2 price_duhe2 price_mfdu2 price_mf2 price_mfhe2 price_he2 using "$EXPORTPATH/salesprice_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) ///
+>                 se r2 indicate("Boundary f.e.=*lam_seg" "Sale year f.e.=*last_saleyr" "Year built f.e.=*year_built") interaction(" X ") ///
+>                 label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
+>                 title("Sales Prices w/ characteristics") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/salesprice_table_external_.15_addcontrols.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/salesprice_table_external_.15_addcontrols.tex)
+
+.                 
+.         * robust s.e.
+.         quietly eststo price_du2_r: reg log_saleprice i.interior_parcel##c.dupac i.lam_seg i.last_saleyr $char_vars if only_du==1 & `regression_conditions', vce(robust)
+
+.                 
+.         quietly eststo price_duhe2_r: reg log_saleprice i.interior_parcel##c.height##c.dupac i.lam_seg i.last_saleyr $char_vars if du_he == 1 & `regression_conditions', vce(robust)
+
+. 
+.         quietly eststo price_mfdu2_r: reg log_saleprice i.interior_parcel##i.mf_allowed##c.dupac i.lam_seg i.last_saleyr $char_vars if  mf_du == 1 & `regression_conditions', vce(robust)
+
+. 
+.         quietly eststo price_mf2_r: reg log_saleprice i.interior_parcel##i.mf_allowed i.lam_seg i.last_saleyr $char_vars if only_mf== 1 & `regression_conditions', vce(robust)
+
+. 
+.         quietly eststo price_mfhe2_r: reg log_saleprice i.interior_parcel##i.mf_allowed##c.height i.lam_seg i.last_saleyr $char_vars if mf_he == 1 & `regression_conditions', vce(robust)
+
+. 
+.         quietly eststo price_he2_r: reg log_saleprice i.interior_parcel##c.height i.lam_seg i.last_saleyr $char_vars if only_he == 1 & `regression_conditions', vce(robust)
+
+. 
+.         * older esttab version, pre REStat
+.         esttab price_du2_r price_duhe2_r price_mfdu2_r price_mf2_r price_mfhe2_r price_he2_r, ///
+>                 se r2 indicate("Boundary f.e.=*lam_seg" "Sale year f.e.=*last_saleyr" "Year built f.e.=*year_built") interaction(" X ") ///
+>                 label mtitles("price_du2" "price_duhe2" "price_mfdu2" "price_mf2" "price_mfhe2" "price_he2") ///
+>                 title("Sales Prices w/ characteristics, robust s.e.") 
+
+Sales Prices w/ characteristics, robust s.e.
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                        price_du2     price_duhe2     price_mfdu2       price_mf2     price_mfhe2       price_he2   
+--------------------------------------------------------------------------------------------------------------------
+interior_parcel=0               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+interior_parcel=1          0.0344***       -0.415**       -0.0150        -0.00649          -2.377***       -0.259***
+                        (0.00320)         (0.138)       (0.00797)        (0.0310)         (0.493)        (0.0783)   
+
+dupac                    -0.00193***      0.00397***     -0.00250**                                                 
+                       (0.000270)       (0.00115)      (0.000924)                                                   
+
+interior_parcel=0 ~c            0               0               0                                                   
+                              (.)             (.)             (.)                                                   
+
+interior_parcel=1 ~c     -0.00600***       0.0668         0.00208                                                   
+                       (0.000654)        (0.0469)       (0.00129)                                                   
+
+log_lotacres               0.0498***        0.104***       0.0505***        0.109***        0.269***       0.0215   
+                        (0.00222)        (0.0151)       (0.00472)        (0.0246)        (0.0563)        (0.0120)   
+
+Number of Floors i~g       0.0286***      0.00448          0.0333***       0.0122           0.122***       0.0827***
+                        (0.00217)        (0.0123)       (0.00350)        (0.0200)        (0.0312)        (0.0108)   
+
+log_bldgarea                0.318***        0.285***        0.294***        0.223***      0.00713           0.449***
+                        (0.00418)        (0.0222)       (0.00894)        (0.0387)        (0.0176)        (0.0212)   
+
+Number of Bedrooms~g       0.0363***      0.00909          0.0237***       0.0485***       0.0255          0.0175** 
+                        (0.00153)       (0.00645)       (0.00249)        (0.0110)        (0.0143)       (0.00641)   
+
+Number of Full Bat~l       0.0537***       0.0585***       0.0466***       0.0635***       0.0198          0.0596***
+                        (0.00184)       (0.00792)       (0.00340)        (0.0172)        (0.0172)       (0.00780)   
+
+height                                     0.0145                                         -0.0797*        -0.0514***
+                                         (0.0110)                                        (0.0335)        (0.0115)   
+
+interior_parcel=0 ~t                            0                                               0               0   
+                                              (.)                                             (.)             (.)   
+
+interior_parcel=1 ~t                        0.111***                                        0.661***       0.0556*  
+                                         (0.0289)                                         (0.156)        (0.0226)   
+
+height X dupac                          -0.000395***                                                                
+                                       (0.000113)                                                                   
+
+interior_parcel=0 ~p                            0                                                                   
+                                              (.)                                                                   
+
+interior_parcel=1 ~p                      -0.0160                                                                   
+                                         (0.0117)                                                                   
+
+mf_allowed=0                                                    0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+mf_allowed=1                                              -0.0372***     -0.00528         -0.0882                   
+                                                        (0.00852)        (0.0165)        (0.0587)                   
+
+interior_parcel=0 ~0                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=0 ~1                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=1 ~0                                            0               0               0                   
+                                                              (.)             (.)             (.)                   
+
+interior_parcel=1 ~1                                       0.0224          0.0468          -0.350*                  
+                                                         (0.0143)        (0.0458)         (0.153)                   
+
+mf_allowed=0 X dupac                                            0                                                   
+                                                              (.)                                                   
+
+mf_allowed=1 X dupac                                     0.000417                                                   
+                                                       (0.000752)                                                   
+
+interior_parcel=0 ~0                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=0 ~1                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=1 ~0                                            0                                                   
+                                                              (.)                                                   
+
+interior_parcel=1 ~1                                    -0.000165                                                   
+                                                        (0.00202)                                                   
+
+mf_allowed=0 X hei~t                                                                            0                   
+                                                                                              (.)                   
+
+mf_allowed=1 X hei~t                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=0 ~0                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=0 ~1                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=1 ~0                                                                            0                   
+                                                                                              (.)                   
+
+interior_parcel=1 ~1                                                                            0                   
+                                                                                              (.)                   
+
+Constant                    10.58***        9.688***        10.32***        10.31***        12.11***        8.986***
+                         (0.0554)         (0.240)        (0.0856)         (0.305)         (0.224)         (0.225)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+
+Sale year f.e.                Yes             Yes             Yes             Yes             Yes             Yes   
+
+Year built f.e.               Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                64864            3105           18850            2354             594            4024   
+R-squared                   0.787           0.915           0.821           0.826           0.970           0.817   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+.         eststo clear
+
+.         
+. 
+.         ********************************************************************************
+.         ** Part 2: Rents
+.         * Part 2a: Rents, baseline
+.         * Part 2b: Rents, w/ control for characteristics
+.         ********************************************************************************
+.         ** regressions
+.         * set regression conditions
+.         local regression_conditions (year>=2010 & year<=2018) & (dist_both<=`interior_max' & dist_both>=(`interior_max' * -1)) & res_typex != "Condominiums"
+
+. 
+.         sum comb_rent2 if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |     28,819    1281.487    720.4001   3.397172   4986.459
+
+.         sum comb_rent2 if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |     24,172    1465.186    765.4336   20.47254   4995.378
+
+.                 
+.         sum comb_rent2 if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |      8,338    1112.992     795.852   28.74485   4994.113
+
+.         sum comb_rent2 if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |     14,167    1276.068    761.5252   15.87583   4993.777
+
+. 
+.         sum comb_rent2 if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=`interior_max' & dist_both>0) & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |      1,650    1032.791    680.1666   120.6021   4780.623
+
+.         sum comb_rent2 if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>=-`interior_max') & res_typex != "Condominiums" & comb_rent2>0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  comb_rent2 |      2,042    1037.687    528.9301   216.5848   4940.688
+
+.                 
+.         * Part 2b: Rents w/ additional controls
+.         quietly eststo rent_du2: reg log_mfrent i.interior_parcel##c.dupac i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions', vce(cluster lam_seg)
+
+.                 
+.         quietly eststo rent_duhe2: reg log_mfrent i.interior_parcel##c.height##c.dupac i.lam_seg i.year $char_vars if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. 
+.         quietly eststo rent_he2: reg log_mfrent i.interior_parcel##c.height i.lam_seg i.year $char_vars if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+.                 
+.         esttab rent_du2 rent_duhe2 rent_he2, se r2 ///
+>                 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
+>                 label mtitles("rent_du2" "rent_duhe2" "rent_he2") ///
+>                 title("Rents, w/ characteristics") 
+
+Rents, w/ characteristics
+--------------------------------------------------------------------
+                              (1)             (2)             (3)   
+                         rent_du2      rent_duhe2        rent_he2   
+--------------------------------------------------------------------
+interior_parcel=0               0               0               0   
+                              (.)             (.)             (.)   
+
+interior_parcel=1         -0.0129           0.859**        0.0514   
+                         (0.0333)         (0.316)         (0.863)   
+
+dupac                   -0.000388        -0.00384**                 
+                       (0.000988)       (0.00134)                   
+
+interior_parcel=0 ~c            0               0                   
+                              (.)             (.)                   
+
+interior_parcel=1 ~c    -0.000279         -0.0183                   
+                        (0.00205)        (0.0176)                   
+
+Original Year in W~             0                                   
+                              (.)                                   
+
+Original Year in W~        -0.125                                   
+                          (0.262)                                   
+
+Original Year in W~        -0.836**                                 
+                          (0.271)                                   
+
+Original Year in W~        -0.291                                   
+                          (0.259)                                   
+
+Original Year in W~        -0.755**                         0.646***
+                          (0.261)                        (0.0860)   
+
+Original Year in W~        -0.206                                   
+                          (0.266)                                   
+
+Original Year in W~        -0.279                           1.601***
+                          (0.262)                         (0.115)   
+
+Original Year in W~         0.286                                   
+                          (0.260)                                   
+
+Original Year in W~         0.314                           0.415***
+                          (0.260)                        (0.0909)   
+
+Original Year in W~         0.621*                                  
+                          (0.260)                                   
+
+Original Year in W~        -0.165                                   
+                          (0.275)                                   
+
+Original Year in W~        -0.258               0           0.403***
+                          (0.259)             (.)        (0.0841)   
+
+Original Year in W~        -0.205                                   
+                          (0.260)                                   
+
+Original Year in W~         0.166                                   
+                          (0.262)                                   
+
+Original Year in W~        -0.204                                   
+                          (0.260)                                   
+
+Original Year in W~       -0.0989                                   
+                          (0.269)                                   
+
+Original Year in W~             0                                   
+                              (.)                                   
+
+Original Year in W~        -0.102                                   
+                          (0.263)                                   
+
+Original Year in W~        -0.153                                   
+                          (0.287)                                   
+
+Original Year in W~             0                                   
+                              (.)                                   
+
+Original Year in W~        0.0814                                   
+                          (0.274)                                   
+
+Original Year in W~        -0.373                                   
+                          (0.266)                                   
+
+Original Year in W~        -0.204                           0.641***
+                          (0.281)                        (0.0802)   
+
+Original Year in W~         0.481                                   
+                          (0.262)                                   
+
+Original Year in W~        -0.305          -0.227**                 
+                          (0.260)        (0.0812)                   
+
+Original Year in W~        0.0964                                   
+                          (0.282)                                   
+
+Original Year in W~        -0.191          -0.405***        0.313   
+                          (0.273)        (0.0813)         (0.165)   
+
+Original Year in W~        -0.171                                   
+                          (0.261)                                   
+
+Original Year in W~        -0.220                                   
+                          (0.296)                                   
+
+Original Year in W~       -0.0633                                   
+                          (0.259)                                   
+
+Original Year in W~        0.0123                                   
+                          (0.260)                                   
+
+Original Year in W~       -0.0799                                   
+                          (0.317)                                   
+
+Original Year in W~       -0.0423                                   
+                          (0.264)                                   
+
+Original Year in W~        -0.416                                   
+                          (0.259)                                   
+
+Original Year in W~             0          -0.145           0.423***
+                              (.)        (0.0752)        (0.0819)   
+
+Original Year in W~        -0.907***                                
+                          (0.267)                                   
+
+Original Year in W~        -0.214          -0.319***        0.661***
+                          (0.264)        (0.0636)        (0.0893)   
+
+Original Year in W~        -0.365                                   
+                          (0.261)                                   
+
+Original Year in W~        -0.401                                   
+                          (0.261)                                   
+
+Original Year in W~         0.301                                   
+                          (0.276)                                   
+
+Original Year in W~        -0.181                                   
+                          (0.280)                                   
+
+Original Year in W~         0.188                                   
+                          (0.261)                                   
+
+Original Year in W~        -0.176          -0.397***                
+                          (0.260)         (0.102)                   
+
+Original Year in W~         0.333                                   
+                          (0.261)                                   
+
+Original Year in W~        -0.207                           0.407***
+                          (0.260)                        (0.0856)   
+
+Original Year in W~        -0.159          -0.451***                
+                          (0.258)        (0.0813)                   
+
+Original Year in W~        -0.386                                   
+                          (0.262)                                   
+
+Original Year in W~        -0.269          -0.292***                
+                          (0.262)        (0.0725)                   
+
+Original Year in W~        -0.234                                   
+                          (0.286)                                   
+
+Original Year in W~        0.0337          -0.227***                
+                          (0.260)        (0.0679)                   
+
+Original Year in W~       -0.0499                                   
+                          (0.262)                                   
+
+Original Year in W~      0.000670                                   
+                          (0.258)                                   
+
+Original Year in W~         0.256          -0.157                   
+                          (0.314)        (0.0876)                   
+
+Original Year in W~        -0.254          -1.161***        0.203*  
+                          (0.271)         (0.133)        (0.0973)   
+
+Original Year in W~       -0.0875                                   
+                          (0.269)                                   
+
+Original Year in W~        -0.214         -0.0831                   
+                          (0.261)        (0.0869)                   
+
+Original Year in W~         0.318          -0.568***                
+                          (0.263)        (0.0752)                   
+
+Original Year in W~        0.0435           0.601***                
+                          (0.286)        (0.0898)                   
+
+Original Year in W~        -0.213          -0.458***                
+                          (0.278)        (0.0690)                   
+
+Original Year in W~        0.0448          0.0607                   
+                          (0.274)        (0.0615)                   
+
+Original Year in W~        -0.133                                   
+                          (0.285)                                   
+
+Original Year in W~        -0.110                                   
+                          (0.264)                                   
+
+Original Year in W~        -0.364          -0.274***                
+                          (0.261)        (0.0481)                   
+
+Original Year in W~        -0.221          -0.290***        0.444** 
+                          (0.261)        (0.0843)         (0.131)   
+
+Original Year in W~        -0.253                                   
+                          (0.290)                                   
+
+Original Year in W~        -0.323          -0.327***                
+                          (0.273)        (0.0690)                   
+
+Original Year in W~        0.0574          -0.278***                
+                          (0.332)        (0.0689)                   
+
+Original Year in W~       -0.0787          -0.216           0.357*  
+                          (0.261)         (0.147)         (0.173)   
+
+Original Year in W~        -0.298          -0.189          0.0960   
+                          (0.288)         (0.188)        (0.0860)   
+
+Original Year in W~        -0.110          -0.189                   
+                          (0.246)         (0.250)                   
+
+Original Year in W~        0.0946          -0.189                   
+                          (0.268)         (0.122)                   
+
+Original Year in W~        -0.306          -0.356**                 
+                          (0.263)         (0.107)                   
+
+Original Year in W~       -0.0429          -0.355***                
+                          (0.263)        (0.0602)                   
+
+Original Year in W~        -0.115          -0.518***        0.369** 
+                          (0.278)         (0.117)         (0.120)   
+
+Original Year in W~        -0.553                                   
+                          (0.340)                                   
+
+Original Year in W~       -0.0339                                   
+                          (0.263)                                   
+
+Original Year in W~        -0.288          -0.158                   
+                          (0.261)         (0.108)                   
+
+Original Year in W~       -0.0854          -0.384***                
+                          (0.261)        (0.0681)                   
+
+Original Year in W~        -0.384          -0.660***        0.599** 
+                          (0.278)        (0.0861)         (0.215)   
+
+Original Year in W~        -0.137          0.0666                   
+                          (0.264)        (0.0668)                   
+
+Original Year in W~        -0.215          -0.229**                 
+                          (0.272)        (0.0737)                   
+
+Original Year in W~        -0.267          -0.318*                  
+                          (0.273)         (0.148)                   
+
+Original Year in W~        -0.325                                   
+                          (0.294)                                   
+
+Original Year in W~        -0.267          -0.342***        0.335*  
+                          (0.260)        (0.0904)         (0.128)   
+
+Original Year in W~        0.0867          -0.268**         0.310*  
+                          (0.331)        (0.0914)         (0.137)   
+
+Original Year in W~        -0.244          -0.344***                
+                          (0.262)        (0.0658)                   
+
+Original Year in W~        -0.156          -0.247***        0.249***
+                          (0.263)        (0.0687)        (0.0614)   
+
+Original Year in W~        -0.167         -0.0619                   
+                          (0.265)        (0.0610)                   
+
+Original Year in W~        -0.116          -0.301***      -0.0358   
+                          (0.271)        (0.0679)         (0.296)   
+
+Original Year in W~        0.0326          -0.331**                 
+                          (0.280)         (0.110)                   
+
+Original Year in W~        -0.170                                   
+                          (0.265)                                   
+
+Original Year in W~         0.100          -2.993***                
+                          (0.260)        (0.0666)                   
+
+Original Year in W~         0.134                                   
+                          (0.312)                                   
+
+Original Year in W~        -0.210          -0.396***        0.419***
+                          (0.261)        (0.0842)        (0.0765)   
+
+Original Year in W~        -0.332          -0.585***        0.273   
+                          (0.301)        (0.0823)         (0.139)   
+
+Original Year in W~        -0.282         -0.0754                   
+                          (0.266)        (0.0664)                   
+
+Original Year in W~        -0.125          -0.450***                
+                          (0.271)        (0.0586)                   
+
+Original Year in W~        -0.243          -0.542***                
+                          (0.278)        (0.0822)                   
+
+Original Year in W~        -0.156          -0.367***                
+                          (0.260)        (0.0779)                   
+
+Original Year in W~        -0.169          -0.308*                  
+                          (0.263)         (0.143)                   
+
+Original Year in W~        -0.260          -0.210           0.128   
+                          (0.284)         (0.156)        (0.0953)   
+
+Original Year in W~        -0.234          -0.399**                 
+                          (0.266)         (0.132)                   
+
+Original Year in W~        0.0123          -0.163                   
+                          (0.269)         (0.131)                   
+
+Original Year in W~        -0.228          -0.459***        0.369***
+                          (0.260)        (0.0696)        (0.0884)   
+
+Original Year in W~       -0.0912          -0.266**                 
+                          (0.301)        (0.0865)                   
+
+Original Year in W~        -0.262          -0.398***                
+                          (0.274)        (0.0866)                   
+
+Original Year in W~        -0.253          -0.329***        0.330   
+                          (0.286)        (0.0784)         (0.218)   
+
+Original Year in W~        -0.142          -0.297***                
+                          (0.264)        (0.0797)                   
+
+Original Year in W~        -0.185          -0.350***        0.448** 
+                          (0.264)        (0.0806)         (0.151)   
+
+Original Year in W~        -0.153          -0.230*                  
+                          (0.273)        (0.0905)                   
+
+Original Year in W~        -0.261          -0.493***                
+                          (0.294)        (0.0791)                   
+
+Original Year in W~        -0.137          -0.232*          0.175   
+                          (0.276)        (0.0935)         (0.120)   
+
+Original Year in W~        -0.490          -0.443***            0   
+                          (0.264)        (0.0907)             (.)   
+
+Original Year in W~        -0.261          -0.457***        0.367***
+                          (0.259)        (0.0708)         (0.104)   
+
+Original Year in W~       -0.0702          -0.422***        0.645*  
+                          (0.275)         (0.115)         (0.242)   
+
+Original Year in W~        -0.236          -0.337**                 
+                          (0.263)         (0.108)                   
+
+Original Year in W~        -0.154          -0.278***                
+                          (0.267)        (0.0827)                   
+
+Original Year in W~        -0.271          -0.392***                
+                          (0.273)        (0.0754)                   
+
+Original Year in W~        -0.280          -0.420***        0.113   
+                          (0.262)        (0.0780)        (0.0718)   
+
+Original Year in W~        -0.375          -0.335*          0.297** 
+                          (0.248)         (0.152)        (0.0965)   
+
+Original Year in W~        -0.384          -0.379***        0.351*  
+                          (0.268)        (0.0890)         (0.141)   
+
+Original Year in W~        -0.147          -0.405***                
+                          (0.270)        (0.0832)                   
+
+Original Year in W~        -0.277          -0.148                   
+                          (0.261)        (0.0775)                   
+
+Original Year in W~        -0.314          -0.409***        0.477***
+                          (0.260)        (0.0667)        (0.0819)   
+
+Original Year in W~        -0.517          -0.335***                
+                          (0.304)        (0.0804)                   
+
+Original Year in W~        -0.239          -0.402***        0.680*  
+                          (0.270)        (0.0943)         (0.316)   
+
+Original Year in W~        -0.263          -0.157                   
+                          (0.272)        (0.0981)                   
+
+Original Year in W~        -0.196          -0.423***        0.866***
+                          (0.265)        (0.0916)        (0.0880)   
+
+Original Year in W~        -0.264          -0.440***       0.0936   
+                          (0.261)        (0.0727)         (0.139)   
+
+Original Year in W~        -0.207          -0.259*                  
+                          (0.266)         (0.113)                   
+
+Original Year in W~        -0.129          -0.455***                
+                          (0.272)        (0.0711)                   
+
+Original Year in W~        -0.277          -0.438***      -0.0598   
+                          (0.263)        (0.0754)         (0.117)   
+
+Original Year in W~        -0.340          -0.411***                
+                          (0.306)        (0.0874)                   
+
+Original Year in W~        -0.289          -0.455***        0.450** 
+                          (0.260)        (0.0763)         (0.130)   
+
+Original Year in W~        -0.260          -0.196           0.163*  
+                          (0.264)         (0.126)        (0.0748)   
+
+Original Year in W~        -0.236          -0.290**         0.305*  
+                          (0.267)        (0.0984)         (0.144)   
+
+Original Year in W~        -0.222          -0.398***        0.379***
+                          (0.264)        (0.0870)        (0.0732)   
+
+Original Year in W~        -0.214          -0.465***                
+                          (0.261)         (0.110)                   
+
+Original Year in W~        -0.252          -0.395***        0.254*  
+                          (0.261)        (0.0797)         (0.110)   
+
+Original Year in W~        -0.274          -0.282**         0.452***
+                          (0.261)        (0.0961)        (0.0881)   
+
+Original Year in W~        -0.206          -0.389***        0.346***
+                          (0.262)        (0.0905)        (0.0754)   
+
+Original Year in W~        -0.185          -0.362**        0.0631   
+                          (0.262)         (0.110)         (0.146)   
+
+Original Year in W~        -0.244          -0.376***                
+                          (0.266)        (0.0832)                   
+
+Original Year in W~        -0.285          -0.396***        0.517***
+                          (0.264)        (0.0753)         (0.100)   
+
+Original Year in W~       -0.0687                           0.760***
+                          (0.276)                        (0.0883)   
+
+Original Year in W~        -0.200                                   
+                          (0.286)                                   
+
+Original Year in W~        -0.257          -0.477***                
+                          (0.253)        (0.0747)                   
+
+Original Year in W~     -0.000561          -0.549***                
+                          (0.262)        (0.0561)                   
+
+Original Year in W~        -0.247          -0.351**             0   
+                          (0.262)         (0.130)             (.)   
+
+Original Year in W~        -0.212         -0.0245          0.0880   
+                          (0.290)        (0.0753)         (0.126)   
+
+Original Year in W~        -0.167                                   
+                          (0.260)                                   
+
+Original Year in W~        -0.316          -0.153*          0.132   
+                          (0.282)        (0.0663)         (0.182)   
+
+Original Year in W~        -0.262          -0.339***                
+                          (0.280)        (0.0621)                   
+
+Original Year in W~        -0.382          -0.508***      -0.0894   
+                          (0.270)        (0.0984)         (0.160)   
+
+Original Year in W~        -0.426                                   
+                          (0.279)                                   
+
+Original Year in W~        -0.364          -0.648***                
+                          (0.269)        (0.0493)                   
+
+Original Year in W~        -0.120                          0.0350   
+                          (0.280)                        (0.0911)   
+
+Original Year in W~        -0.112                                   
+                          (0.258)                                   
+
+Original Year in W~        -0.316          -0.382**        0.0904   
+                          (0.273)         (0.136)         (0.182)   
+
+Original Year in W~        -0.304          -0.528***                
+                          (0.265)        (0.0722)                   
+
+Original Year in W~        -0.551          -0.486***                
+                          (0.317)        (0.0595)                   
+
+Original Year in W~        -0.269          -0.310***       -0.424** 
+                          (0.268)        (0.0630)         (0.150)   
+
+Original Year in W~        -0.665          -0.426***                
+                          (0.368)        (0.0665)                   
+
+Original Year in W~        -0.349          -0.447***       -0.203   
+                          (0.266)        (0.0727)         (0.267)   
+
+Original Year in W~        -0.515          -0.590***                
+                          (0.304)        (0.0633)                   
+
+Original Year in W~        -0.468          -0.484***       -1.061***
+                          (0.286)        (0.0678)         (0.176)   
+
+Original Year in W~        -0.140                                   
+                          (0.290)                                   
+
+Original Year in W~        -0.271          -0.622***        0.808***
+                          (0.279)        (0.0621)         (0.160)   
+
+Original Year in W~        -0.331          -0.584***        0.117   
+                          (0.272)         (0.123)         (0.115)   
+
+Original Year in W~       -0.0800          -0.608***                
+                          (0.279)         (0.134)                   
+
+Original Year in W~        -0.358                                   
+                          (0.264)                                   
+
+Original Year in W~        -0.510          -0.344**        0.0702   
+                          (0.281)         (0.127)         (0.190)   
+
+Original Year in W~        -0.278          -0.556***                
+                          (0.274)        (0.0687)                   
+
+Original Year in W~        -0.353          -0.413***        0.146   
+                          (0.263)        (0.0757)         (0.113)   
+
+Original Year in W~        -0.459          -0.635***        0.650***
+                          (0.342)        (0.0477)         (0.162)   
+
+Original Year in W~        -0.324          -0.532***        1.254***
+                          (0.290)        (0.0820)         (0.140)   
+
+Original Year in W~        -0.301          -0.509***        0.609***
+                          (0.273)        (0.0964)        (0.0473)   
+
+Original Year in W~        -0.484          -0.426***        0.316***
+                          (0.269)         (0.102)        (0.0428)   
+
+Original Year in W~        -0.255          -0.601**         0.196   
+                          (0.271)         (0.189)         (0.166)   
+
+Original Year in W~        -0.315          -0.736***                
+                          (0.303)         (0.168)                   
+
+Original Year in W~        -0.116          -1.113***                
+                          (0.281)        (0.0574)                   
+
+Original Year in W~        -0.379          -0.511***       -0.434   
+                          (0.315)        (0.0625)         (0.373)   
+
+Original Year in W~        -0.311          -0.365**       -0.0292   
+                          (0.328)         (0.114)         (0.368)   
+
+Original Year in W~        -0.401          -0.686***        0.160*  
+                          (0.286)         (0.190)        (0.0791)   
+
+Original Year in W~        -0.259          -0.328***      -0.0145   
+                          (0.271)        (0.0494)         (0.193)   
+
+Original Year in W~       -0.0824          -0.403***       0.0429   
+                          (0.270)        (0.0838)        (0.0849)   
+
+Original Year in W~        -0.185          -1.098           0.690***
+                          (0.300)         (0.602)         (0.183)   
+
+Original Year in W~        -0.517          -0.411***        0.512***
+                          (0.267)        (0.0820)        (0.0879)   
+
+Original Year in W~        -0.385          -0.644***        0.687   
+                          (0.273)         (0.162)         (0.512)   
+
+Original Year in W~        -0.183          -0.767*          0.185   
+                          (0.284)         (0.321)         (0.111)   
+
+Original Year in W~        -0.233                                   
+                          (0.266)                                   
+
+Original Year in W~        -0.262                                   
+                          (0.289)                                   
+
+Original Year in W~        -0.749          -0.353***                
+                          (0.424)        (0.0516)                   
+
+Original Year in W~        -0.236          -0.741                   
+                          (0.275)         (0.395)                   
+
+Original Year in W~        -0.234          -0.403***                
+                          (0.261)        (0.0617)                   
+
+Original Year in W~         0.206          -0.432***        0.531***
+                          (0.300)        (0.0689)         (0.117)   
+
+Original Year in W~       -0.0540          -0.135                   
+                          (0.277)         (0.338)                   
+
+Original Year in W~        -0.493         -0.0932           0.313*  
+                          (0.444)         (0.217)         (0.141)   
+
+Original Year in W~        -0.222          -0.239**                 
+                          (0.266)        (0.0905)                   
+
+Original Year in W~       -0.0223          -0.330***                
+                          (0.283)        (0.0557)                   
+
+Original Year in W~        -0.394          -0.565         -0.0960   
+                          (0.286)         (0.312)         (0.112)   
+
+Original Year in W~        -0.300          -0.152           0.340***
+                          (0.494)        (0.0965)        (0.0859)   
+
+Original Year in W~       -0.0122          -0.357**                 
+                          (0.249)         (0.117)                   
+
+Original Year in W~        0.0510          -0.495***                
+                          (0.263)        (0.0927)                   
+
+Original Year in W~        -0.552         -0.0930                   
+                          (0.368)         (0.271)                   
+
+Original Year in W~         0.109          -0.352                   
+                          (0.306)         (0.370)                   
+
+Original Year in W~        -0.939*                                  
+                          (0.416)                                   
+
+Original Year in W~        0.0485          -0.349***        0.217   
+                          (0.261)        (0.0558)         (0.361)   
+
+Original Year in W~        -0.800          -0.405***        0.505** 
+                          (0.510)        (0.0548)         (0.157)   
+
+Original Year in W~        0.0552          0.0727                   
+                          (0.316)        (0.0730)                   
+
+Original Year in W~        -0.128          -0.195*                  
+                          (0.258)        (0.0881)                   
+
+Original Year in W~         0.301          -0.207**                 
+                          (0.339)        (0.0691)                   
+
+Original Year in W~       -0.0178          -0.110                   
+                          (0.313)        (0.0768)                   
+
+Original Year in W~        -0.121          -3.788***                
+                          (0.288)        (0.0738)                   
+
+Original Year in W~         0.104          -0.170**         0.505***
+                          (0.271)        (0.0640)         (0.100)   
+
+Original Year in W~         0.117          -0.123                   
+                          (0.263)         (0.137)                   
+
+Original Year in W~       -0.0350         -0.0448           0.546***
+                          (0.278)        (0.0734)         (0.102)   
+
+Original Year in W~      -0.00938          -0.669                   
+                          (0.316)         (0.498)                   
+
+Original Year in W~        0.0702         -0.0785                   
+                          (0.259)        (0.0922)                   
+
+Original Year in W~        0.0385          -0.119                   
+                          (0.331)        (0.0883)                   
+
+Original Year in W~        -0.119                                   
+                          (0.300)                                   
+
+Original Year in W~         0.122          0.0449                   
+                          (0.269)        (0.0700)                   
+
+Original Year in W~         0.268           0.401*                  
+                          (0.260)         (0.191)                   
+
+Original Year in W~        -0.112           0.398***                
+                          (0.266)        (0.0872)                   
+
+Original Year in W~       -0.0533          -0.312*          0.461*  
+                          (0.410)         (0.128)         (0.196)   
+
+Original Year in W~         0.243          -0.160           1.652** 
+                          (0.311)        (0.0962)         (0.483)   
+
+Original Year in W~        -0.256          -0.557*          0.721***
+                          (0.275)         (0.259)         (0.152)   
+
+Original Year in W~       -0.0341         -0.0437                   
+                          (0.274)         (0.443)                   
+
+Original Year in W~         0.821*        -0.0819                   
+                          (0.350)         (0.659)                   
+
+Original Year in W~       -0.0251        -0.00912                   
+                          (0.288)         (0.165)                   
+
+Original Year in W~             0           0.272**                 
+                              (.)        (0.0890)                   
+
+log_lotacres                0.155***        0.139***        0.134** 
+                         (0.0220)        (0.0281)        (0.0482)   
+
+Number of Floors i~g      -0.0564***      -0.0244         0.00533   
+                         (0.0156)        (0.0201)        (0.0162)   
+
+log_bldgarea               -0.156***      -0.0778          -0.280***
+                         (0.0377)        (0.0465)        (0.0606)   
+
+Number of Bedrooms~g       0.0287***       0.0264***     -0.00350   
+                        (0.00495)       (0.00685)        (0.0100)   
+
+Number of Full Bat~l      -0.0358***      -0.0662***     -0.00509   
+                        (0.00515)       (0.00792)       (0.00953)   
+
+height                                   -0.00156         -0.0617   
+                                         (0.0212)        (0.0351)   
+
+interior_parcel=0 ~t                            0               0   
+                                              (.)             (.)   
+
+interior_parcel=1 ~t                       -0.239**       0.00120   
+                                         (0.0854)         (0.153)   
+
+height X dupac                           0.000208                   
+                                       (0.000178)                   
+
+interior_parcel=0 ~p                            0                   
+                                              (.)                   
+
+interior_parcel=1 ~p                      0.00544                   
+                                        (0.00400)                   
+
+Original Year in W~                       -0.0897                   
+                                         (0.0691)                   
+
+Original Year in W~                        -0.356**                 
+                                          (0.119)                   
+
+Original Year in W~                                             0   
+                                                              (.)   
+
+Original Year in W~                                         0.805***
+                                                         (0.0839)   
+
+Original Year in W~                                         0.738***
+                                                         (0.0929)   
+
+Original Year in W~                                         0.920***
+                                                         (0.0779)   
+
+Original Year in W~                                         1.306***
+                                                         (0.0860)   
+
+Constant                    8.021***        7.832***        9.616***
+                          (0.386)         (0.380)         (0.532)   
+
+Boundary f.e.                 Yes             Yes             Yes   
+
+Year f.e.                     Yes             Yes             Yes   
+--------------------------------------------------------------------
+Observations                49681           21817            3503   
+R-squared                   0.704           0.759           0.770   
+--------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.                 
+.         * keep only the coefficients that have interior interaction with them     
+.         esttab rent_du2 rent_duhe2 rent_he2 using "$EXPORTPATH/rents_table_external_`interior_min'_addcontrols.tex", replace keep(*interior_parcel*) se r2 ///
+>                 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year" "Year built f.e.=*year_built") interaction(" X ") ///
+>                 label mtitles("rent_du2" "rent_duhe2" "rent_mfdu2" "rent_mf2" "rent_mfhe2" "rent_he2") ///
+>                 title("Rents, w/ characteristics") 
+(file /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/rents_table_external_.15_addcontrols.tex not found)
+(output written to /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/rents_table_external_.15_addcontrols.tex)
+
+.                 
+.         * robust s.e.   
+.         quietly eststo rent_du2_r: reg log_mfrent i.interior_parcel##c.dupac i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions', vce(robust)
+
+.                 
+.         quietly eststo rent_duhe2_r: reg log_mfrent i.interior_parcel##c.height##c.dupac i.lam_seg i.year $char_vars if du_he == 1 & `regression_conditions', vce(robust)
+
+. 
+.         quietly eststo rent_he2_r: reg log_mfrent i.interior_parcel##c.height i.lam_seg i.year $char_vars if only_he == 1 & `regression_conditions', vce(robust)
+
+.                 
+.         esttab rent_du2_r rent_duhe2_r rent_he2_r, se r2 ///
+>                 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year" "Year built f.e.=*year_built") interaction(" X ") ///
+>                 label mtitles("rent_du2" "rent_duhe2" "rent_he2") ///
+>                 title("Rents, w/ characteristics") 
+
+Rents, w/ characteristics
+--------------------------------------------------------------------
+                              (1)             (2)             (3)   
+                         rent_du2      rent_duhe2        rent_he2   
+--------------------------------------------------------------------
+interior_parcel=0               0               0               0   
+                              (.)             (.)             (.)   
+
+interior_parcel=1         -0.0129           0.859***       0.0514   
+                         (0.0134)         (0.212)         (0.245)   
+
+dupac                   -0.000388        -0.00384***                
+                       (0.000198)      (0.000386)                   
+
+interior_parcel=0 ~c            0               0                   
+                              (.)             (.)                   
+
+interior_parcel=1 ~c    -0.000279         -0.0183*                  
+                       (0.000916)       (0.00890)                   
+
+log_lotacres                0.155***        0.139***        0.134***
+                        (0.00655)       (0.00878)        (0.0142)   
+
+Number of Floors i~g      -0.0564***      -0.0244***      0.00533   
+                        (0.00554)       (0.00667)       (0.00668)   
+
+log_bldgarea               -0.156***      -0.0778***       -0.280***
+                         (0.0107)        (0.0139)        (0.0230)   
+
+Number of Bedrooms~g       0.0287***       0.0264***     -0.00350   
+                        (0.00160)       (0.00158)       (0.00281)   
+
+Number of Full Bat~l      -0.0358***      -0.0662***     -0.00509   
+                        (0.00211)       (0.00273)       (0.00290)   
+
+height                                   -0.00156         -0.0617***
+                                        (0.00546)        (0.0124)   
+
+interior_parcel=0 ~t                            0               0   
+                                              (.)             (.)   
+
+interior_parcel=1 ~t                       -0.239***      0.00120   
+                                         (0.0595)        (0.0466)   
+
+height X dupac                           0.000208***                
+                                      (0.0000488)                   
+
+interior_parcel=0 ~p                            0                   
+                                              (.)                   
+
+interior_parcel=1 ~p                      0.00544*                  
+                                        (0.00218)                   
+
+Constant                    8.021***        7.832***        9.616***
+                          (0.273)         (0.118)         (0.257)   
+
+Boundary f.e.                 Yes             Yes             Yes   
+
+Year f.e.                     Yes             Yes             Yes   
+
+Year built f.e.               Yes             Yes             Yes   
+--------------------------------------------------------------------
+Observations                49681           21817            3503   
+R-squared                   0.704           0.759           0.770   
+--------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.                 
+.         eststo clear            
+
+. 
+end of do-file
+$$$<
+FindErrorInDoFile_6
+Running: histogram.do
+
+. * start here
+. clear all
+
+. log close _all
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/external_effects_output/external_effects_log_2025-04-18.log
+  log type:  text
+ closed on:  18 Apr 2025, 13:32:14
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

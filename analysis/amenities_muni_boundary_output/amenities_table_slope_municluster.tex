@@ -1,0 +1,22 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Mean Slope of Lot (degrees)}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{slope\_du}&\multicolumn{1}{c}{slope\_duhe}&\multicolumn{1}{c}{slope\_mfdu}&\multicolumn{1}{c}{slope\_mf}&\multicolumn{1}{c}{slope\_mfhe}&\multicolumn{1}{c}{slope\_he}\\
+\hline
+-.02                &       2.620         &       0.176         &       2.030         &       2.609\sym{***}&       2.634\sym{***}&      -0.859         \\
+                    &     (2.513)         &     (0.550)         &     (1.764)         &  (4.44e-15)         &     (0.549)         &     (0.824)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &        3006         &       13449         &        3669         &         111         &        1545         &        8623         \\
+\(R^{2}\)           &       0.391         &       0.466         &       0.379         &       0.375         &       0.504         &       0.420         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}
