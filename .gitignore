@@ -1,11 +1,14 @@
-## dirs
+# Ignore all directories
+*/
 
-#/programs
-#/counterfactual*
-/_archived
-#/analysis
-/mike_code
+# Except the following directories
+!/analysis
+!/code
+!/.git
 
-## files
+# Ignore the following file tpyes
 *.dta
+
+# Ignore the following files
 boston_zoning.code-workspace
+
