@@ -63,7 +63,7 @@ flowchart TD
   d4(warren_MAPC_all_unique.dta);
 
   subgraph one
-    f0 --> f1 --> f2 --> f3
+    f0 --> f1 --> f2 --> f3;
 
 
 ```
