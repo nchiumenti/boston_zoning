@@ -50,7 +50,7 @@ After cleaning several distinct .dta datasets are saved:
 10_warren_data_compile_.do:
 
 ```mermaid
-flowchart TD
+sequenceDiagram TD
   A[MA_assessor_annual_expanded.dta];
   B[boobs];
   A --> B;
