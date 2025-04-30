@@ -61,12 +61,14 @@ flowchart TD
   d2(warren_MA_all_annual.dta);
   d3(warren_MAPC_all_annual.dta);
   d4(warren_MAPC_all_unique.dta);
-  
-  d0 --> f0;
-  f0 --> f1 --> f2 --> f3 --> f4;
-  f4 --> d2;
-  f4 --> d3;
-  f4 --> d4;
+
+  subgraph one
+    f0 --> f1 --> f2 --> f3
+
+  d0 --> one
+  one --> d2
+  one --> d3
+  one --> d4
 ```
 
 
