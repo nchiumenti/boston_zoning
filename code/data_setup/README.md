@@ -30,6 +30,3 @@
 | warren_geocode_fixes.do | ❌ | ❌ |
 
 ## File descriptions
-what happens now
-
-BOOBS!
