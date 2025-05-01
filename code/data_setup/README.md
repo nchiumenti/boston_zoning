@@ -8,10 +8,8 @@
 flowchart TD
     classDef do fill:#0fa5d2
     classDef py fill:#fad97f
-    10_warren_data_compile.do:::do --> zone_assignments.ipynb/py:::py --> closest_boundary_matches.ipynb:::py --> 20_boundary_matches.do:::do --> 30_density_measures.do:::do --> 40_costar.do:::do --> 70_final_dataset.do:::do
 
-BatchAddressMatch_final.ipynb:::py --> 10_warren_data_compile.do:::do
-
+    10_warren_data_compile.do:::do --> zone_assignments.ipynb/py:::py --> closest_boundary_matches.ipynb/py:::py --> 20_boundary_matches.do:::do --> 30_density_measures.do:::do --> 40_costar.do:::do --> 70_final_dataset.do:::do
 ```
 
 ## Files in this Directory
