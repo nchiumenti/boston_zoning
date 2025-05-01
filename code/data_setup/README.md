@@ -1,10 +1,10 @@
 # Data Setup Files Guide
 
-(Introduction)[#introduction]
+[Introduction](#introduction)
 
-(Order of Files)[#order-of-files]
+[Order of Files](#order-of-files)
 
-(A Note about NHPD and CH40B files)[#a-note-about-nhpd-and-ch40b-files]
+[A Note about NHPD and CH40B files](#a-note-about-nhpd-and-ch40b-files)
 
 ## Introduction
 The files under the ./data_setup should be able to fully replicate the main dataset
