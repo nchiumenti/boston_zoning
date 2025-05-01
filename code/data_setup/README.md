@@ -5,7 +5,7 @@
 ## Order of Files
 
 ```mermaid
-flowchart LR
+flowchart TDLR
     A:::foo & B:::bar --> C:::foobar
     classDef foo fill:#f9f
     classDef bar stroke:#0f0
