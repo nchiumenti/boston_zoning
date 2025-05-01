@@ -6,7 +6,7 @@
 
 ```mermaid
 sequenceDiagram
-    10_warren;
+    Alice->>John
 ```
 
 ## Files in this Directory
