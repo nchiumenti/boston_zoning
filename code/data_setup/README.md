@@ -6,7 +6,7 @@
 
 ```mermaid
 flowchart LR
-    Alice-->John: boobs
+    Alice-->John
 ```
 
 ## Files in this Directory
