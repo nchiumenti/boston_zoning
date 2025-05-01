@@ -3,6 +3,16 @@
 - [Introduction](#introduction)
 - [Order of Files](#order-of-files)
     - [A Note about NHPD and CH40B files](#a-note-about-nhpd-and-ch40b-files)
+    - [File Order Chart](#file-order-chart)
+- [File descriptions](#file-descriptions)
+    - [00_data_setup_master_file.do](#00_data_setup_master_file.do)
+    - [20_boundary_matches.do](#20_boundary_matches.do)
+    - [30_density_measures.do](#30_density_measure.do)
+    - [40_costar.do](#40_costar.do)
+    - [50_nhpd.do](#50_nhpd.do)
+    - [60_ch40b.do](#60_ch40b.do)
+    - [70_final_dataset.do](#70_final_dataset.do)
+    - [80_amenity_datasets.do](#80_amenity_datasets.do)
 
 ## Introduction
 The files under the ./data_setup should be able to fully replicate the main dataset
@@ -31,6 +41,7 @@ is found in the Boston Fed report and ***must*** still be included because it
 updated important variables like num_units for properties that do not otherwise
 have tax records (for example public housing properties which are not taxed).
 
+### File Order Chart
 ```mermaid
 flowchart TD
     classDef do fill:#0fa5d2
