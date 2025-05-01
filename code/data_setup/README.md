@@ -5,7 +5,7 @@
 ## Order of Files
 
 ```mermaid
-flowchart TDLR
+flowchart TD
     classDef do fill:#f9f
     classDef py stroke:#0f0
     10_warren_data_compile.do:::do & B:::py --> C:::foobar
