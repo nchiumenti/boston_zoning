@@ -8,7 +8,7 @@
 flowchart TD
     classDef do fill:#f9f
     classDef py stroke:#0f0
-    10_warren_data_compile.do:::do & B:::py --> C:::foobar
+    10_warren_data_compile.do:::do --> zone_assignments.ipynb/py:::py --> closest_boundary_matches.ipynb:::py
 
 ```
 
