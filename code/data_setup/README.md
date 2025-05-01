@@ -6,11 +6,9 @@
 
 ```mermaid
 flowchart TDLR
-    A:::foo & B:::bar --> C:::foobar
-    classDef foo fill:#f9f
-    classDef bar stroke:#0f0
-    classDef foobar stroke:#00f
-
+    classDef do fill:#f9f
+    classDef py stroke:#0f0
+    10_warren_data_compile.do:::do & B:::py --> C:::foobar
 
 ```
 
