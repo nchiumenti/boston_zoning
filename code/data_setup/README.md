@@ -6,7 +6,7 @@
 
 ```mermaid
 sequenceDiagram
-    Alice->>John: boobs
+    Alice-->John: boobs
 ```
 
 ## Files in this Directory
