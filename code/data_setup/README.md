@@ -69,9 +69,9 @@ flowchart TD
     f1-->f2-->f3;
   end
 
-  d2(warren_MA_all_annual.dta);
-  d3(warren_MAPC_all_annual.dta);
-  d4(warren_MAPC_all_unique.dta);
+  d2([warren_MA_all_annual.dta]);
+  d3([warren_MAPC_all_annual.dta]);
+  d4([warren_MAPC_all_unique.dta]);
 
   d0 --> f0 --> subscripts
   subscripts --> d2
@@ -85,8 +85,8 @@ boundary match between warren group property and mapc zoning boundary.
 
 ```mermaid
 flowchart TD
-    d0(MA_assessor_annual_expanded.dta)
-    d1(closest_boundary_matches_with_regs.dta)
+    d0([MA_assessor_annual_expanded.dta])
+    d1([closest_boundary_matches_with_regs.dta])
 f0[20_boundary_matches.do];
 
   d0 --> f0 --> d1
@@ -95,10 +95,10 @@ f0[20_boundary_matches.do];
 ### 30_density_measures.do
 ```mermaid
 flowchart TD
-    A(warren_MAPC_all_annual.dta)
+    A([warren_MAPC_all_annual.dta])
     B[closest_boundary_matches_with_regs.dta];
     C[30_density_measures.do]
-    D(warren_density_measures.dta)
+    D([warren_density_measures.dta])
 
 A --> C
 B --> C
@@ -108,40 +108,30 @@ C-->D
 ### 40_costar.do
 ```mermaid
 flowchart TD
-    A(multiple costar .xlsx files)
-    B(cb_2018_25_cousub_500k.dta & cb_2018_25_bg_500k_shp.dta)
+    A([multiple costar .xlsx files])
+    B([cb_2018_25_cousub_500k.dta & cb_2018_25_bg_500k_shp.dta])
     E[40_costar.do]
-    C(costar_mf_all.dta)
-    D(costar_mf_destring.dta)
+    C([costar_mf_all.dta])
+    D([costar_mf_destring.dta])
 
 A & B --> E --> C & D
 id1[41_costar_warren_xwalk.do] --> id2([costar_warren_xwalk.dta])
-costar_warren_xwalk.dta & costar_rent_hist.xlsx --> 42_costar_rent_history.do --> costar_rent_hist.dta
+id3([costar_warren_xwalk.dta]) & id4([costar_rent_hist.xlsx]) --> id6[42_costar_rent_history.do] --> id5([costar_rent_hist.dta])
 ```
 
 
-### counterfactual_01_spatial_hetergeneity.do
+### 70_final_dataset.do
 ```mermaid
-flowchart LR
-  A[counterfactual_spatial_heterogeneity.do] --> B[spatial_price_coeff_MAPCdefinition.dta];
-  A --> C[spatial_unit_coeff_MAPCdefinition.dta];
-```
+flowchart TD
+A([warren_MAPC_all_annual.dta])
+B([closest_boundary_matches_with_regs.dta])
+C([warren_density_measures.dta])
+D([costar_warren_xwalk.dta])
+E([costar_warren_xwalk.dta])
+F([costar_rent_hist.dta])
+G([costar_mf_all.dta])
+H[70 Final Dataset.do]
+I([final_dataset.dta])
 
-### counterfactual_02_train_station_means.do
-```mermaid
-flowchart LR
-  A[counterfactual_02_train_station_means.do] --> B[train_station_means.dta];
-```
-
-### counterfactual_03_means.do
-```mermaid
-flowchart LR
-  A[counterfactual_03_means.do] --> B[(means_lpm.dta)];
-  A --> C[(means_property_lvl.dta)];
-  A --> D[(means_boundary_lvl.dta)];
-  A --> E[(means_town_lvl.dta)];
-  A --> F[(means_town_lvl_tomerge.dta)];
-  A --> G[(means_town_train_stations.dta)];
-  E --> G;
-  F --> G;
+A&B&C&D&e&F-->H-->I
 ```
