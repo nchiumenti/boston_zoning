@@ -106,7 +106,23 @@ C-->D
 ```
 
 ### 40_costar.do
+```mermaid
+flowchart TD
+    A(multiple costar .xlsx files)
+    B(cb_2018_25_cousub_500k.dta & cb_2018_25_bg_500k_shp.dta)
+    E[40_costar.do]
+    C(costar_mf_all.dta)
+    D(costar_mf_destring.dta)
 
+A & B --> E --> C & D
+
+41_costar_warren_xwalk.do --> costar_warren_xwalk.dta
+costar_warren_xwalk.dta & costar_rent_hist.xlsx --> 42_costar_rent_history.do -- costar_rent_hist.dta
+
+A --> C
+B --> C
+C-->D
+```
 
 
 ### counterfactual_01_spatial_hetergeneity.do
