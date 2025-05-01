@@ -6,9 +6,7 @@
 
 ```mermaid
 sequenceDiagram
-    10_warren.do
-    zone_assignments.ipynb
-    closest_boundary_matches.ipynb
+    10_warren.do-->zone_assignments.ipynb-->closest_boundary_matches.ipynb
 ```
 
 ## Files in this Directory
