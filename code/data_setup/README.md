@@ -6,7 +6,7 @@
 
 ```mermaid
 sequenceDiagram
-    '10_warren.do'->>'zone_assignments.ipynb'
+    10_warren->>zone_assignments
 ```
 
 ## Files in this Directory
