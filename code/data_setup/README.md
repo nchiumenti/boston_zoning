@@ -6,7 +6,7 @@
 
 ```mermaid
 sequenceDiagram
-    10_warren->>zone_assignments
+    10_warren
 ```
 
 ## Files in this Directory
