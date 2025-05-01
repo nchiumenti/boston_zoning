@@ -26,7 +26,7 @@ in go.
 These files have not been run for somet time, but so long as the source files and 
 file paths have not changed they should still work and yeild the same result
 
-I highly recomment referred to [the readme file](/docs/boston_zoning_readme.docx) I made way back in 2022 with any 
+I highly recomment referred to [the readme file](/docs/boston-zoning-readme.docx) I made way back in 2022 with any 
 questions. I did outline a bunch of things below but the readme.docx file has a 
 lot more detail
 
