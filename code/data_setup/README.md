@@ -58,19 +58,6 @@ After cleaning several distinct .dta datasets are saved:
 **10_warren_data_compile_.do:**
 ```mermaid
 flowchart TD
-    d0(MA_assessor_annual_expanded.dta)
-    d1(closest_boundary_matches_with_regs.dta)
-  f0[20_boundary_matches.do];
-
-  d0 --> fo --> d1
-```
-
-### 20_boundary_matches.do
-The file takes the output of closest_boundary_matches.ipynb and finds the best closest 
-boundary match between warren group property and mapc zoning boundary.
-
-```mermaid
-flowchart TD
 
   d0(closest_boundary_matches.csv)
   f0[10_warren_data_compile_.do];
@@ -90,6 +77,19 @@ flowchart TD
   subscripts --> d2
   subscripts --> d3
   subscripts --> d4
+```
+
+### 20_boundary_matches.do
+The file takes the output of closest_boundary_matches.ipynb and finds the best closest 
+boundary match between warren group property and mapc zoning boundary.
+
+```mermaid
+flowchart TD
+    d0(MA_assessor_annual_expanded.dta)
+    d1(closest_boundary_matches_with_regs.dta)
+  f0[20_boundary_matches.do];
+
+  d0 --> f0 --> d1
 ```
 
 
