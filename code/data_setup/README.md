@@ -133,5 +133,5 @@ G([costar_mf_all.dta])
 H[70 Final Dataset.do]
 I([final_dataset.dta])
 
-A & B & C & D & E & F --> H --> I
+A & B & C & D & E & F & G --> H --> I
 ```
