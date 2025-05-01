@@ -6,7 +6,9 @@
 
 ```mermaid
 flowchart LR
-    Alice-->John
+    classDef foo stroke:#f00
+    classDef bar stroke:#0f0
+    10_warren_data_compile.do::foo-->zone_assignments.ipynb::bar
 ```
 
 ## Files in this Directory
