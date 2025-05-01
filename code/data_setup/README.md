@@ -1,8 +1,31 @@
 # Data Setup Files Guide
 
 ## Introduction
+The files under the ./data_setup should be able to fully replicate the main dataset
+used in the working paper. 
+
+As with the analysis files, the master file sets up the file paths and runs the files
+in go. 
+
+These files have not been run for somet time, but so long as the source files and 
+file paths have not changed they should still work and yeild the same result
+
+I highly recomment referred to the readme file I made way back in 2022 with any 
+questions. I did outline a bunch of things below but the readme.docx file has a 
+lot more detail
 
 ## Order of Files
+Unlike the analysis files these ***need to be run in a specifc order***.
+
+The workload jumps between Stata and Python code files. I tried to outline the 
+general order of operations below. 
+
+### A Note about NHPD and CH40B files
+These national housing preservation database (NHPD) and chapter 40b (CH40B) analysis
+is no longer found in the workpaper that has been submitted to a journal. However it
+is found in the Boston Fed report and ***must*** still be included because it 
+updated important variables like num_units for properties that do not otherwise
+have tax records (for example public housing properties which are not taxed).
 
 ```mermaid
 flowchart TD
@@ -12,9 +35,7 @@ flowchart TD
     10_warren_data_compile.do:::do --> zone_assignments.ipynb/py:::py --> closest_boundary_matches.ipynb/py:::py --> 20_boundary_matches.do:::do --> 30_density_measures.do:::do --> 40_costar.do:::do --> 70_final_dataset.do:::do
 ```
 
-## Files in this Directory
-
-## Replication File Status
+## Files and Replication Status
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
 |----------|:------------:|:----------------:|:----------------:|
 | 00_data_setup_master_file.do |  |  |  | 
@@ -51,11 +72,11 @@ Takes the raw downloaded warren data calls a number of sub-scripts to clean the 
 - called 13_condo_collapse.do to collapse condo buildiings so the number of units is summed to the address (note in the end condos were excluded because they are not captured uniformally across municipalities.
 
 After cleaning several distinct .dta datasets are saved:
+- warren_MA_all_unique.dta --> a unique list of all properties in MA, by prop_id
 - warren_MA_all_annual.dta --> all residential properties in MA, unique by year and prop_id
 - warren_MAPC_all_annual.dta --> all residential properties in the MAPC region (used as Greater Boston definition), unique by year and prop_id
 - warren_MAPC_all_unique.dta --> unique list of properties in the MAPC region
 
-**10_warren_data_compile_.do:**
 ```mermaid
 flowchart TD
 
@@ -69,11 +90,13 @@ flowchart TD
     f1-->f2-->f3;
   end
 
+  d1([warren_MA_all_unique.dta])
   d2([warren_MA_all_annual.dta]);
   d3([warren_MAPC_all_annual.dta]);
   d4([warren_MAPC_all_unique.dta]);
 
   d0 --> f0 --> subscripts
+  subscripts --> d1
   subscripts --> d2
   subscripts --> d3
   subscripts --> d4
@@ -93,6 +116,9 @@ f0[20_boundary_matches.do];
 ```
 
 ### 30_density_measures.do
+Calculates the share of properties that are single-family and 2-3 units around 
+.1 miles of every property record that is 1 mile or less from the zone boundary.
+
 ```mermaid
 flowchart TD
     A([warren_MAPC_all_annual.dta])
@@ -106,6 +132,17 @@ C-->D
 ```
 
 ### 40_costar.do
+Imports all data from excel file downloads and stores in
+one stata .dta file. Uses the first row as variable headers.
+Data was downloaded from CoStar.com in batches for all
+city and towns in the MAPC service region. Contains data 
+only on multi-family properties in CoStar which usually 
+excludes 1-4 unit properties.
+
+This main file also calls 2 sub-files that can be run
+independently to export a warren->costar crosswalk and
+a costar rent history dataset
+
 ```mermaid
 flowchart TD
     A([multiple costar .xlsx files])
@@ -119,8 +156,52 @@ id1[41_costar_warren_xwalk.do] --> id2([costar_warren_xwalk.dta])
 id3([costar_warren_xwalk.dta]) & id4([costar_rent_hist.xlsx]) --> id6[42_costar_rent_history.do] --> id5([costar_rent_hist.dta])
 ```
 
+### 50_nhpd.do
+Cleans the original 'All Properties.xlsx' download. 
+Returns 2 datasets of (1) all properties in MA and all
+properties in MAPC region. The MAPC region file also has
+boundary IDs assigned to properties (for use in the 
+warren/nhpd crosswalk).
+
+### 60_ch40b.do
+Cleans the original ch40b file. 
+Returns 2 datasets of (1) all ch40b properties in raw but
+usable format and (2) a clean version with boundary IDs
+attached (for use in the warren/ch40b crosswalk).
+
+Two python programs are run on JupyterHub. (1) a geocoding
+programs that assigns lat/lon coordinates using the 
+Census API geocoder. (2) the boundary match program similar
+to the one that is used for the Warren records.
+ 				
+Note 08/06/2021: An initial partial list of CH40B properties
+was received back in December 2020. We received an updated 
+full list of properties in May of 2021. Because of time 
+constraints the hand matching with Warren datathat was done 
+to the initial list could not be expanded upon. The hand-matches
+from this initial list are used plus geocoding of the new
+list when applicable to find all best matches between CH40B
+and Warren properties.
+
+Note 10/15/2021: Additional hand geocoding was done on 
+properties by research assistants from U. Toronto 
+working with Aradhya Sood. These additional coded 
+properties are appended after the initial geocoding and 
+before the boundary matching takes place.
+
 
 ### 70_final_dataset.do
+Creates the final dataset before analysis stage. This 
+files combines the warren property data, and boundary
+matches, the costar, nhpd, and ch40b data, and the 
+density measures into one final dataset that is used
+as the basis for almost all analysis files.
+
+Note 12/22/2022: the ch40b and nhpd data are not used
+in the final working paper that was submitted but are
+used in the fed research reports. Even though they are not used they still
+need to be kept in the file because they update the number of units etc.
+
 ```mermaid
 flowchart TD
 A([warren_MAPC_all_annual.dta])
