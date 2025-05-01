@@ -115,7 +115,7 @@ flowchart TD
     D(costar_mf_destring.dta)
 
 A & B --> E --> C & D
-41_costar_warren_xwalk.do --> costar_warren_xwalk.dta
+(41_costar_warren_xwalk.do) --> costar_warren_xwalk.dta
 costar_warren_xwalk.dta & costar_rent_hist.xlsx --> 42_costar_rent_history.do --> costar_rent_hist.dta
 ```
 
