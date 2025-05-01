@@ -5,7 +5,7 @@
 ## Order of Files
 
 ```mermaid
-sequenceDiagram
+flowchart LR
     Alice-->John: boobs
 ```
 
