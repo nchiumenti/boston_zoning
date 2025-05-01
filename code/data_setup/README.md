@@ -95,10 +95,6 @@ f0[20_boundary_matches.do];
 ### 30_density_measures.do
 ```mermaid
 flowchart TD
-    d1(warren_MAPC_all_annual.dta);
-    f1[10_warren_data_compile_.do];
-    d2(closest_boundary_matches_with_regs.dta);
-    f1[10_warren_data_compile_.do];
     f1 --> d2
 ```
 
