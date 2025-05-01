@@ -14,6 +14,8 @@
     - [70_final_dataset.do](#70_final_datasetdo)
     - [80_amenity_datasets.do](#80_amenity_datasetsdo)
 
+[the readme file](#https://github.com/nchiumenti/boston_zoning/blob/main/docs/boston%20zoning%20readme.docx)
+
 ## Introduction
 The files under the ./data_setup should be able to fully replicate the main dataset
 used in the working paper. 
