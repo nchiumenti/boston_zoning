@@ -6,8 +6,9 @@
 
 ```mermaid
 sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
+    10_warren.do
+    zone_assignments.ipynb
+    closest_boundary_matches.ipynb
 ```
 
 ## Files in this Directory
