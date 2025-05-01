@@ -87,7 +87,7 @@ boundary match between warren group property and mapc zoning boundary.
 flowchart TD
     d0(MA_assessor_annual_expanded.dta)
     d1(closest_boundary_matches_with_regs.dta)
-  f0[20_boundary_matches.do];
+f0[20_boundary_matches.do];
 
   d0 --> f0 --> d1
 ```
@@ -97,7 +97,7 @@ flowchart TD
 flowchart TD
     (warren_MAPC_all_annual.dta) -- > [10_warren_data_compile_.do];
     (closest_boundary_matches_with_regs.dta) --> [10_warren_data_compile_.do];
-    [10_warren_data_compile_.do] --> (warren_density_measures.dta)
+    [10_warren_data_compile_.do] --> (warren_density_measures.dta);
 ```
 
 
