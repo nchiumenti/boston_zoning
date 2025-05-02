@@ -9,8 +9,8 @@ data files are not stored here because of their size and priopriatary nature.
 1. [Overview](#overview)
 2. [Data Sources](#data-sources)
 3. [Code](#code)
-<!--4. [Output](#output)-->
-5. [Walkthrough](#walkthrough)
+<!-- 4. [Output](#output)-->
+<!-- 5. [Walkthrough](#walkthrough) -->
 
 ## Overview
 
