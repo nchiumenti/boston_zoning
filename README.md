@@ -45,7 +45,7 @@ data files are not stored here because of their size and priopriatary nature.
     - **Notes:** Work done by Amrita.
 
 4.  ✅<ins>Train Stations & Transit Disances</ins>
-    - **Source:** [MassGIS: MBTA Rapid Transit](#https://www.mass.gov/info-details/massgis-data-mbta-rapid-transit), [MassGIS: Trains](#https://www.mass.gov/info-details/massgis-data-trains)
+    - **Source:** [MassGIS: MBTA Rapid Transit](https://www.mass.gov/info-details/massgis-data-mbta-rapid-transit), [MassGIS: Trains](https://www.mass.gov/info-details/massgis-data-trains)
     - **Raw file(s):** MBTA_NODE.shp, TRAINS_NODE.shp 
     - **Method/Code(s):** all_stations.csv, transit_distance.csv, dist_to_south_station.csv
     - **Method:** Python program all_stations.ipynb takes the shape file data and combines to a list
