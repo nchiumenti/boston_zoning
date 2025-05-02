@@ -71,7 +71,7 @@ data files are not stored here because of their size and priopriatary nature.
     [effective_dist_export.do](code/data_setup/miscellaneous_setup_files). However, the input and output files names are different. I think this was done just to make code references to them easier to read/interpret. 
 
 7.  ✅<ins>Highways, rivers, schools, open space, city centroids</ins>
-    - **Source:** Mass GIS [Highways]() and [Rivers](), school attendance area bounds from (NCES)[https://nces.ed.gov/programs/edge/sabs], open space is from the zoning atlas data, city centroids is from [census shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
+    - **Source:** Mass GIS [Highways]() and [Rivers](), school attendance area bounds from [NCES](https://nces.ed.gov/programs/edge/sabs), open space is from the zoning atlas data, city centroids is from [census shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
     - **Raw file(s):** HYDRO100K_ARC.shp,  EOTMAJROADS_ARC.shp, zoning_atla.shp (zo_usetype == 4), SCHOOLS_PT.shp, cb_2018_25_cousub_500k.shp.
     - **Final file(s):** roads.dta, rivers.dta, green_space.dta, schools.dta, city_centroids.dta, warren_MAPC_all_unique_closest_stuff.dta
     - **Method/Code:** [80_amenity_datasets.do](code/data_setup) sets and saves and merges all of these into the final warren data matched dataset. Some of these files were converted from cartesian and lat/lon coordinates and are tagged with the file name suffix _latlong. This was done in python or ArcGIS and not tracked.
