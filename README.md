@@ -7,9 +7,9 @@ data files are not stored here because of their size and priopriatary nature.
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Data](#data)
+2. [Data Sources](#data-sources)
 3. [Code](#code)
-4. [Output](#output)
+<!--4. [Output](#output)-->
 5. [Walkthrough](#walkthrough)
 
 ## Overview
