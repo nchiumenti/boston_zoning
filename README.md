@@ -49,16 +49,14 @@ data files are not stored here because of their size and priopriatary nature.
     - **Method:** Python program all_stations.ipynb takes the shape file data and combines to a list
     of mbta and commuter rail train stops. 
     dist_prop_to_station.ipynb matches to warren group properties and calculates the distance to nearest train stop. station_boundary_dist.ipynb calculates the distance of train stops to their nearest zoning boundary.
-
-        unknown how the distance to south station is calculated right now
-    - **Notes:** 
+    - **Notes:** See #8 for the distance to south station/central boston calculation.
 
 5.  ❓<ins>American Community Survey (ACS)</ins>
     - **Source:** ACS data downloaded from IPUMS for 5 MA counties (25009, 25017, 25021, 25023, 25025) at Census block group level or Census block level , blocks_2010, ACS_2019_rent
     - **Raw file(s):** blocks_2010.dta
     - **Final file(s):** acs_amenities.dta
     - **Method:** unknown right now how the final acs amenities is made
-    - **Notes:** acs_amenities.dta
+    - **Notes:** look what makes acs_amenities.dta
 
 6.  ❓<ins>Walking Distance</ins>
     - **Source:** Warren Group Data
@@ -67,14 +65,14 @@ data files are not stored here because of their size and priopriatary nature.
     - **Method:** Main walking distances file made with walking_distance_osrm.ipynb
     - **Notes:** unknown how to make the inputs file right now
 
-7.  <ins>Highways, rivers, schools, open space, city centroids</ins>
+7.  ✅<ins>Highways, rivers, schools, open space, city centroids</ins>
     - **Source:** Mass GIS [Highways](#) and [Rivers](#), school attendance area bounds from (NCES)[#https://nces.ed.gov/programs/edge/sabs], open space is from the zoning atlas data, city centroids is from [census shape files](#https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
     - **Raw file(s):** HYDRO100K_ARC.shp,  EOTMAJROADS_ARC.shp, zoning_atla.shp (zo_usetype == 4), SCHOOLS_PT.shp, cb_2018_25_cousub_500k.shp.
     - **Final file(s):** roads.dta, rivers.dta, green_space.dta, schools.dta, city_centroids.dta, warren_MAPC_all_unique_closest_stuff.dta
     - **Method:** 80_amenity_datasets.do sets and saves and merges all of these into the final warren data matched dataset. Some of these files were converted from cartesian and lat/lon coordinates and are tagged with the file name suffix _latlong. This was done in python or ArcGIS and not tracked.
     - **Notes:**
 
-8.  <ins>Distance to central Boston</ins>
+8.  ✅<ins>Distance to central Boston</ins>
     - **Source:** see #4
     - **Raw file(s):** all_stations.csv
     - **Final file(s):** dist_south_station_2022_09_29.csv
