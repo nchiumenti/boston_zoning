@@ -1,5 +1,21 @@
 # Data Setup Files Guide
 
+- [Introduction](#introduction)
+- [Order of Files](#order-of-files)
+    - [A Note about NHPD and CH40B files](#a-note-about-nhpd-and-ch40b-files)
+    - [File Order Chart](#file-order-chart)
+- [File descriptions](#file-descriptions)
+    - [00_data_setup_master_file.do](#00_data_setup_master_filedo)
+    - [20_boundary_matches.do](#20_boundary_matchesdo)
+    - [30_density_measures.do](#30_density_measuredo)
+    - [40_costar.do](#40_costardo)
+    - [50_nhpd.do](#50_nhpddo)
+    - [60_ch40b.do](#60_ch40bdo)
+    - [70_final_dataset.do](#70_final_datasetdo)
+    - [80_amenity_datasets.do](#80_amenity_datasetsdo)
+
+[the readme file](#https://github.com/nchiumenti/boston_zoning/blob/main/docs/boston%20zoning%20readme.docx)
+
 ## Introduction
 The files under the ./data_setup should be able to fully replicate the main dataset
 used in the working paper. 
@@ -10,7 +26,7 @@ in go.
 These files have not been run for somet time, but so long as the source files and 
 file paths have not changed they should still work and yeild the same result
 
-I highly recomment referred to the readme file I made way back in 2022 with any 
+I highly recomment referred to [the readme file](/docs/boston zoning readme.docx) I made way back in 2022 with any 
 questions. I did outline a bunch of things below but the readme.docx file has a 
 lot more detail
 
@@ -27,6 +43,7 @@ is found in the Boston Fed report and ***must*** still be included because it
 updated important variables like num_units for properties that do not otherwise
 have tax records (for example public housing properties which are not taxed).
 
+### File Order Chart
 ```mermaid
 flowchart TD
     classDef do fill:#0fa5d2
