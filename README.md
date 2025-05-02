@@ -27,17 +27,19 @@ data files are not stored here because of their size and priopriatary nature.
     - **Notes:** Unfortunately, historic versions of the soil data do not appear to be
     accessible, and so the source file is not longer available.
 
-2.  ❓<ins>Walk Score</ins>
+2.  ⚠️<ins>Walk Score</ins>
     - **Source:** [EPA Walkabiltiy Score](https://www.epa.gov/smartgrowth/smart-location-mapping#walkability)
-    - **Raw file(s):** 
+    - **Raw file(s):** Natl_WI.gdb
     - **Final file(s):** warren_group_walkability.dta
-    - **Method:**
-    - **Notes:**
+    - **Method:** unknown
+    - **Notes:** This dataset was made in early 2024 so much have been done with .R
+    and not stata. I think at this point the code is lost, but it should have been just
+    a straight forward spatial match of property points to polygons.
 
-3.  ❓<ins>Zoning Atlas</ins>
-    - **Source:**
-    - **Raw file(s):**
-    - **Final file(s):** adm3_latlong.shp; xxx.dta
+3.  ⚠️<ins>Zoning Atlas</ins>
+    - **Source:** [MAPC](https://zoningatlas.mapc.org/)
+    - **Raw file(s):** zoning_atlas.shp
+    - **Final file(s):** adm3_latlong.shp --> adm3_latlong.dta & adm3_latlong_shp.dta
     - **Method:** Manual process of removing the zoning boundaries that overlap with
     various other boundaries like towns, rivers, roads, etc.
     - **Notes:** Work done by Amrita.
@@ -51,19 +53,23 @@ data files are not stored here because of their size and priopriatary nature.
     dist_prop_to_station.ipynb matches to warren group properties and calculates the distance to nearest train stop. station_boundary_dist.ipynb calculates the distance of train stops to their nearest zoning boundary.
     - **Notes:** See #8 for the distance to south station/central boston calculation.
 
-5.  ❓<ins>American Community Survey (ACS)</ins>
+5.  ⚠️<ins>American Community Survey (ACS)</ins>
     - **Source:** ACS data downloaded from IPUMS for 5 MA counties (25009, 25017, 25021, 25023, 25025) at Census block group level or Census block level , blocks_2010, ACS_2019_rent
     - **Raw file(s):** blocks_2010.dta
     - **Final file(s):** acs_amenities.dta
     - **Method:** unknown right now how the final acs amenities is made
-    - **Notes:** look what makes acs_amenities.dta
+    - **Notes:** I think acs_amenities.dta is a renamed version of what bg_amenities.dta
+    which is created by bg_amenitites.do, but I can't be sure. Aradhya and Amrita might
+    have alternative .do files.
 
-6.  ❓<ins>Walking Distance</ins>
+6.  ✅<ins>Walking Distance</ins>
     - **Source:** Warren Group Data
     - **Raw file(s):** walking_distance_inputs.csv
     - **Final file(s):** walking_distance_outputs.csv
     - **Method:** Main walking distances file made with walking_distance_osrm.ipynb
-    - **Notes:** unknown how to make the inputs file right now
+    - **Notes:** I am 99% sure the inputs_csv. file is what is created by
+    effective_dist_export.do. However, the input and output files names are different. I think
+    this was done just to make code references to them easier to read/interpret. 
 
 7.  ✅<ins>Highways, rivers, schools, open space, city centroids</ins>
     - **Source:** Mass GIS [Highways]() and [Rivers](), school attendance area bounds from (NCES)[https://nces.ed.gov/programs/edge/sabs], open space is from the zoning atlas data, city centroids is from [census shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
