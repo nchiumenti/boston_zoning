@@ -18,7 +18,7 @@ data files are not stored here because of their size and priopriatary nature.
 ## Data Sources
 ### Public Datasets
 1.  ✅<ins>Soil data</ins>
-    - **Source:** [MassGIS: Soils SSURGO-Certified NRCS](#https://www.mass.gov/info-details/massgis-data-soils-ssurgo-certified-nrcs)
+    - **Source:** [MassGIS: Soils SSURGO-Certified NRCS](https://www.mass.gov/info-details/massgis-data-soils-ssurgo-certified-nrcs)
     - **Raw file(s):** Soil_Parcel_data_Shape.shp
     - **Final file(s):** soil_quality_matches.dta
     - **Method:** An RA cleaned up the initial input dataset in order to make it a 
@@ -28,7 +28,7 @@ data files are not stored here because of their size and priopriatary nature.
     accessible, and so the source file is not longer available.
 
 2.  ❓<ins>Walk Score</ins>
-    - **Source:** [EPA Walkabiltiy Score](#https://www.epa.gov/smartgrowth/smart-location-mapping#walkability)
+    - **Source:** [EPA Walkabiltiy Score](https://www.epa.gov/smartgrowth/smart-location-mapping#walkability)
     - **Raw file(s):** 
     - **Final file(s):** warren_group_walkability.dta
     - **Method:**
@@ -66,7 +66,7 @@ data files are not stored here because of their size and priopriatary nature.
     - **Notes:** unknown how to make the inputs file right now
 
 7.  ✅<ins>Highways, rivers, schools, open space, city centroids</ins>
-    - **Source:** Mass GIS [Highways](#) and [Rivers](#), school attendance area bounds from (NCES)[#https://nces.ed.gov/programs/edge/sabs], open space is from the zoning atlas data, city centroids is from [census shape files](#https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
+    - **Source:** Mass GIS [Highways]() and [Rivers](), school attendance area bounds from (NCES)[https://nces.ed.gov/programs/edge/sabs], open space is from the zoning atlas data, city centroids is from [census shape files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html).
     - **Raw file(s):** HYDRO100K_ARC.shp,  EOTMAJROADS_ARC.shp, zoning_atla.shp (zo_usetype == 4), SCHOOLS_PT.shp, cb_2018_25_cousub_500k.shp.
     - **Final file(s):** roads.dta, rivers.dta, green_space.dta, schools.dta, city_centroids.dta, warren_MAPC_all_unique_closest_stuff.dta
     - **Method:** 80_amenity_datasets.do sets and saves and merges all of these into the final warren data matched dataset. Some of these files were converted from cartesian and lat/lon coordinates and are tagged with the file name suffix _latlong. This was done in python or ArcGIS and not tracked.
