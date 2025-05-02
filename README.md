@@ -22,7 +22,7 @@ data files are not stored here because of their size and priopriatary nature.
     - **Raw file(s):** Soil_Parcel_data_Shape.shp
     - **Final file(s):** soil_quality_matches.dta
     - **Method:** An RA cleaned up the initial input dataset in order to make it a 
-    flat shape file. Then [soil_quality_quality_matchin.ipynb](code/data_setup/python_programs) matches the soil 
+    flat shape file. Then [soil_quality_quality_matchin.ipynb](code/data_setup/python_programs/soil_quality_data) matches the soil 
     quality data to the property lots found in Warren Group.
     - **Notes:** Unfortunately, historic versions of the soil data do not appear to be
     accessible, and so the source file is not longer available.
