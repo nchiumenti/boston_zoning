@@ -144,7 +144,7 @@ Calculates the share of properties that are single-family and 2-3 units around
 ```mermaid
 flowchart TD
     A([warren_MAPC_all_annual.dta])
-    B[closest_boundary_matches_with_regs.dta];
+    B([closest_boundary_matches_with_regs.dta]);
     C[30_density_measures.do]
     D([warren_density_measures.dta])
 
