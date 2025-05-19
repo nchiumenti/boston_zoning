@@ -96,10 +96,10 @@ flowchart TD
 | ***./soil_quality_data/*** | - | - | - |
 | soil_quality_matching.ipynb | ❌ | ❌ | ❌ |
 | ***./transit_distances/*** | - | - | - |
-| all_stations.ipynb | ✅ | ✅ | ❓ | 
-| dist_prop_to_station.ipynb | ✅ | ✅ | ❓ | 
-| dist_south_station.ipynb | ✅ | ✅ | ❓ | 
-| station_boundary_dist.ipynb | ❌ | ❌ | ⚠️ needs correct path to adm3 | 
+| all_stations.ipynb | ✅ | ✅ | ✅ | 
+| dist_prop_to_station.ipynb | ✅ | ✅ | ✅ | 
+| dist_south_station.ipynb | ✅ | ✅ | ✅ | 
+| station_boundary_dist.ipynb | ⚠️ | ⚠️ | ⚠️ needs correct path to adm3 | 
 | ***./walking_distances/*** |-|-|-|
 | walking_distances_osrm.ipynb | ❌ | ❌ | ❌ |
 | ***./zone_assignments/*** |-|-|-|
