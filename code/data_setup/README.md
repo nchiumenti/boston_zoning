@@ -78,7 +78,7 @@ flowchart TD
 | 61_ch40b_boundary_matches.do | ❌ | ❌ |  | 
 | 62_ch40b_warren_xwalk.do | ❌ | ❌ |  | 
 | 70_final_dataset.do | ❌ | ❌ |  | 
-|  80_amenity_datasets.do | ❌ | ❌ |  | 
+| 80_amenity_datasets.do | ✅ | ✅ | ✅ | 
 | town_lists_export.do | ❌ | ❌ |  | 
 | warren_geocode_fixes.do | ❌ | ❌ |  | 
 
