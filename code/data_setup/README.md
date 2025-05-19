@@ -50,6 +50,11 @@ flowchart TD
     classDef py fill:#fad97f
 
     10_warren_data_compile.do:::do --> zone_assignments.ipynb/py:::py --> closest_boundary_matches.ipynb/py:::py --> 20_boundary_matches.do:::do --> 30_density_measures.do:::do --> 40_costar.do:::do --> 70_final_dataset.do:::do
+
+    50_nhpd.do:::do --> zoning_assignments_nhpd.ipynb/py:::py --> closest_boundary_matches_nhpd.ipynb/py:::py --> 50_nhpd.dos:::do --> 70_final_dataset.do:::do
+
+    60_ch40b.dp:::do --> zoning_assignments_ch40b.ipynb/py:::py --> closest_boundary_matches_chb40.ipynb/py:::py --> 50_ch40b.dos:::do --> 70_final_dataset.do:::do
+
 ```
 
 ## Files and Replication Status
@@ -166,7 +171,7 @@ Calculates the share of properties that are single-family and 2-3 units around
 ```mermaid
 flowchart TD
     A([warren_MAPC_all_annual.dta])
-    B[closest_boundary_matches_with_regs.dta];
+    B([closest_boundary_matches_with_regs.dta]);
     C[30_density_measures.do]
     D([warren_density_measures.dta])
 

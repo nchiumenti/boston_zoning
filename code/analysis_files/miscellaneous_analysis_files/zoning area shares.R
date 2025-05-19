@@ -1,3 +1,5 @@
+#'calulates the land area share by zoning use type
+
 library(tidyverse)
 
 data<-sf::read_sf("C:\\01_current_projects\\_Boston Zoning Paper\\zoning_atlas_latlong.shp")
