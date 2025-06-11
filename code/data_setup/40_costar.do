@@ -286,7 +286,7 @@ clear all
 ********************************************************************************
 ** run sub costar files
 ********************************************************************************
-
+// doedit  "$DOPATH/data_setup/41_costar_warren_xwalk.do"
 do "$DOPATH/data_setup/41_costar_warren_xwalk.do"
 
 do "$DOPATH/data_setup/42_costar_rent_history.do"

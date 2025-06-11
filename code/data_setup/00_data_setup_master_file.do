@@ -29,7 +29,10 @@ global DATAPATH "/shared/boston_zoning/working_paper/data"
 
 global LOGPATH = "/shared/boston_zoning/working_paper/wp_logs"
 
-global DOPATH "/shared/boston_zoning/working_paper/wp_dofiles"
+
+//global DOPATH "/shared/boston_zoning/working_paper/wp_dofiles"
+global DOPATH "~/rda-projects/clones_dept/boston_zoning/code" //m corbett's home dir - June 4, 2025
+
 
 global SHAPEPATH "/shared/boston_zoning/working_paper/data/shapefiles"
 
@@ -37,7 +40,7 @@ global FIGPATH "/shared/boston_zoning/working_paper/wp_figures"
 
 global EXT "pdf"
 
-cd "$DOPATH"
+cd "$DOPATH" 
 
 ********************************************************************************
 ** Analysis .do files
