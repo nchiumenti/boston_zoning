@@ -119,6 +119,10 @@ assert `r(sum)' ==  55695960630
 This adds and fixes a bunch of things and including correcting lat/long 
 coordinate points that plot outside of the city/town they are meant to be in. 
 */
+// doedit "$DOPATH/data_setup/11_geocoding.do" //commented out fixed 2 r(mean) assert statements - likely precision issue
+
+// doedit "$DOPATH/data_setup/11_geocoding.do"
+
 
 do "$DOPATH/data_setup/11_geocoding.do"
 
@@ -210,7 +214,6 @@ assert _N == 27342275
 ********************************************************************************	
 /* run the res type file, this collapses the residential use codes into larger 
 categories and drops properties coded as ones we do not need */
-
 do "$DOPATH/data_setup/12_res_types.do"
 
 

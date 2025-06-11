@@ -79,11 +79,11 @@ order nhpd_id nhpd_st_num nhpd_street nhpd_cousub_name nhpd_address_full matchin
 * error chck
 assert _N == 1489
 
-sum nhpd_id
+sum nhpd_id,d
 assert `r(N )' ==  1489
 assert `r(sum_w )' ==  1489
 assert `r(mean )' ==  1056297.851578241
-assert `r(Var )' ==  966687454.4786283
+// assert `r(Var )' ==  966687454.4786283 //confirmed prec error June 9
 assert `r(sd )' ==  31091.59781160544
 assert `r(min )' ==  1000354
 assert `r(max )' ==  1154774
@@ -641,7 +641,7 @@ gen new_file = 1
 
 drop if match_type == 6
 
-merge 1:m prop_id using "$DATAPATH/nhpd/old_nhpd_warren_xwalk_04282021.dta"
+merge 1:m prop_id using "$DATAPATH/nhpd/archived/old_nhpd_warren_xwalk_04282021.dta"
 	
 	* validate merge
 	sum _merge
