@@ -61,7 +61,7 @@ flowchart TD
 ### Stata .do files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
 |----------|:------------:|:----------------:|:----------------:|
-| 00_data_setup_master_file.do |  |  |  | 
+| 00_data_setup_master_file.do | - | - | - | 
 | 10_warren_data_compile.do | ✅ | ✅ | ✅ |
 | 11_geocoding.do | ✅ | ✅ | ✅ | 
 | 12_res_types.do | ✅ | ✅ | ✅ |
@@ -79,8 +79,8 @@ flowchart TD
 | 62_ch40b_warren_xwalk.do | ✅ | ✅ | ✅ |
 | 70_final_dataset.do | ✅ | ✅ | ✅ |
 | 80_amenity_datasets.do | ✅ | ✅ | ✅ | 
-| town_lists_export.do | ❌ | ❌ |  | 
-| warren_geocode_fixes.do | ❌ | ❌ |  | 
+| town_lists_export.do | - | - | - | 
+| warren_geocode_fixes.do | - | - | - | 
 
 ### Python .ipynb/./py files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
@@ -88,13 +88,13 @@ flowchart TD
 | ***./census_geocoder_api/*** |-|-|-|
 | BatchAddressMatch_final.ipynb | - | - | - |
 | ***./closest_boundary_matches/*** |-|-|-|
-| closest_boundary_matches_ch40b.ipynb | ❌ | ❌ | ❌ |
+| closest_boundary_matches_ch40b.ipynb | ⚠️ | ⚠️ | ⚠️ |
 | closest_boundary_matches_mtlines.ipynb | ✅ | ✅ | ✅ |
 | closest_boundary_matches_nhpd.ipynb | ✅ | ✅ | ✅ |
 | closest_boundary_matches_noroads.ipynb | ✅ | ✅ | ✅ |
 | closest_boundary_matches.ipynb | ✅ | ✅ | ✅ |
 | ***./soil_quality_data/*** | - | - | - |
-| soil_quality_matching.ipynb | ❌ | ❌ | ❌ |
+| soil_quality_matching.ipynb | ✅ | ✅ | ✅ |
 | ***./transit_distances/*** | - | - | - |
 | all_stations.ipynb | ✅ | ✅ | ✅ | 
 | dist_prop_to_station.ipynb | ✅ | ✅ | ✅ | 
@@ -103,7 +103,7 @@ flowchart TD
 | ***./walking_distances/*** |-|-|-|
 | walking_distances_osrm.ipynb | ✅ | ✅ | ✅ |
 | ***./zone_assignments/*** |-|-|-|
-| zone_assigments_ch40b.ipynb | ❌ | ❌ | ❌ |
+| zone_assigments_ch40b.ipynb | ⚠️ | ⚠️ | ⚠️ |
 | zone_assigments_nhpd.ipynb | ✅ | ✅ | ✅ |
 | zone_assigments.ipynb | ✅ | ✅ | ✅ |
 
