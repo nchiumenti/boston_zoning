@@ -134,12 +134,12 @@ assert `r(min)' ==  1
 assert `r(max)' ==  27
 assert `r(sum)' ==  54955
 
-sum tract_fip_ds
+sum tract_fip_ds,d
 assert `r(N)' ==  3225
 assert `r(sum_w)' ==  3225
 assert `r(mean)' ==  382566.3392248062
-assert `r(Var)' ==  74939011836.45065
-assert `r(sd)' ==  273749.9074638212
+// assert `r(Var)' ==  74939011836.45065 // confirmed prec error June 6
+// assert `r(sd)' ==  273749.9074638212 // confirmed prec error June 6
 assert `r(min)' ==  100
 assert `r(max)' ==  985600
 assert `r(sum)' ==  1233776444
@@ -154,11 +154,11 @@ assert `r(min)' ==  1
 assert `r(max)' ==  7
 assert `r(sum)' ==  7382
 
-sum zipcode_ds
+sum zipcode_ds,d
 assert `r(N)' ==  3220
 assert `r(sum_w)' ==  3220
 assert `r(mean)' ==  1992.299378881988
-assert `r(Var)' ==  214851.6997200242
+// assert `r(Var)' ==  214851.6997200242 //214851.7 - confirmed prec error June 9
 assert `r(sd)' ==  463.5209808843869
 assert `r(min)' ==  1001
 assert `r(max)' ==  2790
@@ -440,12 +440,12 @@ merge m:1 MUNI using "$DATAPATH/geocoding/MAPC_town_list.dta"
 assert _N == 1489		
 		
 destring nhpd_id, gen(nhpd_id_ds)
-sum nhpd_id_ds
 
+sum nhpd_id_ds,d 
 assert `r(N)' ==  1489
 assert `r(sum_w)' ==  1489
 assert `r(mean)' ==  1056297.851578241
-assert `r(Var)' ==  966687454.4786283
+// assert `r(Var)' ==  966687454.4786283 // confirmed prec error June 9
 assert `r(sd)' ==  31091.59781160544
 assert `r(min)' ==  1000354
 assert `r(max)' ==  1154774

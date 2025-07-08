@@ -61,51 +61,51 @@ flowchart TD
 ### Stata .do files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
 |----------|:------------:|:----------------:|:----------------:|
-| 00_data_setup_master_file.do |  |  |  | 
-| 10_warren_data_compile.do | ❌ | ❌ |  | 
-| 11_geocoding.do | ❌ | ❌ |  | 
-| 12_res_types.do | ❌ | ❌ |  | 
-| 13_condo_collapse.do | ❌ | ❌ |  | 
-| 20_boundary_matches.do | ❌ | ❌ |  | 
-| 30_density_measures.do | ❌ | ❌ |  | 
-| 40_costar.do | ❌ | ❌ |  | 
-| 41_costar_warren_xwalk.do | ❌ | ❌ |  | 
-| 42_costar_rent_history.do | ❌ | ❌ |  | 
-| 50_nhpd.do | ❌ | ❌ |  | 
-| 51_nhpd_boundary_matches.do | ❌ | ❌ |  | 
-| 52_nhpd_warren_xwalk.do | ❌ | ❌ |  | 
-| 60_ch40b.do | ❌ | ❌ |  | 
-| 61_ch40b_boundary_matches.do | ❌ | ❌ |  | 
-| 62_ch40b_warren_xwalk.do | ❌ | ❌ |  | 
-| 70_final_dataset.do | ❌ | ❌ |  | 
+| 00_data_setup_master_file.do | - | - | - | 
+| 10_warren_data_compile.do | ✅ | ✅ | ✅ |
+| 11_geocoding.do | ✅ | ✅ | ✅ | 
+| 12_res_types.do | ✅ | ✅ | ✅ |
+| 13_condo_collapse.do | ✅ | ✅ | ✅ |
+| 20_boundary_matches.do | ✅ | ✅ | ✅ |
+| 30_density_measures.do | ✅ | ✅ | ✅ |
+| 40_costar.do | ✅ | ✅ | ✅ | 
+| 41_costar_warren_xwalk.do | ✅ | ✅ | ✅ |
+| 42_costar_rent_history.do | ✅ | ✅ | ✅ |
+| 50_nhpd.do | ✅ | ✅ | ✅ |
+| 51_nhpd_boundary_matches.do | ✅ | ✅ | ✅ |
+| 52_nhpd_warren_xwalk.do | ✅ | ✅ | ✅ |
+| 60_ch40b.do | ✅ | ✅ | ⚠️ |
+| 61_ch40b_boundary_matches.do | ✅ | ✅ | ⚠️ |
+| 62_ch40b_warren_xwalk.do | ✅ | ✅ | ✅ |
+| 70_final_dataset.do | ✅ | ✅ | ✅ |
 | 80_amenity_datasets.do | ✅ | ✅ | ✅ | 
-| town_lists_export.do | ❌ | ❌ |  | 
-| warren_geocode_fixes.do | ❌ | ❌ |  | 
+| town_lists_export.do | - | - | - | 
+| warren_geocode_fixes.do | - | - | - | 
 
 ### Python .ipynb/./py files
 | File Name| Checked/Cleaned | Run Successfully by Mike | Replicates Results|
 |----------|:------------:|:----------------:|:----------------:|
 | ***./census_geocoder_api/*** |-|-|-|
-| BatchAddressMatch_final.ipynb | ❌ | ❌ | ❌ |
+| BatchAddressMatch_final.ipynb | - | - | - |
 | ***./closest_boundary_matches/*** |-|-|-|
-| closest_boundary_matches_ch40b.ipynb | ❌ | ❌ | ❌ |
-| closest_boundary_matches_mtlines.ipynb | ❌ | ❌ | ❌ |
-| closest_boundary_matches_nhpd.ipynb | ❌ | ❌ | ❌ |
-| closest_boundary_matches_noroads.ipynb | ❌ | ❌ | ❌ |
-| closest_boundary_matches.ipynb | ❌ | ❌ | ❌ |
+| closest_boundary_matches_ch40b.ipynb | ⚠️ | ⚠️ | ⚠️ |
+| closest_boundary_matches_mtlines.ipynb | ✅ | ✅ | ✅ |
+| closest_boundary_matches_nhpd.ipynb | ✅ | ✅ | ✅ |
+| closest_boundary_matches_noroads.ipynb | ✅ | ✅ | ✅ |
+| closest_boundary_matches.ipynb | ✅ | ✅ | ✅ |
 | ***./soil_quality_data/*** | - | - | - |
-| soil_quality_matching.ipynb | ❌ | ❌ | ❌ |
+| soil_quality_matching.ipynb | ✅ | ✅ | ✅ |
 | ***./transit_distances/*** | - | - | - |
 | all_stations.ipynb | ✅ | ✅ | ✅ | 
 | dist_prop_to_station.ipynb | ✅ | ✅ | ✅ | 
 | dist_south_station.ipynb | ✅ | ✅ | ✅ | 
-| station_boundary_dist.ipynb | ⚠️ | ⚠️ | ⚠️ needs correct path to adm3 | 
+| station_boundary_dist.ipynb | ✅ | ✅ | ✅ |
 | ***./walking_distances/*** |-|-|-|
-| walking_distances_osrm.ipynb | ❌ | ❌ | ❌ |
+| walking_distances_osrm.ipynb | ✅ | ✅ | ✅ |
 | ***./zone_assignments/*** |-|-|-|
-| zone_assigments_ch40b.ipynb | ❌ | ❌ | ❌ |
-| zone_assigments_nhpd.ipynb | ❌ | ❌ | ❌ |
-| zone_assigments.ipynb | ❌ | ❌ | ❌ |
+| zone_assigments_ch40b.ipynb | ⚠️ | ⚠️ | ⚠️ |
+| zone_assigments_nhpd.ipynb | ✅ | ✅ | ✅ |
+| zone_assigments.ipynb | ✅ | ✅ | ✅ |
 
 
 ## File descriptions
