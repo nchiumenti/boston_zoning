@@ -69,6 +69,8 @@ be run in the specific order they are named based on their numbering.
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
 | within_town_mtlines.do | ✅ | ✅ | ✅ |
 | within_town_mtlines_robustse.do | ✅ | ✅ |  ✅ |
+| existence.do ||||
+| amenities_muni_boundary_onlymf.do ||||
 
 ## File descriptions
 
