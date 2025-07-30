@@ -191,11 +191,9 @@ unique lam_seg if only_mf == 1 & year==2018 & (dist_both<=0.02 & dist_both>-0.02
 
 
 *unique number of cities
-
 unique city if only_mf == 1 & year==2018 & (dist_both<=0.02 & dist_both>-0.02) & res_typex != "Condominiums" 
 
 unique city if only_mf == 1 & year==2018 & (dist_both<=0.02 & dist_both>-0.02) & res_typex != "Condominiums" & dist_river !=.
-
 
 unique city if only_mf == 1 & year==2018 & (dist_both<=0.02 & dist_both>-0.02) & res_typex != "Condominiums" & dist_school!=.
 
