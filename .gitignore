@@ -19,3 +19,13 @@
 # Ignore the following files
 boston_zoning.code-workspace
 
+data/Base Districts/zoning_atlas_shp.dta
+data/Base Districts/zoning_atlas.cpg
+data/Base Districts/zoning_atlas.dbf
+data/Base Districts/zoning_atlas.dta
+data/Base Districts/zoning_atlas.prj
+data/Base Districts/zoning_atlas.sbn
+data/Base Districts/zoning_atlas.sbx
+data/Base Districts/zoning_atlas.shp
+data/Base Districts/zoning_atlas.shp.xml
+data/Base Districts/zoning_atlas.shx
