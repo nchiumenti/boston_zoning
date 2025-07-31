@@ -185,10 +185,13 @@ rename B0100300 total_pop
 *global char_vars char1_lotsizeac1 char2_livingarea1 char3_bedrooms1 char4_bathfull1
 *Revision 2: Charactersitics across boundaries (property level)
 
-gen char1_lotsizeac1 = lot_sizeac
-gen char2_livingarea1 = livingarea
-gen char3_bedrooms1 = bedroom_num
-gen char4_bathfull1 = bathfull_num
+
+// nm_units1 = num_units if num_units !=0  // uncomment is num_units1 is not defined
+
+gen char1_lotsizeac1 = lot_sizeac if lot_sizeac != 0 & lot_sizeac != .			         // lot size in acres, excl zero acre
+gen char2_livingarea1 = livingarea / num_units1 if livingarea != 0 & livingarea != .	 // living area in XX per unit, excl zero
+gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0 & bedroom_num != .	 // num bedrooms per unit, atleast 1
+gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0 & bathfull_num != . // num full bathrooms per unit, atleast 1
 
 *relaxed
 eststo only_du_chars_r: quietly estpost summarize char1_lotsizeac1 char2_livingarea1 char3_bedrooms1 char4_bathfull1 if only_du == 1 & relaxed == 1
