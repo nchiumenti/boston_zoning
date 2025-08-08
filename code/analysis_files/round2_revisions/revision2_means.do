@@ -248,7 +248,7 @@ collapse (mean) m_lotsize_lamseg = char1_lotsizeac1
 				n_living = char2_livingarea1 
 				n_bedrooms = char3_bedrooms1 
 				n_bathrooms = char4_bathfull1, 
-	by(lam_seg relaxed);
+	by(lam_seg relaxed only_du only_mf only_he du_he mf_du mf_he);
 #delimit cr
 
 *means
