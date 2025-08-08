@@ -392,78 +392,41 @@ gen maxdu_violate_10_all = maxdu_actual>(maxdu_all*(1 +`buffer2')) & maxdu_actua
 replace maxdu_violate_10_all = . if maxdu_actual==. | maxdu_all==.
 
 
+stop
 
+** at this point we need to work step by step to get this to work correctly
 
+* drop all dupac variables in current dataset
+drop dupac*
 
-** 5. dupac
-----> ***** merge in OG dupac zoning area using mergeinpoly/geoinpoly ***** <----
+* add on id to merge new data from zoning atlast
+geoinpoly warren_latitude, warren_longitude using "zoning_atlast_shp.dta", unique
 
-rename the zoning atlas OG variables to keep them and compare with the warren matches
+* now add on the original dupac variables
+merge m:1 _ID using "zoning_atlast.dta", keep(1 3) keepusing(dupac*) nogen
 
-vars in warren:
-home_dupac_eff
-dupac
+* uncomment the correct one
+gen dupac_actual = num_units / lot_sizeac
+// bysort _ID: gen dupac_actual = sum(num_units)/sum(lot_sizeac)
 
-* dupac size actual
-gen dupac_actual = ****lot_sizesqft if lot_sizesqft!=0*****
-  opt1: within a zoning area sum (num_units) / sum (lot_sizeac)
-
-	compare within l_r_fid,
-	compare within reg_type
-	compare within FID from zoning atlas OG(fid)
-	compar within nothing (lot level)
-
-  zoning area options are: l_r_fid, home_reg_type, 
-
-then using either home_dupac_eff or the _OG versions from the zoning atlas
-
-THEN DEFINE USING DUPAC BINDINGNESs using the below structure but replacing with
-the correct dupac variables
-
-
-/* dupac regulation (only where by-right allowed) */
-
-gen dupac_byright = home_dupac if dupac_esval == 0 & home_dupac_eff != 0  // non-imputed
+gen dupac_byright = dupac if dupac_esval == 0 & dupac_eff != 0  // non-imputed
 gen dupac_all = dupac_eff if dupac_esval != . & dupac_eff != 0  		  // includes imputed
 
 * 10% buffer, non-imputed
-gen maxdu_binding_10 = (maxdu_actual<=(maxdu_byright*(1 + `buffer2'))) & (maxdu_actual>=(maxdu_byright*(1 - `buffer2'))) & maxdu_actual!=. & maxdu_byright!=. 
-replace maxdu_binding_10 = . if maxdu_actual==. | maxdu_byright==.
+gen dupac_binding_10 = (dupac_actual <= (dupac_byright*(1 + `buffer2'))) & (dupac_actual>=(dupac_byright*(1 - `buffer2'))) & dupac_actual!=. & dupac_byright!=. 
+replace dupac_binding_10 = . if dupac_actual==. | dupac_byright==.
 
-gen maxdu_violate_10 = maxdu_actual>(maxdu_byright*(1 +`buffer2')) & maxdu_actual!=. & maxdu_byright!=. 
-replace maxdu_violate_10 = . if maxdu_actual==. | maxdu_byright==.
+gen dupac_violate_10 = dupac_actual>(dupac_byright*(1 +`buffer2')) & dupac_actual!=. & dupac_byright!=. 
+replace dupac_violate_10 = . if dupac_actual==. | dupac_byright==.
 
 * 10% buffer, all (including imputed)
-gen maxdu_binding_10_all = (maxdu_actual<=(maxdu_all*(1 + `buffer2'))) & (maxdu_actual>=(maxdu_all*(1 - `buffer2'))) & maxdu_actual!=. & maxdu_all!=. 
-replace maxdu_binding_10_all = . if maxdu_actual==. | maxdu_all==. 
+gen dupac_binding_10_all = (dupac_actual<=(dupac_all*(1 + `buffer2'))) & (dupac_actual>=(dupac_all*(1 - `buffer2'))) & dupac_actual!=. & dupac_all!=. 
+replace dupac_binding_10_all = . if dupac_actual==. | dupac_all==. 
 
-gen maxdu_violate_10_all = maxdu_actual>(maxdu_all*(1 +`buffer2')) & maxdu_actual!=. & maxdu_all!=. 
-replace maxdu_violate_10_all = . if maxdu_actual==. | maxdu_all==.
+gen dupac_violate_10_all = dupac_actual>(dupac_all*(1 +`buffer2')) & dupac_actual!=. & dupac_all!=. 
+replace dupac_violate_10_all = . if dupac_actual==. | dupac_all==.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+stop
 
 
 ** 5. FAR using grossbldg aea
