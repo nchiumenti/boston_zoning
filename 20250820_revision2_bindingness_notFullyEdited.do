@@ -7,12 +7,10 @@ local name ="revised_bindingness"  // <--- change when necessry
 
 * creates an output directory if none exists
 global DATAPATH "${DATAPATH_replication_package}"
-
 global DOPATH "~/rda-projects/clones_dept/boston_zoning/code/analysis_files"
 
 global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 
-//$EXPORTPATH
 capture confirm file "$EXPORTPATH"
 
 if _rc != 0 {
@@ -995,40 +993,38 @@ by dupac_group, sort: sum dupac_actual_zone
 *For Revision 2: option value regressions at different bindingness levels
 ********************************************************************************
 
-/*
 *generate land value variables 
 gen log_land = log(assd_landval)
 
 *per squarefoot price of land 
 gen land_per_sqft = assd_landval/lot_sizesqft
 gen log_land_per_sqft = log(land_per_sqft)
-*/
+
 
 
 * set regression conditions
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums" & assd_landval !=0
 
 
-quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.))
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.))
 
-quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=.
 
-quietly eststo land_mf: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_mf== 1 & `regression_conditions' & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg)
+quietly eststo land_mf: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions' & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg)
 sum land_per_sqft if only_mf == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_mf>0.15 & fbind_mf!=.
 sum land_per_sqft if only_mf == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_mf>0.15 & fbind_mf!=.
 
-quietly eststo land_he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_he==1 & `regression_conditions' & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
-
-sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.15 & fbind_height_10_all!=.
-sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.15 & fbind_height_10_all!=.
+quietly eststo land_he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_he==1 & `regression_conditions' & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 
 esttab land_du land_duhe land_mfdu land_mf land_he, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1036,21 +1032,21 @@ esttab land_du land_duhe land_mfdu land_mf land_he, ///
 	title("Assessed Land Value Per Squarefoot") 
 	
 * export table version 	
-esttab land_du land_duhe land_mfdu land_mf land_he using "$EXPORTPATH/land_price_table_bindingness_15.tex", replace keep(25.dist3) ///
+esttab and_du land_duhe land_mfdu land_mf land_he using "$EXPORTPATH/land_price_table_bindingness_15.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("land_du" "land_duhe" "land_mfdu" "land_mf" "land_he") ///
 	title("Assessed Land Value Per Squarefoot")	
 	
 *robust s.e.
-quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)), vce(robust)
+quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)), vce(robust)
 
-quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.15 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
 
-quietly eststo land_mf_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_mf== 1 & `regression_conditions' & fbind_mf>0.15 & fbind_mf!=., vce(robust)
+quietly eststo land_mf_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions' & fbind_mf>0.15 & fbind_mf!=., vce(robust)
 
-quietly eststo land_he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_he==1 & `regression_conditions' & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_he==1 & `regression_conditions' & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
 
 esttab land_du_robust land_duhe_robust land_mfdu_robust land_mf_robust land_he_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1067,28 +1063,28 @@ local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_
 
 * Part a: bindingness 15%
 *du1
-quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) )
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.))
 
-quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_mf>0.15 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_mf>0.15 & fbind_mf!=.
 
 *du2
-quietly eststo land_du2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) )
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.))
 
-quietly eststo land_du2he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_du2he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_mf>0.15 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_mf>0.15 & fbind_mf!=.
 	
@@ -1104,18 +1100,18 @@ esttab land_du land_duhe land_mfdu land_du2 land_du2he land_mfdu2 using "$EXPORT
 	title("Assessed Land Value Per Squarefoot")	
 	
 *du1
-quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)), vce(robust)
+quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)), vce(robust)
 
-quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
 
 *du2
-quietly eststo land_du2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)), vce(robust)
+quietly eststo land_du2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)), vce(robust)
 
-quietly eststo land_du2he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_du2he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.15 & fbind_mf!=., vce(robust) 
 
 esttab land_du_robust land_duhe_robust land_mfdu_robust land_du2_robust land_du2he_robust land_mfdu2_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1135,25 +1131,25 @@ eststo clear
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums" & assd_landval !=0
 
 * Part b: bindingness 25%
-quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.))
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.))
 
-quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=.
 
-quietly eststo land_mf: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_mf== 1 & `regression_conditions' & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg)
+quietly eststo land_mf: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions' & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg)
 sum land_per_sqft if only_mf == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_mf>0.25 & fbind_mf!=.
 sum land_per_sqft if only_mf == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_mf>0.25 & fbind_mf!=.
 
-quietly eststo land_he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_he==1 & `regression_conditions' & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
-sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.25 & fbind_height_10_all!=.
-sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.25 & fbind_height_10_all!=.
+quietly eststo land_he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_he==1 & `regression_conditions' & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
+sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
+sum land_per_sqft if only_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
 
 esttab land_du land_duhe land_mfdu land_mf land_he, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1161,21 +1157,21 @@ esttab land_du land_duhe land_mfdu land_mf land_he, ///
 	title("Assessed Land Value Per Squarefoot") 
 	
 * export table version 	
-esttab land_du land_duhe land_mfdu land_mf land_he using "$EXPORTPATH/land_price_table_bindingness_25.tex", replace keep(25.dist3) ///
+esttab and_du land_duhe land_mfdu land_mf land_he using "$EXPORTPATH/land_price_table_bindingness_25.tex", replace keep(25.dist3) ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
 	label mtitles("land_du" "land_duhe" "land_mfdu" "land_mf" "land_he") ///
 	title("Assessed Land Value Per Squarefoot")	
 	
 *robust s.e.
-quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)), vce(robust)
+quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)), vce(robust)
 
-quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_mls_10_all>0.25 & fbind_mls_10_all!=.) | (fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
 
-quietly eststo land_mf_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_mf== 1 & `regression_conditions' & fbind_mf>0.25 & fbind_mf!=., vce(robust)
+quietly eststo land_mf_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_mf== 1 & `regression_conditions' & fbind_mf>0.25 & fbind_mf!=., vce(robust)
 
-quietly eststo land_he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_he==1 & `regression_conditions' & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_he==1 & `regression_conditions' & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
 
 esttab land_du_robust land_duhe_robust land_mfdu_robust land_mf_robust land_he_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1192,28 +1188,28 @@ local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_
 
 * Part b: bindingness 25%
 *du1
-quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) )
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.))
 
-quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_duhe: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_mf>0.25 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_mf>0.25 & fbind_mf!=.
 
 *du2
-quietly eststo land_du2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)), vce(cluster lam_seg)
+quietly eststo land_du2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)), vce(cluster lam_seg)
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) )
 sum land_per_sqft if only_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.))
 
-quietly eststo land_du2he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo land_du2he: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(cluster lam_seg)
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 sum land_per_sqft if du_he == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=.
 
-quietly eststo land_mfdu2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
+quietly eststo land_mfdu2: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(cluster lam_seg) 
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0.02 & dist_both>0) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_mf>0.25 & fbind_mf!=.
 sum land_per_sqft if mf_du == 1 & (year>=2010 & year<=2018) & (dist_both<=0 & dist_both>-0.02) & res_typex != "Condominiums" & assd_landval !=0 & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_mf>0.25 & fbind_mf!=.
 	
@@ -1229,18 +1225,18 @@ esttab land_du land_duhe land_mfdu land_du2 land_du2he land_mfdu2 using "$EXPORT
 	title("Assessed Land Value Per Squarefoot")	
 	
 *du1
-quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)), vce(robust)
+quietly eststo land_du_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)), vce(robust)
 
-quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_duhe_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.25 & fbind_dupac_d1_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
 
 *du2
-quietly eststo land_du2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)), vce(robust)
+quietly eststo land_du2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)), vce(robust)
 
-quietly eststo land_du2he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
+quietly eststo land_du2he_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if du_he == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.) ) & fbind_height_10_all>0.25 & fbind_height_10_all!=., vce(robust)
 
-quietly eststo land_mfdu2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.year if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
+quietly eststo land_mfdu2_robust: reg log_land_per_sqft ib26.dist3 i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.25 & fbind_dupac_d2_10_all!=.)) & fbind_mf>0.25 & fbind_mf!=., vce(robust) 
 
 esttab land_du_robust land_duhe_robust land_mfdu_robust land_du2_robust land_du2he_robust land_mfdu2_robust, ///
 	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
@@ -1332,7 +1328,7 @@ rdbwselect log_mfrent dist_both if du_he == 1 & res_typex !="Condominiums" & (ye
 *binding>25% 
 rdbwselect log_mfrent dist_both if du_he == 1 & res_typex !="Condominiums" & (year>=2010 & year<=2018) & fbind_maxdu_10_all>0.25 & fbind_maxdu_10_all!=. & fbind_height_10_all>0.25 & fbind_height_10_all!=., c(0) all
 *binding>15%
-rdbwselect log_mfrent dist_both if du_he == 1 & res_typex !="Condominiums" & (year>=2010 & year<=2018) & fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=. & fbind_height_10_all>0.15 & fbind_height_10_all!=., c(0) all 
+rdbwselect log_mfrent dist_both if du_he == 1 & res_typex !="Condominiums" & (year>=2010 & year<=2018) & fbind_maxdu_10_all>0.15 & fbind_maxdu_10_all!=. & fbind_height_10_all>0.15 & fbind_height_10_all!=., c(0) allfbind_mf_2010_yb
 
 
 
@@ -1384,7 +1380,7 @@ esttab price_du price_he price_duhe price_mfdu price_mf, ///
 	title("Sales Prices >15% binding") 
 	
 	
-esttab price_du price_he price_duhe price_mfdu price_mf  using "$EXPORTPATH/salesprice_table_bindingness15_maxdumls.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_he price_duhe price_mfdu price_mf  using "$RDPATH/salesprice_table_bindingness15_maxdumls.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du" "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices >15% binding") 
@@ -1421,7 +1417,7 @@ esttab price_du price_he price_duhe price_mfdu price_mf, ///
  	label mtitles("price_du"  "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
 	
-esttab price_du price_he price_duhe price_mfdu price_mf  using "$EXPORTPATH/salesprice_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_he price_duhe price_mfdu price_mf  using "$RDPATH/salesprice_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_he" "price_duhe" "price_mfdu" "price_mf") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
@@ -1480,7 +1476,7 @@ esttab rent_du rent_duhe1 , se r2 ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1  using "$EXPORTPATH/rents_table_bindingness15_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1  using "$RDPATH/rents_table_bindingness15_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -1513,7 +1509,7 @@ esttab rent_du  rent_duhe1 , se r2 ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1 using "$EXPORTPATH/rents_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1 using "$RDPATH/rents_table_bindingness15_addcontrols_mlsmaxdu.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -1559,7 +1555,7 @@ esttab price_du price_duhe price_mfdu, ///
 	title("Sales Prices >15% binding") 
 	
 	
-esttab price_du  price_duhe price_mfdu   using "$EXPORTPATH/salesprice_table_bindingness15_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du  price_duhe price_mfdu   using "$RDPATH/salesprice_table_bindingness15_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_duhe" "price_mfdu" ) ///
  	title("Sales Prices >15% binding") 
@@ -1592,7 +1588,7 @@ esttab price_du price_duhe price_mfdu , ///
  	label mtitles("price_du" "price_duhe" "price_mfdu") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
 	
-esttab price_du price_duhe price_mfdu using "$EXPORTPATH/salesprice_table_bindingness15_addcontrols_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_duhe price_mfdu using "$RDPATH/salesprice_table_bindingness15_addcontrols_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_duhe" "price_mfdu") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
@@ -1629,7 +1625,7 @@ esttab rent_du rent_duhe1 , se r2 ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1  using "$EXPORTPATH/rents_table_bindingness15_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1  using "$RDPATH/rents_table_bindingness15_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -1655,15 +1651,14 @@ eststo clear
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums"
 
 quietly eststo rent_du: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) ) , vce(cluster lam_seg)
-
-quietly eststo rent_duhe1: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if du_he==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo rent_duhe1: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if du_he==1 & `regression_conditions' & ((fbind_dupac_d1_10_all>0.15 & fbind_dupac_d1_10_all!=.) |) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 	
 esttab rent_du  rent_duhe1 , se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1 using "$EXPORTPATH/rents_table_bindingness15_addcontrols_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1 using "$RDPATH/rents_table_bindingness15_addcontrols_dupac1.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -1701,7 +1696,7 @@ esttab price_du price_duhe price_mfdu, ///
 	title("Sales Prices >15% binding") 
 	
 	
-esttab price_du  price_duhe price_mfdu   using "$EXPORTPATH/salesprice_table_bindingness15_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du  price_duhe price_mfdu   using "$RDPATH/salesprice_table_bindingness15_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_duhe" "price_mfdu" ) ///
  	title("Sales Prices >15% binding") 
@@ -1734,7 +1729,7 @@ esttab price_du price_duhe price_mfdu , ///
  	label mtitles("price_du" "price_duhe" "price_mfdu") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
 	
-esttab price_du price_duhe price_mfdu using "$EXPORTPATH/salesprice_table_bindingness15_addcontrols_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
+esttab price_du price_duhe price_mfdu using "$RDPATH/salesprice_table_bindingness15_addcontrols_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) ///
  	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
  	label mtitles("price_du"  "price_duhe" "price_mfdu") ///
  	title("Sales Prices, >15% binding, w/ characteristics")
@@ -1771,7 +1766,7 @@ esttab rent_du rent_duhe1 , se r2 ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1  using "$EXPORTPATH/rents_table_bindingness15_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1  using "$RDPATH/rents_table_bindingness15_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 
@@ -1797,14 +1792,14 @@ eststo clear
 local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums"
 
 quietly eststo rent_du: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if only_du==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) ) , vce(cluster lam_seg)
-quietly eststo rent_duhe1: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if du_he==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.)) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
+quietly eststo rent_duhe1: reg log_mfrent ib26.dist3 i.lam_seg i.year $char_vars if du_he==1 & `regression_conditions' & ((fbind_dupac_d2_10_all>0.15 & fbind_dupac_d2_10_all!=.) |) & fbind_height_10_all>0.15 & fbind_height_10_all!=., vce(cluster lam_seg)
 	
 esttab rent_du  rent_duhe1 , se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du" "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 	
 	
-esttab rent_du rent_duhe1 using "$EXPORTPATH/rents_table_bindingness15_addcontrols_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
+esttab rent_du rent_duhe1 using "$RDPATH/rents_table_bindingness15_addcontrols_dupac2.tex", replace keep(21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) se r2 ///
  	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
  	label mtitles("rent_du"  "rent_duhe1"  ) ///
  	title("Rents, bindingness >15%") 

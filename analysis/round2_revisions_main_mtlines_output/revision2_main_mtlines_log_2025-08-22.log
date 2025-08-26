@@ -1,0 +1,1967 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/revision2_main_mtlines_log_2025-08-22.log
+  log type:  text
+ opened on:  22 Aug 2025, 13:26:49
+
+. 
+. 
+. ********************************************************************************
+. * File name:            main_mtlines.do
+. *
+. * Project title:        Boston Zoning Project
+. *
+. * Description:          Main regression specifications for the paper. Runs through
+. *                                       multiple models and specifications. Has been cut down to 
+. *                                       just include versions used in the paper.
+. *                                       
+. *                                       Part 1: Units >=1918
+. *                                               Units >=1918, baseline
+. *                                       Part 2: Units >=1956
+. *                                               Units >=1956, baseline
+. *                                               Units >=1956, w/ characteristics
+. *                                       Part 3: Units no year restriction
+. *                                               Units no year restriction, baseline
+. *                                       Part 4: Sales prices
+. *                                               Sales prices, baseline
+. *                                               Sales prices, w/ characteristics
+. *                                       Part 5: Land prices
+. *                                               Land prices, baseline
+. *                                       Part 6: Rents
+. *                                               Rents, baseline
+. *                                               Rents, w/ characteristics
+. *                               
+. * Inputs:                       mt_orthogonal_dist_100m_07-01-22_v2.dta
+. *                                       dist_south_station_2022_09_29.csv
+. *                                       transit_distance.csv
+. *                                       soil_quality_matches.dta
+. *                                       within_town_analysis_data.dta
+. *                               
+. * Outputs:                      log file w/ tables
+. *                                       coef_units_1918_base_du.gph (pdf)
+. *                                       coef_units_1918_base_duhe.gph (pdf)
+. *                                       coef_units_1918_base_he.gph (pdf)
+. *                                       coef_units_1918_base_mf.gph (pdf)
+. *                                       coef_units_1918_base_mfdu.gph (pdf)
+. *                                       coef_units_1918_base_mfhe.gph (pdf)
+. *
+. * Created:                      06/23/2021
+. * Updated:                      03/18/2025
+. ********************************************************************************
+. 
+. 
+. ********************************************************************************
+. ** load the mt lines data
+. ********************************************************************************
+. use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+
+. 
+. destring prop_id, replace
+prop_id: all characters numeric; replaced as long
+
+. 
+. tempfile mtlines
+
+. save `mtlines', replace
+(file /tmp/350936.1.sta.q/St2966485.000001 not found)
+file /tmp/350936.1.sta.q/St2966485.000001 saved as .dta format
+
+. 
+. ********************************************************************************
+. ** load and tempsave the transit data
+. ********************************************************************************
+. import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(10 vars, 303 obs)
+
+. 
+. tempfile dist_south_station
+
+. save `dist_south_station', replace
+(file /tmp/350936.1.sta.q/St2966485.000002 not found)
+file /tmp/350936.1.sta.q/St2966485.000002 saved as .dta format
+
+. 
+. import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
+(encoding automatically selected: ISO-8859-1)
+(10 vars, 821,237 obs)
+
+. 
+. merge m:1 station_id using `dist_south_station'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                            11
+        from master                         0  (_merge==1)
+        from using                         11  (_merge==2)
+
+    Matched                           821,237  (_merge==3)
+    -----------------------------------------
+
+.                 
+.                 * merge error check
+.                 sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |    821,248    2.999987    .0036598          2          3
+
+.                 assert `r(N)' ==  821248
+
+.                 assert `r(sum_w)' ==  821248
+
+.                 assert `r(mean)' ==  2.999986605751247
+
+.                 assert `r(Var)' ==  .0000133940856566
+
+.                 assert `r(sd)' ==  .0036597931166456
+
+.                 assert `r(min)' ==  2
+
+.                 assert `r(max)' ==  3
+
+.                 assert `r(sum)' ==  2463733
+
+. 
+.                 drop if _merge == 2
+(11 observations deleted)
+
+.                 drop _merge
+
+.         
+. keep prop_id station_id station_name distance_m_* length_m
+
+. 
+. destring prop_id distance_m_* length_m, replace
+prop_id: all characters numeric; replaced as long
+distance_m_euc: all characters numeric; replaced as double
+distance_m_man: all characters numeric; replaced as double
+length_m: all characters numeric; replaced as long
+(3660 missing values generated)
+
+. 
+. gen transit_dist_m = distance_m_man + length_m
+(3,660 missing values generated)
+
+. 
+. tempfile transit
+
+. save `transit', replace
+(file /tmp/350936.1.sta.q/St2966485.000003 not found)
+file /tmp/350936.1.sta.q/St2966485.000003 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the soil data
+. ********************************************************************************
+. use "$DATAPATH/soil_quality_matches.dta", clear
+
+. 
+. keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
+
+. 
+. destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
+avg_slope: all characters numeric; replaced as double
+(164372 missing values generated)
+slope_15: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_restri: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_sand: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_clay: all characters numeric; replaced as double
+(164372 missing values generated)
+
+. 
+. tempfile soil
+
+. save `soil', replace
+(file /tmp/350936.1.sta.q/St2966485.000004 not found)
+file /tmp/350936.1.sta.q/St2966485.000004 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** create working dataset
+. ********************************************************************************
+. use "$DATAPATH/within_town_analysis_data.dta", clear
+
+. 
+. 
+. ********************************************************************************
+. ** merge on transit data
+. ********************************************************************************
+. 
+. merge m:1 prop_id using `transit'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       443,044
+        from master                         0  (_merge==1)
+        from using                    443,044  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         /* merge error check
+>         sum _merge
+>         assert `r(N)' ==  3642292
+>         assert `r(sum_w)' ==  3642292
+>         assert `r(mean)' ==  2.878361207723049
+>         assert `r(Var)' ==  .1068428258243096
+>         assert `r(sd)' ==  .3268682086473226
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  10483832 */
+. 
+.         drop if _merge == 2
+(443,044 observations deleted)
+
+.         drop _merge
+
+. 
+.         
+. ********************************************************************************
+. ** merge on soil quality data
+. ********************************************************************************
+. merge m:1 prop_id using `soil'
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       443,044
+        from master                         0  (_merge==1)
+        from using                    443,044  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         /* merge error check
+>         sum _merge
+>         assert `r(N)' ==  3642292
+>         assert `r(sum_w)' ==  3642292
+>         assert `r(mean)' ==  2.878361207723049
+>         assert `r(Var)' ==  .1068428258243096
+>         assert `r(sd)' ==  .3268682086473226
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  10483832 */
+.         
+.         drop if _merge == 2
+(443,044 observations deleted)
+
+.         drop _merge
+
+. 
+. 
+. ********************************************************************************
+. ** merge on mt lines to keep straight line properties
+. ********************************************************************************
+. merge m:1 prop_id using `mtlines', keepusing(straight_line)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       201,049
+        from master                         0  (_merge==1)
+        from using                    201,049  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         * checks for errors in merge
+.         sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  3,400,297    2.940873    .2358621          2          3
+
+.         assert `r(N)' ==  3400297
+
+.         assert `r(sum_w)' ==  3400297
+
+.         assert `r(mean)' ==  2.940873106084557
+
+.         assert `r(Var)' ==  .0556309206919615
+
+.         assert `r(sd)' ==  .235862079809285
+
+.         assert `r(min)' ==  2
+
+.         assert `r(max)' ==  3
+
+.         assert `r(sum)' ==  9999842
+
+. 
+.         drop if _merge == 2
+(201,049 observations deleted)
+
+.         drop _merge
+
+. 
+. keep if straight_line == 1  // <-- drops non-straight line properties
+(2,237,233 observations deleted)
+
+. 
+. 
+. ********************************************************************************
+. ** drop out of scope years
+. ********************************************************************************
+. keep if (year >= 2010 & year <= 2018)
+(0 observations deleted)
+
+. 
+. tab year
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2010 |    104,264       10.84       10.84
+       2011 |    107,230       11.15       21.98
+       2012 |    106,561       11.08       33.06
+       2013 |    106,732       11.09       44.16
+       2014 |    105,275       10.94       55.10
+       2015 |    107,440       11.17       66.27
+       2016 |    107,865       11.21       77.48
+       2017 |    108,234       11.25       88.73
+       2018 |    108,414       11.27      100.00
+------------+-----------------------------------
+      Total |    962,015      100.00
+
+. 
+. 
+. ********************************************************************************
+. ** property characteristic variables
+. ********************************************************************************
+. gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0  // lot size in acres, excl zero acre --> NOW IN LOGS
+(74,533 missing values generated)
+
+. gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0  // living area in XX per unit, excl zero --> NOW IN LOGS
+(11,228 missing values generated)
+
+. gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0  // num bedrooms per unit, atleast 1
+(43,879 missing values generated)
+
+. gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0  // num full bathrooms per unit, atleast 1
+(21,608 missing values generated)
+
+. 
+. gen log_lotacres = ln(lot_acres) if lot_acres!=0
+(74,483 missing values generated)
+
+. gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
+(113,706 missing values generated)
+
+. 
+. global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
+
+. 
+. 
+. ********************************************************************************
+. ** gen amenity variables
+. ********************************************************************************
+. gen dist_school = closest_school_dist
+
+. gen dist_center = closest_city_dist
+
+. gen dist_road = closest_road_dist
+
+. gen dist_river = closest_river_dist
+
+. gen dist_space = closest_green_dist
+
+. 
+. gen transit_dist = transit_dist_m/1609
+(6,421 missing values generated)
+
+. 
+. gen soil_avgslope = avg_slope
+(182,953 missing values generated)
+
+. gen soil_slope15 = slope_15
+(182,953 missing values generated)
+
+. gen soil_avgrestri = avg_restri
+(182,953 missing values generated)
+
+. gen soil_avgsand = avg_sand
+(182,953 missing values generated)
+
+. gen soil_avgclay = avg_clay
+(182,953 missing values generated)
+
+. 
+. global char_vars_land dist_school dist_center dist_road dist_river dist_space transit_dist soil_avgslope soil_slope15 soil_avgrestri soil_avgsand soil_avgclay
+
+. 
+. 
+. ********************************************************************************
+. ** Part 1: Units >=1918
+. * Part 1a: units >=1918, baseline
+. * @Nick: need to put this on the same scale (-150 to 50)
+. ********************************************************************************
+. ** regressions
+. * set regression conditions
+. local regression_conditions year_built>=1918 & year==2018 & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
+
+. 
+. * Part 1a: units >=1918, baseline
+. quietly eststo units_du: reg num_units1 ib26.dist3 i.lam_seg if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      3,299    1.384359    3.340611          1        124
+
+. sum num_units1 if only_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      2,409    1.580739    9.940741          1        444
+
+.         
+. quietly eststo units_duhe: reg num_units1 ib26.dist3 i.lam_seg if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if du_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        236    3.127119     5.51292          1         40
+
+. sum num_units1 if du_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        252    2.940476    6.589291          1         50
+
+. 
+. quietly eststo units_mfdu: reg num_units1 ib26.dist3 i.lam_seg if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if mf_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      1,194    1.768844    4.908227          1        122
+
+. sum num_units1 if mf_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      1,221    1.250614    1.126911          1         24
+
+. 
+. quietly eststo units_mf: reg num_units1 ib26.dist3 i.lam_seg if only_mf== 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_mf == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        226    1.681416    1.201965          1         11
+
+. sum num_units1 if only_mf == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        240    1.166667    .6511443          1          7
+
+. 
+. quietly eststo units_mfhe: reg num_units1 ib26.dist3 i.lam_seg if mf_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if mf_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |         82    1.292683    .9874247          1          9
+
+. sum num_units1 if mf_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |         86    2.302326    11.75242          1        110
+
+. 
+. quietly eststo units_he: reg num_units1 ib26.dist3 i.lam_seg if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        190    1.263158    1.806575          1         24
+
+. sum num_units1 if only_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        139    1.388489    1.590328          1         12
+
+. 
+. esttab units_du units_duhe units_mfdu units_mf units_mfhe units_he, ///
+>         se r2 indicate("Boundary f.e.=*lam_seg") interaction(" X ") ///
+>         label mtitles("units_du" "units_duhe" "units_mfdu" "units_mf" "units_mfhe" "units_he") ///
+>         title("Units >=1918, baseline") 
+
+Units >=1918, baseline
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                         units_du      units_duhe      units_mfdu        units_mf      units_mfhe        units_he   
+--------------------------------------------------------------------------------------------------------------------
+-.2                       -0.0598          -4.871*         -0.739*         -0.534***      0.00350                   
+                         (0.0603)         (2.281)         (0.315)         (0.106)        (0.0987)                   
+
+-.18                      -0.0844          -5.075*         -1.396          -0.766***       -13.48          -47.10   
+                         (0.0660)         (2.190)         (0.813)         (0.146)         (12.46)         (43.80)   
+
+-.16                     -0.00382          -4.854*         -1.387          -0.514**        -10.48          -8.563   
+                         (0.0895)         (2.187)         (0.762)         (0.187)         (12.40)         (10.02)   
+
+-.14                      -0.0523          -5.414          -0.886**        -0.415**        -0.450       -7.93e-13   
+                         (0.0631)         (2.766)         (0.317)         (0.122)         (0.497)      (8.31e-13)   
+
+-.12                       -0.120          -4.458*         -1.103*         -0.457***       -0.615          -21.72   
+                         (0.0643)         (2.118)         (0.526)         (0.133)         (0.578)         (26.78)   
+
+-.1                        -0.120          -4.244*         -0.937*         -0.572***       -0.622          -3.817   
+                         (0.0619)         (1.984)         (0.387)         (0.122)         (1.024)         (2.835)   
+
+-.08                       -0.123          -6.534          -0.599*         -0.867**        -1.069          -3.261   
+                         (0.0671)         (4.411)         (0.278)         (0.268)         (0.783)         (2.593)   
+
+-.06                       -0.140          -2.817          -0.709*         -0.759***       -0.427           1.158   
+                          (0.112)         (1.624)         (0.276)         (0.209)         (0.386)         (1.299)   
+
+-.04                      -0.0656          -3.684          -0.922**        -0.202           1.714          -0.684   
+                          (0.135)         (2.055)         (0.306)         (0.326)         (1.912)         (0.452)   
+
+-.02                       -0.110          -2.474          -0.799**        -0.598***        1.022         -0.0627   
+                         (0.0973)         (1.532)         (0.294)         (0.114)         (1.268)         (0.293)   
+
+0                               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+.02                         0.106           5.196           0.536           0.151          0.0175         -0.0707   
+                         (0.0905)         (4.084)         (0.558)         (0.257)         (0.493)         (0.240)   
+
+.04                         0.289*          12.01          0.0147          0.0506          -0.269           0.484   
+                          (0.121)         (8.615)         (0.240)         (0.294)         (0.505)         (0.800)   
+
+.06                         0.120           5.796           0.182          -0.374          -0.129         -0.0432   
+                         (0.0962)         (5.793)         (0.428)         (0.251)         (0.470)         (0.180)   
+
+.08                        0.0317           0.372         -0.0558          -0.194           2.495          -0.154   
+                         (0.0568)         (1.799)         (0.196)         (0.201)         (2.402)         (0.198)   
+
+.1                          0.117           2.468          -0.111          -0.138          -2.309          0.0114   
+                         (0.0865)         (2.067)         (0.203)         (0.147)         (3.346)         (0.211)   
+
+.12                         0.118           5.266          -0.223         -0.0810          -0.445           0.948   
+                          (0.133)         (6.026)         (0.190)         (0.137)         (0.865)         (1.294)   
+
+.14                      -0.00372          -8.848         0.00834          -0.121          -2.277         -0.0218   
+                         (0.0542)         (7.285)         (0.256)         (0.253)         (3.467)         (0.245)   
+
+.16                      -0.00726          -0.321           0.263          -0.268*         -10.86         -0.0331   
+                         (0.0577)         (5.650)         (0.488)         (0.112)         (11.20)         (0.208)   
+
+.18                        0.0982           3.266          -0.141          -0.217*         -1.091         -0.0569   
+                          (0.105)         (6.026)         (0.207)         (0.106)         (1.194)         (0.200)   
+
+.2                         0.0125          -4.854*         -0.225          -0.330          -0.816         -0.0625   
+                         (0.0609)         (2.187)         (0.206)         (0.368)         (0.836)         (0.191)   
+
+Constant                    1.069***        5.854**         1.044***        1.405***        1.318*          1.000***
+                         (0.0620)         (2.187)         (0.216)         (0.107)         (0.520)      (8.31e-13)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                33940            1806           11541            1535             504            1854   
+R-squared                   0.644           0.484           0.059           0.384           0.304           0.543   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.         
+. * robust s.e.
+. quietly eststo units_du_robust: reg num_units1 ib26.dist3 i.lam_seg if only_du == 1 & `regression_conditions', vce(robust)
+
+.         
+. quietly eststo units_duhe_robust: reg num_units1 ib26.dist3 i.lam_seg if du_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mfdu_robust: reg num_units1 ib26.dist3 i.lam_seg if mf_du == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mf_robust: reg num_units1 ib26.dist3 i.lam_seg if only_mf== 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mfhe_robust: reg num_units1 ib26.dist3 i.lam_seg if mf_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_he_robust: reg num_units1 ib26.dist3 i.lam_seg if only_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. esttab units_du_robust units_duhe_robust units_mfdu_robust units_mf_robust units_mfhe_robust units_he_robust, ///
+>         se r2 indicate("Boundary f.e.=*lam_seg") interaction(" X ") ///
+>         label mtitles("units_du" "units_duhe" "units_mfdu" "units_mf" "units_mfhe" "units_he") ///
+>         title("Units >=1918, baseline, robust s.e.")    
+
+Units >=1918, baseline, robust s.e.
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                         units_du      units_duhe      units_mfdu        units_mf      units_mfhe        units_he   
+--------------------------------------------------------------------------------------------------------------------
+-.2                       -0.0598          -4.871**        -0.739**        -0.534***      0.00350                   
+                         (0.0517)         (1.874)         (0.273)         (0.105)        (0.0961)                   
+
+-.18                      -0.0844          -5.075**        -1.396          -0.766***       -13.48          -47.10   
+                         (0.0602)         (1.856)         (0.793)         (0.223)         (8.170)         (38.72)   
+
+-.16                     -0.00382          -4.854**        -1.387          -0.514***       -10.48          -8.563   
+                         (0.0826)         (1.753)         (0.738)         (0.125)         (7.093)         (9.336)   
+
+-.14                      -0.0523          -5.414*         -0.886**        -0.415***       -0.450       -7.93e-13   
+                         (0.0520)         (2.495)         (0.276)         (0.104)         (0.399)    (0.00000567)   
+
+-.12                       -0.120*         -4.458**        -1.103*         -0.457***       -0.615          -21.72   
+                         (0.0560)         (1.648)         (0.496)        (0.0958)         (0.391)         (20.11)   
+
+-.1                        -0.120*         -4.244**        -0.937**        -0.572***       -0.622          -3.817   
+                         (0.0515)         (1.552)         (0.361)         (0.101)         (0.803)         (2.177)   
+
+-.08                       -0.123*         -6.534          -0.599*         -0.867***       -1.069*         -3.261   
+                         (0.0598)         (3.627)         (0.238)         (0.230)         (0.484)         (2.056)   
+
+-.06                       -0.140          -2.817*         -0.709**        -0.759***       -0.427           1.158   
+                         (0.0871)         (1.244)         (0.224)         (0.161)         (0.285)         (0.880)   
+
+-.04                      -0.0656          -3.684*         -0.922***       -0.202           1.714          -0.684   
+                          (0.108)         (1.692)         (0.265)         (0.331)         (2.202)         (0.488)   
+
+-.02                       -0.110          -2.474*         -0.799**        -0.598***        1.022         -0.0627   
+                         (0.0749)         (1.075)         (0.253)        (0.0748)         (1.109)         (0.208)   
+
+0                               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+.02                         0.106           5.196           0.536           0.151          0.0175         -0.0707   
+                         (0.0721)         (3.138)         (0.531)         (0.177)         (0.480)         (0.263)   
+
+.04                         0.289**         12.01          0.0147          0.0506          -0.269           0.484   
+                         (0.0891)         (6.666)         (0.207)         (0.240)         (0.494)         (0.672)   
+
+.06                         0.120           5.796           0.182          -0.374          -0.129         -0.0432   
+                         (0.0819)         (4.723)         (0.403)         (0.208)         (0.376)         (0.172)   
+
+.08                        0.0317           0.372         -0.0558          -0.194           2.495          -0.154   
+                         (0.0465)         (1.534)         (0.166)         (0.161)         (3.176)         (0.156)   
+
+.1                          0.117           2.468          -0.111          -0.138          -2.309          0.0114   
+                         (0.0790)         (1.531)         (0.172)         (0.100)         (2.222)         (0.194)   
+
+.12                         0.118           5.266          -0.223         -0.0810          -0.445           0.948   
+                         (0.0993)         (3.916)         (0.160)         (0.112)         (0.545)         (1.019)   
+
+.14                      -0.00372          -8.848         0.00834          -0.121          -2.277         -0.0218   
+                         (0.0467)         (8.884)         (0.231)         (0.253)         (2.140)         (0.209)   
+
+.16                      -0.00726          -0.321           0.263          -0.268*         -10.86         -0.0331   
+                         (0.0499)         (3.993)         (0.505)         (0.111)         (6.292)         (0.187)   
+
+.18                        0.0982           3.266          -0.141          -0.217          -1.091         -0.0569   
+                         (0.0948)         (3.916)         (0.176)         (0.116)         (0.673)         (0.184)   
+
+.2                         0.0125          -4.854**        -0.225          -0.330          -0.816         -0.0625   
+                         (0.0569)         (1.753)         (0.174)         (0.285)         (0.535)         (0.182)   
+
+Constant                    1.069***        5.854***        1.044***        1.405***        1.318**         1.000***
+                         (0.0593)         (1.753)         (0.229)        (0.0868)         (0.489)    (0.00000464)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                33940            1806           11541            1535             504            1854   
+R-squared                   0.644           0.484           0.059           0.384           0.304           0.543   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.         
+. 
+. ** coefplots
+. * coefplots, units >=1918 w/o characteristics
+. {
+. local plot_list units_du units_duhe units_mfdu units_mf units_mfhe units_he
+. local suffix "coef_units_1918_base"
+. local l1_title "Number of Units"
+. local b1_title "<- More restrictive  |  Less restrictive ->"
+. local b2_title "Distance to Boundary (miles)"
+. 
+. foreach r in `plot_list'{
+  2.         
+.         local pos = ustrpos("`r'", "_") + 1
+  3.         local str = substr("`r'", `pos', .)
+  4. 
+.         if "`str'" == "du" {
+  5.                 local title "Only DUPAC Changes"
+  6.         }
+  7.         
+.         if "`str'" == "duhe" {
+  8.                 local title "DUPAC and Height Change"
+  9.         }
+ 10. 
+.         if "`str'" == "mfdu" {
+ 11.                 local title "MF Allowed and DUPAC Change"
+ 12.         }
+ 13.         
+.         if "`str'" == "mf" {
+ 14.                 local title "Only MF Allowed Changes"
+ 15.         }
+ 16.         
+.         if "`str'" == "mfhe" {
+ 17.                 local title "MF Allowed and Height Change"
+ 18.         }
+ 19.         
+.         if "`str'" == "he" {
+ 20.                 local title "Only Height Changes"
+ 21.         }
+ 22.         
+.         * coefplots
+.         #delimit;
+delimiter now ;
+.         coefplot 
+>                 /* relaxed side graphing variables */
+>                 (`r', keep(16.dist3 17.dist3 18.dist3 19.dist3 20.dist3 21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) 
+>                         recast(line) color(midblue) 
+>                         ciopts(recast(rarea) color(midblue%30) lwidth(none))
+>                         )
+>                 
+>                 /* strict side graphing variables */
+>                 (`r', keep(26.dist3 27.dist3 28.dist3 29.dist3 30.dist3 31.dist3 32.dist3 33.dist3 34.dist3 35.dist3) 
+>                         recast(line) color(maroon)
+>                         ciopts(recast(rarea) color(maroon%30) lwidth(none))
+>                         ),
+> 
+>                 /* plot region */
+>                 vertical levels(95) baselevels offset(0)
+>                 graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+> 
+>                 xline(10.5, lpattern(dash) lwidth(thin) lcolor(black))
+>                 yline(0, lpattern(dash) lwidth(thin) lcolor(black))
+> 
+>                 /* titles, subtitles, notes */          
+>                 title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+> 
+>                 /* axis titles and labels */            
+>                 /*ylabel(, labsize(4) gmin gmax) ymtick()               Old, commenting out @nick*/
+>                 yscale(range(-150 50)) ylabel(-150(50)50,labsize(4)) ymtick()
+>                 
+>                 xlabel(1 "-.20" 2 "-.18" 3 "-.16" 4 "-.14" 5 "-.12" 6 "-.10" 7 "-.08" 8 "-.06" 9 "-.04" 10 "-.02" 10.5 "0"
+>                         11 ".02" 12 ".04" 13 ".06" 14 ".08" 15 ".10" 16 ".12" 17 ".14" 18 ".16" 19 ".18" 20 ".20", labsize(3) angle(45) gmax)
+>                         
+>                 /* legend */
+>                 legend(off position(6) 
+>                         order()
+>                         symy(2) symx(3) 
+>                         rows(1) cols() size(2) 
+>                         nobox fcolor()
+>                         region(fcolor(none) lpattern(blank))
+>                         margin(t=1 b=1 l=0 r=0)span)
+>                 name("`r'", replace) ;
+ 23.                         graph combine `r',
+>                 graphregion(fc(white) lcolor(white))
+>                 l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+>                 b1title("`b1_title'", size(2))
+>                 b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+>                 name("`r'a", replace);
+ 24.                 graph save "`r'a" "$EXPORTPATH/`suffix'_`str'", replace;
+ 25.         graph close "`r'a";
+ 26.         #delimit cr
+delimiter now cr
+. }
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_du.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_duhe.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mfdu.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mf.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mfhe.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_he.gph saved
+. 
+. * combine all
+. #delimit ;
+delimiter now ;
+. graph combine units_du units_duhe units_mfdu units_mf units_mfhe units_he,
+>         rows(3) cols(2) ysize() xsize() iscale() imargin(0)
+>         graphregion(fc(white) lcolor(white))
+>         l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+>         b1title("`b1_title'", size(2))
+>         b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+>         name("final_graph", replace);
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+.                 graph save "final_graph" "$EXPORTPATH/`suffix'_all", replace;
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_all.gph saved
+. #delimit cr     
+delimiter now cr
+. }
+
+. 
+. eststo clear
+
+. graph close _all
+
+. 
+. 
+. ********************************************************************************
+. ** Part 1: Units >=1918
+. * Part 1a: units >=1918, baseline
+. * @Nick: need to put this on a reasonable same scale (up to you!)
+. ********************************************************************************
+. ** regressions
+. * set regression conditions
+. local regression_conditions year_built>=1918 & year==2018 & (dist_both<=0.21 & dist_both>=-0.2) & res_typex!="Condominiums"
+
+. 
+. * Part 1a: units >=1918, baseline
+. quietly eststo units_du: reg num_units1 ib26.dist3 i.lam_seg if only_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      3,299    1.384359    3.340611          1        124
+
+. sum num_units1 if only_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      2,409    1.580739    9.940741          1        444
+
+.         
+. quietly eststo units_duhe: reg num_units1 ib26.dist3 i.lam_seg if du_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if du_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        236    3.127119     5.51292          1         40
+
+. sum num_units1 if du_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        252    2.940476    6.589291          1         50
+
+. 
+. quietly eststo units_mfdu: reg num_units1 ib26.dist3 i.lam_seg if mf_du == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if mf_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      1,194    1.768844    4.908227          1        122
+
+. sum num_units1 if mf_du == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |      1,221    1.250614    1.126911          1         24
+
+. 
+. quietly eststo units_mf: reg num_units1 ib26.dist3 i.lam_seg if only_mf== 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_mf == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        226    1.681416    1.201965          1         11
+
+. sum num_units1 if only_mf == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        240    1.166667    .6511443          1          7
+
+. 
+. quietly eststo units_mfhe: reg num_units1 ib26.dist3 i.lam_seg if mf_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if mf_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |         82    1.292683    .9874247          1          9
+
+. sum num_units1 if mf_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |         86    2.302326    11.75242          1        110
+
+. 
+. quietly eststo units_he: reg num_units1 ib26.dist3 i.lam_seg if only_he == 1 & `regression_conditions', vce(cluster lam_seg)
+
+. sum num_units1 if only_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        190    1.263158    1.806575          1         24
+
+. sum num_units1 if only_he == 1 & year_built>=1918 & year==2018 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  num_units1 |        139    1.388489    1.590328          1         12
+
+. 
+. esttab units_du units_duhe units_mfdu units_mf units_mfhe units_he, ///
+>         se r2 indicate("Boundary f.e.=*lam_seg") interaction(" X ") ///
+>         label mtitles("units_du" "units_duhe" "units_mfdu" "units_mf" "units_mfhe" "units_he") ///
+>         title("Units >=1918, baseline") 
+
+Units >=1918, baseline
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                         units_du      units_duhe      units_mfdu        units_mf      units_mfhe        units_he   
+--------------------------------------------------------------------------------------------------------------------
+-.2                       -0.0598          -4.871*         -0.739*         -0.534***      0.00350                   
+                         (0.0603)         (2.281)         (0.315)         (0.106)        (0.0987)                   
+
+-.18                      -0.0844          -5.075*         -1.396          -0.766***       -13.48          -47.10   
+                         (0.0660)         (2.190)         (0.813)         (0.146)         (12.46)         (43.80)   
+
+-.16                     -0.00382          -4.854*         -1.387          -0.514**        -10.48          -8.563   
+                         (0.0895)         (2.187)         (0.762)         (0.187)         (12.40)         (10.02)   
+
+-.14                      -0.0523          -5.414          -0.886**        -0.415**        -0.450       -7.93e-13   
+                         (0.0631)         (2.766)         (0.317)         (0.122)         (0.497)      (8.31e-13)   
+
+-.12                       -0.120          -4.458*         -1.103*         -0.457***       -0.615          -21.72   
+                         (0.0643)         (2.118)         (0.526)         (0.133)         (0.578)         (26.78)   
+
+-.1                        -0.120          -4.244*         -0.937*         -0.572***       -0.622          -3.817   
+                         (0.0619)         (1.984)         (0.387)         (0.122)         (1.024)         (2.835)   
+
+-.08                       -0.123          -6.534          -0.599*         -0.867**        -1.069          -3.261   
+                         (0.0671)         (4.411)         (0.278)         (0.268)         (0.783)         (2.593)   
+
+-.06                       -0.140          -2.817          -0.709*         -0.759***       -0.427           1.158   
+                          (0.112)         (1.624)         (0.276)         (0.209)         (0.386)         (1.299)   
+
+-.04                      -0.0656          -3.684          -0.922**        -0.202           1.714          -0.684   
+                          (0.135)         (2.055)         (0.306)         (0.326)         (1.912)         (0.452)   
+
+-.02                       -0.110          -2.474          -0.799**        -0.598***        1.022         -0.0627   
+                         (0.0973)         (1.532)         (0.294)         (0.114)         (1.268)         (0.293)   
+
+0                               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+.02                         0.106           5.196           0.536           0.151          0.0175         -0.0707   
+                         (0.0905)         (4.084)         (0.558)         (0.257)         (0.493)         (0.240)   
+
+.04                         0.289*          12.01          0.0147          0.0506          -0.269           0.484   
+                          (0.121)         (8.615)         (0.240)         (0.294)         (0.505)         (0.800)   
+
+.06                         0.120           5.796           0.182          -0.374          -0.129         -0.0432   
+                         (0.0962)         (5.793)         (0.428)         (0.251)         (0.470)         (0.180)   
+
+.08                        0.0317           0.372         -0.0558          -0.194           2.495          -0.154   
+                         (0.0568)         (1.799)         (0.196)         (0.201)         (2.402)         (0.198)   
+
+.1                          0.117           2.468          -0.111          -0.138          -2.309          0.0114   
+                         (0.0865)         (2.067)         (0.203)         (0.147)         (3.346)         (0.211)   
+
+.12                         0.118           5.266          -0.223         -0.0810          -0.445           0.948   
+                          (0.133)         (6.026)         (0.190)         (0.137)         (0.865)         (1.294)   
+
+.14                      -0.00372          -8.848         0.00834          -0.121          -2.277         -0.0218   
+                         (0.0542)         (7.285)         (0.256)         (0.253)         (3.467)         (0.245)   
+
+.16                      -0.00726          -0.321           0.263          -0.268*         -10.86         -0.0331   
+                         (0.0577)         (5.650)         (0.488)         (0.112)         (11.20)         (0.208)   
+
+.18                        0.0982           3.266          -0.141          -0.217*         -1.091         -0.0569   
+                          (0.105)         (6.026)         (0.207)         (0.106)         (1.194)         (0.200)   
+
+.2                         0.0125          -4.854*         -0.225          -0.330          -0.816         -0.0625   
+                         (0.0609)         (2.187)         (0.206)         (0.368)         (0.836)         (0.191)   
+
+Constant                    1.069***        5.854**         1.044***        1.405***        1.318*          1.000***
+                         (0.0620)         (2.187)         (0.216)         (0.107)         (0.520)      (8.31e-13)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                33940            1806           11541            1535             504            1854   
+R-squared                   0.644           0.484           0.059           0.384           0.304           0.543   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.         
+. * robust s.e.
+. quietly eststo units_du_robust: reg num_units1 ib26.dist3 i.lam_seg if only_du == 1 & `regression_conditions', vce(robust)
+
+.         
+. quietly eststo units_duhe_robust: reg num_units1 ib26.dist3 i.lam_seg if du_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mfdu_robust: reg num_units1 ib26.dist3 i.lam_seg if mf_du == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mf_robust: reg num_units1 ib26.dist3 i.lam_seg if only_mf== 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_mfhe_robust: reg num_units1 ib26.dist3 i.lam_seg if mf_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. quietly eststo units_he_robust: reg num_units1 ib26.dist3 i.lam_seg if only_he == 1 & `regression_conditions', vce(robust)
+
+. 
+. esttab units_du_robust units_duhe_robust units_mfdu_robust units_mf_robust units_mfhe_robust units_he_robust, ///
+>         se r2 indicate("Boundary f.e.=*lam_seg") interaction(" X ") ///
+>         label mtitles("units_du" "units_duhe" "units_mfdu" "units_mf" "units_mfhe" "units_he") ///
+>         title("Units >=1918, baseline, robust s.e.")    
+
+Units >=1918, baseline, robust s.e.
+--------------------------------------------------------------------------------------------------------------------
+                              (1)             (2)             (3)             (4)             (5)             (6)   
+                         units_du      units_duhe      units_mfdu        units_mf      units_mfhe        units_he   
+--------------------------------------------------------------------------------------------------------------------
+-.2                       -0.0598          -4.871**        -0.739**        -0.534***      0.00350                   
+                         (0.0517)         (1.874)         (0.273)         (0.105)        (0.0961)                   
+
+-.18                      -0.0844          -5.075**        -1.396          -0.766***       -13.48          -47.10   
+                         (0.0602)         (1.856)         (0.793)         (0.223)         (8.170)         (38.72)   
+
+-.16                     -0.00382          -4.854**        -1.387          -0.514***       -10.48          -8.563   
+                         (0.0826)         (1.753)         (0.738)         (0.125)         (7.093)         (9.336)   
+
+-.14                      -0.0523          -5.414*         -0.886**        -0.415***       -0.450       -7.93e-13   
+                         (0.0520)         (2.495)         (0.276)         (0.104)         (0.399)    (0.00000567)   
+
+-.12                       -0.120*         -4.458**        -1.103*         -0.457***       -0.615          -21.72   
+                         (0.0560)         (1.648)         (0.496)        (0.0958)         (0.391)         (20.11)   
+
+-.1                        -0.120*         -4.244**        -0.937**        -0.572***       -0.622          -3.817   
+                         (0.0515)         (1.552)         (0.361)         (0.101)         (0.803)         (2.177)   
+
+-.08                       -0.123*         -6.534          -0.599*         -0.867***       -1.069*         -3.261   
+                         (0.0598)         (3.627)         (0.238)         (0.230)         (0.484)         (2.056)   
+
+-.06                       -0.140          -2.817*         -0.709**        -0.759***       -0.427           1.158   
+                         (0.0871)         (1.244)         (0.224)         (0.161)         (0.285)         (0.880)   
+
+-.04                      -0.0656          -3.684*         -0.922***       -0.202           1.714          -0.684   
+                          (0.108)         (1.692)         (0.265)         (0.331)         (2.202)         (0.488)   
+
+-.02                       -0.110          -2.474*         -0.799**        -0.598***        1.022         -0.0627   
+                         (0.0749)         (1.075)         (0.253)        (0.0748)         (1.109)         (0.208)   
+
+0                               0               0               0               0               0               0   
+                              (.)             (.)             (.)             (.)             (.)             (.)   
+
+.02                         0.106           5.196           0.536           0.151          0.0175         -0.0707   
+                         (0.0721)         (3.138)         (0.531)         (0.177)         (0.480)         (0.263)   
+
+.04                         0.289**         12.01          0.0147          0.0506          -0.269           0.484   
+                         (0.0891)         (6.666)         (0.207)         (0.240)         (0.494)         (0.672)   
+
+.06                         0.120           5.796           0.182          -0.374          -0.129         -0.0432   
+                         (0.0819)         (4.723)         (0.403)         (0.208)         (0.376)         (0.172)   
+
+.08                        0.0317           0.372         -0.0558          -0.194           2.495          -0.154   
+                         (0.0465)         (1.534)         (0.166)         (0.161)         (3.176)         (0.156)   
+
+.1                          0.117           2.468          -0.111          -0.138          -2.309          0.0114   
+                         (0.0790)         (1.531)         (0.172)         (0.100)         (2.222)         (0.194)   
+
+.12                         0.118           5.266          -0.223         -0.0810          -0.445           0.948   
+                         (0.0993)         (3.916)         (0.160)         (0.112)         (0.545)         (1.019)   
+
+.14                      -0.00372          -8.848         0.00834          -0.121          -2.277         -0.0218   
+                         (0.0467)         (8.884)         (0.231)         (0.253)         (2.140)         (0.209)   
+
+.16                      -0.00726          -0.321           0.263          -0.268*         -10.86         -0.0331   
+                         (0.0499)         (3.993)         (0.505)         (0.111)         (6.292)         (0.187)   
+
+.18                        0.0982           3.266          -0.141          -0.217          -1.091         -0.0569   
+                         (0.0948)         (3.916)         (0.176)         (0.116)         (0.673)         (0.184)   
+
+.2                         0.0125          -4.854**        -0.225          -0.330          -0.816         -0.0625   
+                         (0.0569)         (1.753)         (0.174)         (0.285)         (0.535)         (0.182)   
+
+Constant                    1.069***        5.854***        1.044***        1.405***        1.318**         1.000***
+                         (0.0593)         (1.753)         (0.229)        (0.0868)         (0.489)    (0.00000464)   
+
+Boundary f.e.                 Yes             Yes             Yes             Yes             Yes             Yes   
+--------------------------------------------------------------------------------------------------------------------
+Observations                33940            1806           11541            1535             504            1854   
+R-squared                   0.644           0.484           0.059           0.384           0.304           0.543   
+--------------------------------------------------------------------------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+.         
+. 
+. ** coefplots
+. * coefplots, units >=1918 w/o characteristics
+. {
+. local plot_list units_du units_duhe units_mfdu units_mf units_mfhe units_he
+. local suffix "coef_units_1918_base"
+. local l1_title "Number of Units"
+. local b1_title "<- More restrictive  |  Less restrictive ->"
+. local b2_title "Distance to Boundary (miles)"
+. 
+. foreach r in `plot_list'{
+  2.         
+.         local pos = ustrpos("`r'", "_") + 1
+  3.         local str = substr("`r'", `pos', .)
+  4. 
+.         if "`str'" == "du" {
+  5.                 local title "Only DUPAC Changes"
+  6.         }
+  7.         
+.         if "`str'" == "duhe" {
+  8.                 local title "DUPAC and Height Change"
+  9.         }
+ 10. 
+.         if "`str'" == "mfdu" {
+ 11.                 local title "MF Allowed and DUPAC Change"
+ 12.         }
+ 13.         
+.         if "`str'" == "mf" {
+ 14.                 local title "Only MF Allowed Changes"
+ 15.         }
+ 16.         
+.         if "`str'" == "mfhe" {
+ 17.                 local title "MF Allowed and Height Change"
+ 18.         }
+ 19.         
+.         if "`str'" == "he" {
+ 20.                 local title "Only Height Changes"
+ 21.         }
+ 22.         
+.         * coefplots
+.         #delimit;
+delimiter now ;
+.         coefplot 
+>                 /* relaxed side graphing variables */
+>                 (`r', keep(16.dist3 17.dist3 18.dist3 19.dist3 20.dist3 21.dist3 22.dist3 23.dist3 24.dist3 25.dist3) 
+>                         recast(line) color(midblue) 
+>                         ciopts(recast(rarea) color(midblue%30) lwidth(none))
+>                         )
+>                 
+>                 /* strict side graphing variables */
+>                 (`r', keep(26.dist3 27.dist3 28.dist3 29.dist3 30.dist3 31.dist3 32.dist3 33.dist3 34.dist3 35.dist3) 
+>                         recast(line) color(maroon)
+>                         ciopts(recast(rarea) color(maroon%30) lwidth(none))
+>                         ),
+> 
+>                 /* plot region */
+>                 vertical levels(95) baselevels offset(0)
+>                 graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+> 
+>                 xline(10.5, lpattern(dash) lwidth(thin) lcolor(black))
+>                 yline(0, lpattern(dash) lwidth(thin) lcolor(black))
+> 
+>                 /* titles, subtitles, notes */          
+>                 title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+> 
+>                 /* axis titles and labels */            
+>                 /*ylabel(, labsize(4) gmin gmax) ymtick()       old, commenting out @Nick*/
+>                 yscale(range(-20 30)) ylabel(-20(10)30,labsize(4)) ymtick()
+> 
+>                 
+>                 xlabel(1 "-.20" 2 "-.18" 3 "-.16" 4 "-.14" 5 "-.12" 6 "-.10" 7 "-.08" 8 "-.06" 9 "-.04" 10 "-.02" 10.5 "0"
+>                         11 ".02" 12 ".04" 13 ".06" 14 ".08" 15 ".10" 16 ".12" 17 ".14" 18 ".16" 19 ".18" 20 ".20", labsize(3) angle(45) gmax)
+>                         
+>                 /* legend */
+>                 legend(off position(6) 
+>                         order()
+>                         symy(2) symx(3) 
+>                         rows(1) cols() size(2) 
+>                         nobox fcolor()
+>                         region(fcolor(none) lpattern(blank))
+>                         margin(t=1 b=1 l=0 r=0)span)
+>                 name("`r'", replace) ;
+ 23.                         graph combine `r',
+>                 graphregion(fc(white) lcolor(white))
+>                 l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+>                 b1title("`b1_title'", size(2))
+>                 b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+>                 name("`r'a", replace);
+ 24.                 graph save "`r'a" "$EXPORTPATH/`suffix'_`str'", replace;
+ 25.         graph close "`r'a";
+ 26.         #delimit cr
+delimiter now cr
+. }
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_du.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_duhe.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mfdu.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mf.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_mfhe.gph saved
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_he.gph saved
+. 
+. * combine all
+. #delimit ;
+delimiter now ;
+. graph combine units_du units_duhe units_mfdu units_mf units_mfhe units_he,
+>         rows(3) cols(2) ysize() xsize() iscale() imargin(0)
+>         graphregion(fc(white) lcolor(white))
+>         l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+>         b1title("`b1_title'", size(2))
+>         b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+>         name("final_graph", replace);
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+(note:  named style 0 not found in class margin, default attributes used)
+.                 graph save "final_graph" "$EXPORTPATH/`suffix'_all", replace;
+file /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/coef_units_1918_base_all.gph saved
+. #delimit cr     
+delimiter now cr
+. }
+
+. 
+. eststo clear
+
+. graph close _all
+
+. 
+. 
+. ********************************************************************************
+. ** Calculate number of SF/HD/GD properties in estimation sample 
+. ********************************************************************************
+. 
+. *@Nick, I don't think the r_dist_relax etc has been calcualted at this point, so added them here 
+. ********************************************************************************
+. ** Define distance polynomial trends
+. ********************************************************************************
+. gen r_dist_relax = relaxed * dist_both
+
+. gen r_dist_strict = strict * dist_both
+
+. 
+. gen r_dist_relax2 = r_dist_relax ^ 2
+
+. gen r_dist_relax3 = r_dist_relax ^ 3
+
+. gen r_dist_relax4 = r_dist_relax ^ 4
+
+. gen r_dist_relax5 = r_dist_relax ^ 5
+
+. 
+. gen r_dist_strict2 = r_dist_strict ^ 2
+
+. gen r_dist_strict3 = r_dist_strict ^ 3
+
+. gen r_dist_strict4 = r_dist_strict ^ 4
+
+. gen r_dist_strict5 = r_dist_strict ^ 5
+
+. 
+. 
+. ********************************************************************************
+. ** Define distance polynomial trends varlist
+. ********************************************************************************
+. local distance_varlist1 = "r_dist_relax r_dist_strict"
+
+. local distance_varlist2 = "r_dist_relax r_dist_strict r_dist_relax2 r_dist_strict2"
+
+. local distance_varlist3 = "r_dist_relax r_dist_strict r_dist_relax2 r_dist_strict2 r_dist_relax3 r_dist_strict3"
+
+. 
+. ********************************************************************************
+. ** Part 6: SUPPLY EFFECT GENTLE DENSITY BASELINE
+. * 6a: gentle density baseline after 1918 @ .20 miles
+. ********************************************************************************
+. ** 6a: gentle density baseline after 1918 @ .20 miles
+. * loop over different degrees of distance polynomial trends
+. forvalues i = 1/3 {
+  2. 
+.         * A: only_mf
+.         quietly reg fam23_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
+>                 if only_mf == 1 & dist <= 0.2 & year_built >= 1918 & year == 2018, vce(cluster lam_seg) 
+  3.                 
+.                 eststo A
+  4.         
+.         sum fam23_1 if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+  5.         sum fam23_1 if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"
+  6.         sum dupac if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"      
+  7.         sum dupac if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"     /*this is used in Table 3*/
+  8.         
+.         tab fam23_1 if e(sample), miss    /*missings are neither SF nor GD*/
+  9.         
+.         tab fam4plus_1 if e(sample), miss
+ 10. 
+.         * E: mf_du
+.         quietly reg fam23_1 i.mf_allowed##c.dupac i.lam_seg `distance_varlist`i'' ///
+>                 if mf_du == 1 & dist <= 0.2 & year_built >= 1918 & year == 2018, vce(cluster lam_seg)
+ 11.                 
+.                 eststo E
+ 12.         
+.         sum fam23_1 if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+ 13.         sum fam23_1 if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"        
+ 14.         sum dupac if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+ 15.         sum dupac if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"                  
+ 16.         
+.         tab fam23_1 if e(sample), miss    /*missings are neither SF nor GD*/
+ 17.         tab fam4plus_1 if e(sample), miss
+ 18.         
+.         * combine results
+. 
+.                 
+. esttab A E, se r2 nobase indicate("Boundary f.e.=*lam_seg") ///
+>                 label mtitles("only_mf" "mf_du" ) ///
+>                 title("Part 6a: gentle density baseline after 1918 @ .20 miles (distance polynomial trends degree `i')") 
+ 19.                 
+.                 
+.         eststo clear 
+ 20. }
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        218    .4633028    .4997991          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        235    .0808511    .2731881          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          1 |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          . |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,168    .2902397    .4540673          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,198    .1210351    .3263042          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          1 |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          . |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+Part 6a: gentle density baseline after 1918 @ .20 miles (distance polynomial trends degree 1)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1                0.478***      0.00508   
+                         (0.0980)        (0.0249)   
+
+r_dist_relax               -1.024*         0.0152   
+                          (0.483)         (0.182)   
+
+r_dist_strict              -0.840           0.108   
+                          (0.612)         (0.134)   
+
+dupac                                    -0.00362   
+                                        (0.00386)   
+
+mf_allowed=1 # dupac                       0.0155***
+                                        (0.00258)   
+
+Constant                   -0.209**       -0.0311   
+                         (0.0683)        (0.0217)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1495           11264   
+R-squared                   0.539           0.389   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        218    .4633028    .4997991          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        235    .0808511    .2731881          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          1 |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          . |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,168    .2902397    .4540673          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,198    .1210351    .3263042          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          1 |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          . |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+Part 6a: gentle density baseline after 1918 @ .20 miles (distance polynomial trends degree 2)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1                0.455***     0.000835   
+                          (0.102)        (0.0286)   
+
+r_dist_relax                1.157          0.0514   
+                          (2.283)         (0.532)   
+
+r_dist_strict              -1.849           0.245   
+                          (1.654)         (0.355)   
+
+r_dist_relax2              -14.07          -0.217   
+                          (12.77)         (2.750)   
+
+r_dist_strict2             -6.385           0.772   
+                          (8.106)         (1.656)   
+
+dupac                                    -0.00359   
+                                        (0.00386)   
+
+mf_allowed=1 # dupac                       0.0155***
+                                        (0.00259)   
+
+Constant                   -0.236**       -0.0275   
+                         (0.0866)        (0.0232)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1495           11264   
+R-squared                   0.542           0.389   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        218    .4633028    .4997991          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |        235    .0808511    .2731881          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          1 |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       76.86       76.86
+          . |        346       23.14      100.00
+------------+-----------------------------------
+      Total |      1,495      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,168    .2902397    .4540673          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     fam23_1 |      1,198    .1210351    .3263042          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          1 |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       82.87       82.87
+          . |      1,930       17.13      100.00
+------------+-----------------------------------
+      Total |     11,264      100.00
+
+Part 6a: gentle density baseline after 1918 @ .20 miles (distance polynomial trends degree 3)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1                0.413***      -0.0286   
+                          (0.120)        (0.0311)   
+
+r_dist_relax                3.041           1.701   
+                          (3.494)         (1.011)   
+
+r_dist_strict             -0.0407           0.865   
+                          (2.881)         (0.771)   
+
+r_dist_relax2              -43.62          -24.41   
+                          (38.98)         (13.43)   
+
+r_dist_strict2              21.55           9.936   
+                          (29.98)         (8.877)   
+
+r_dist_relax3               116.7           89.88   
+                          (130.3)         (49.33)   
+
+r_dist_strict3              104.8           33.70   
+                          (91.08)         (28.72)   
+
+dupac                                    -0.00352   
+                                        (0.00385)   
+
+mf_allowed=1 # dupac                       0.0155***
+                                        (0.00258)   
+
+Constant                   -0.222*       -0.00403   
+                         (0.0940)        (0.0267)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1495           11264   
+R-squared                   0.543           0.390   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. ********************************************************************************
+. ** Part 7: SUPPLY EFFECT HIGH DENSITY BASELINE
+. * 7a: high density baseline after 1918 @ .20 miles
+. ********************************************************************************
+. ** 7a: high density baseline after 1918 @ .20 miles
+. *loop over different degrees of distance polynomial trends
+. forvalues i = 1/3{
+  2.         * A: only_mf
+.         quietly reg fam4plus_1 i.mf_allowed i.lam_seg `distance_varlist`i'' ///
+>                 if only_mf == 1 & dist <= 0.2 & year_built >= 1918 & year == 2018, vce(cluster lam_seg) 
+  3.                 
+.                 eststo A
+  4.                 
+.         sum fam4plus_1 if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+  5.         sum fam4plus_1 if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"   
+  6.         sum dupac if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+  7.         sum dupac if only_mf == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"                /*this is used in Table 3*/
+  8.         
+.         tab fam4plus_1 if e(sample), miss    /*missings are neither SF nor HD*/ 
+  9.         tab fam23_1 if e(sample), miss
+ 10.         
+.         * E: mf_du
+.         quietly reg fam4plus_1 i.mf_allowed##c.dupac i.lam_seg `distance_varlist`i'' ///
+>                 if mf_du == 1 & dist <= 0.2 & year_built >= 1918 & year == 2018, vce(cluster lam_seg)
+ 11.                 
+.                 eststo E
+ 12.                 
+.         sum fam4plus_1 if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+ 13.         sum fam4plus_1 if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"                     
+ 14.         sum dupac if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0.02 & dist_both>0) & res_typex!="Condominiums"
+ 15.         sum dupac if mf_du == 1 & year==2018 & year_built>=1918 & (dist_both<=0 & dist_both>-0.02) & res_typex!="Condominiums"          
+ 16.         
+.         tab fam4plus_1 if e(sample), miss    /*missings are neither SF nor HD*/         
+ 17.         tab fam23_1 if e(sample), miss
+ 18.         
+.         * combine results
+.         esttab A  E , se r2 nobase indicate("Boundary f.e.=*lam_seg") ///
+>                 label mtitles("only_mf" "mf_du") ///
+>                 title("Part 7a: high density baseline after 1918 @ .20 miles (distance polynomial trends degree `i')") 
+ 19.         eststo clear
+ 20.                 
+.                 
+. }
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        120        .025    .1567796          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        219    .0136986     .116503          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          1 |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          . |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        849    .0235571    .1517541          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |      1,069    .0149673    .1214786          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          1 |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          . |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+Part 7a: high density baseline after 1918 @ .20 miles (distance polynomial trends degree 1)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1               0.0158         0.00627   
+                         (0.0119)        (0.0152)   
+
+r_dist_relax               0.0860          0.0225   
+                          (0.152)        (0.0448)   
+
+r_dist_strict              0.0116          0.0234   
+                         (0.0477)        (0.0455)   
+
+dupac                                    0.000652   
+                                        (0.00118)   
+
+mf_allowed=1 # dupac                      0.00179   
+                                        (0.00169)   
+
+Constant                 -0.00988         -0.0144   
+                        (0.00596)       (0.00922)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1165            9477   
+R-squared                   0.598           0.309   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        120        .025    .1567796          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        219    .0136986     .116503          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          1 |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          . |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        849    .0235571    .1517541          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |      1,069    .0149673    .1214786          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          1 |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          . |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+Part 7a: high density baseline after 1918 @ .20 miles (distance polynomial trends degree 2)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1               0.0135        -0.00307   
+                         (0.0113)        (0.0160)   
+
+r_dist_relax                0.199           0.179   
+                          (0.311)         (0.176)   
+
+r_dist_strict              0.0108           0.240   
+                          (0.136)         (0.152)   
+
+r_dist_relax2              -0.676          -0.923   
+                          (1.603)         (0.864)   
+
+r_dist_strict2            0.00125           1.209   
+                          (0.956)         (0.711)   
+
+dupac                                    0.000710   
+                                        (0.00118)   
+
+mf_allowed=1 # dupac                      0.00180   
+                                        (0.00169)   
+
+Constant                  -0.0103        -0.00844   
+                        (0.00612)       (0.00931)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1165            9477   
+R-squared                   0.598           0.310   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        120        .025    .1567796          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        219    .0136986     .116503          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        226    9.964602    7.833182          0         44
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |        240    8.895833    6.370826          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          1 |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,149       98.63       98.63
+          . |         16        1.37      100.00
+------------+-----------------------------------
+      Total |      1,165      100.00
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |        849    .0235571    .1517541          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+  fam4plus_1 |      1,069    .0149673    .1214786          0          1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,197    10.44779    8.113121          0         49
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       dupac |      1,225    11.16571    10.13469          0         44
+
+ fam4plus_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          1 |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+    fam23_1 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      9,334       98.49       98.49
+          . |        143        1.51      100.00
+------------+-----------------------------------
+      Total |      9,477      100.00
+
+Part 7a: high density baseline after 1918 @ .20 miles (distance polynomial trends degree 3)
+----------------------------------------------------
+                              (1)             (2)   
+                          only_mf           mf_du   
+----------------------------------------------------
+mf_allowed=1               0.0122         -0.0129   
+                         (0.0125)        (0.0159)   
+
+r_dist_relax               -0.175           0.730   
+                          (0.860)         (0.431)   
+
+r_dist_strict               0.487           0.429   
+                          (0.339)         (0.340)   
+
+r_dist_relax2               5.034          -8.886   
+                          (12.70)         (5.523)   
+
+r_dist_strict2              7.078           3.982   
+                          (4.385)         (3.819)   
+
+r_dist_relax3              -21.63           29.33   
+                          (45.06)         (19.38)   
+
+r_dist_strict3              26.03           10.13   
+                          (14.55)         (11.97)   
+
+dupac                                    0.000734   
+                                        (0.00118)   
+
+mf_allowed=1 # dupac                      0.00179   
+                                        (0.00171)   
+
+Constant                 -0.00585       -0.000905   
+                        (0.00560)       (0.00951)   
+
+Boundary f.e.                 Yes             Yes   
+----------------------------------------------------
+Observations                 1165            9477   
+R-squared                   0.599           0.310   
+----------------------------------------------------
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
+
+. 
+. 
+. 
+. 
+. 
+. ********************************************************************************
+. ** end
+. ********************************************************************************
+. log off 
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/revision2_main_mtlines_output/revision2_main_mtlines_log_2025-08-22.log
+  log type:  text
+ paused on:  22 Aug 2025, 13:38:46
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

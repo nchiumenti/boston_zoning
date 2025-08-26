@@ -1,0 +1,34 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Sales Prices, >15% binding, w/ characteristics}
+\begin{tabular}{l*{3}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}\\
+                    &\multicolumn{1}{c}{price\_du}&\multicolumn{1}{c}{price\_duhe}&\multicolumn{1}{c}{price\_mfdu}\\
+\hline
+-.1                 &     0.00903         &                     &      0.0316         \\
+                    &    (0.0202)         &                     &    (0.0510)         \\
+[1em]
+-.08                &     -0.0128         &                     &      0.0783\sym{*}  \\
+                    &    (0.0214)         &                     &    (0.0385)         \\
+[1em]
+-.06                &      0.0132         &                     &      0.0628\sym{*}  \\
+                    &    (0.0179)         &                     &    (0.0312)         \\
+[1em]
+-.04                &      0.0297         &      -19.62\sym{***}&      0.0497         \\
+                    &    (0.0160)         &(0.000000183)         &    (0.0389)         \\
+[1em]
+-.02                &     -0.0209         &                     &     -0.0231         \\
+                    &    (0.0181)         &                     &    (0.0450)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &       31891         &          11         &        3942         \\
+\(R^{2}\)           &       0.772         &       1.000         &       0.816         \\
+\hline\hline
+\multicolumn{4}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

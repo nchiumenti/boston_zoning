@@ -1,0 +1,22 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Assessed Land Value Per Squarefoot}
+\begin{tabular}{l*{6}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}&\multicolumn{1}{c}{(6)}\\
+                    &\multicolumn{1}{c}{land\_du}&\multicolumn{1}{c}{land\_duhe}&\multicolumn{1}{c}{land\_mfdu}&\multicolumn{1}{c}{land\_du2}&\multicolumn{1}{c}{land\_du2he}&\multicolumn{1}{c}{land\_mfdu2}\\
+\hline
+-.02                &      -0.181\sym{***}&      -0.274         &     -0.0406         &      -0.147\sym{***}&      -0.237         &     -0.0733\sym{*}  \\
+                    &    (0.0357)         &     (0.365)         &    (0.0308)         &    (0.0325)         &     (0.307)         &    (0.0311)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &      229126         &         474         &       43625         &      155195         &         465         &       49936         \\
+\(R^{2}\)           &       0.797         &       0.690         &       0.681         &       0.764         &       0.610         &       0.676         \\
+\hline\hline
+\multicolumn{7}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{7}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

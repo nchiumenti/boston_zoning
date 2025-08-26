@@ -1,0 +1,34 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Sales Prices, >15% binding, w/ characteristics}
+\begin{tabular}{l*{5}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+                    &\multicolumn{1}{c}{price\_du}&\multicolumn{1}{c}{price\_he}&\multicolumn{1}{c}{price\_duhe}&\multicolumn{1}{c}{price\_mfdu}&\multicolumn{1}{c}{price\_mf}\\
+\hline
+-.1                 &      0.0247         &                     &                     &       0.130         &     -0.0958         \\
+                    &    (0.0233)         &                     &                     &    (0.0720)         &    (0.0737)         \\
+[1em]
+-.08                &     -0.0178         &                     &                     &       0.178\sym{**} &     -0.0490         \\
+                    &    (0.0266)         &                     &                     &    (0.0596)         &    (0.0692)         \\
+[1em]
+-.06                &    -0.00448         &       0.803\sym{*}  &      -0.137\sym{***}&      0.0925\sym{*}  &     -0.0138         \\
+                    &    (0.0223)         &    (0.0390)         &  (1.10e-12)         &    (0.0429)         &    (0.0727)         \\
+[1em]
+-.04                &      0.0143         &      -0.146         &       0.637\sym{***}&      0.0803         &      -0.221\sym{*}  \\
+                    &    (0.0199)         &    (0.0257)         &  (1.60e-12)         &    (0.0558)         &    (0.0965)         \\
+[1em]
+-.02                &     -0.0330         &      -0.321         &                     &      0.0163         &     -0.0215         \\
+                    &    (0.0187)         &    (0.0284)         &                     &    (0.0581)         &    (0.0568)         \\
+[1em]
+Boundary f.e.       &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+[1em]
+Year f.e.           &         Yes         &         Yes         &         Yes         &         Yes         &         Yes         \\
+\hline
+Observations        &       23520         &         192         &          20         &        2508         &         963         \\
+\(R^{2}\)           &       0.795         &       0.989         &       1.000         &       0.914         &       0.885         \\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{6}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

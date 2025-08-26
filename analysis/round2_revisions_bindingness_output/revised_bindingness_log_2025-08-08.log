@@ -1,0 +1,1775 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/revised_bindingness_output/revised_bindingness_log_2025-08-08.log
+  log type:  text
+ opened on:   8 Aug 2025, 14:01:11
+
+. 
+. 
+. ********************************************************************************
+. * File name:            revised_bindingness.do (formerly reivsion 2 bindingness)
+. *
+. * Project title:        Boston Affordable Housing project (visting scholar porject)
+. *
+. * Description:          analyzes the bindingness of regulations
+. *
+. *                                       Part 0: Optimal bandwidths
+. *                                       Part 1A: Sales price, bindingness w/o characteristics
+. *                                       Part 1B: Sales price bindingness > 50% w/o characteristics
+. *                                       Part 1C: With characteristic controls bindingness > 25%
+. *                                       Part 1D: With characteristic controls bindingness > 50%
+. *                                       Part 1E: Sales price, bindingness > 15% w/o charactersitics
+. *                                       Part 1F: With characteristic controls bindingness > 15%
+. *                                       Part 2A: Rent bindingness > 25% w/o characteristics
+. *                                       Part 2B: Rent bindingness > 50% w/o characteristics
+. *                                       Part 2C: Rent With characteristic controls bindingness > 25%
+. *                                       Part 2D: Rent With characteristic controls bindingness > 50%
+. *                                       Part 2E: Rent bindingness > 15% w/o characteristics
+. *                                       Part 2F: Rent with characteristic controls bindingness > 15%  
+. *                                       Part 3: No year f.e. 
+. *                                       Part 4: Sales prices, using maxdu 
+. *                                       Part 5A-H: Repeats 1A,C,E,F and 2A,C,E,F considering mls AND maxdu
+. *                                       Part 6A-H: Repeats 1A,C,E,F and 2A,C,E,F with price and rent per sqft as DV
+. *                                       Part 7: Repeats 1A,C,E,F with land price per sqft
+. *                               
+. * Inputs:                       "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta"
+. *                                       "$SHAPEPATH/soil_quality/soil_quality_matches.dta"
+. *                                       "$DATAPATH/warren_zoning_regulations_match.dta"
+. *                                       "$DATAPATH/final_dataset_10-28-2021.dta"
+. *                               
+. * Outputs:                      various .tex tables and a log file
+. *
+. * Created:                      09/18/2024
+. * Updated:                      10/07/2024
+. ********************************************************************************
+. 
+. ********************************************************************************
+. ** load and tempsave the mt lines data
+. ********************************************************************************
+. use  "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_moreregs.dta", clear 
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+
+. 
+. destring prop_id, replace
+prop_id already numeric; no replace
+
+. 
+. tempfile mtlines
+
+. save `mtlines', replace
+(file /tmp/350618.1.sta.q/St532737.000001 not found)
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+file /tmp/350618.1.sta.q/St532737.000001 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** load and tempsave the soil data
+. ********************************************************************************
+. use "$SHAPEPATH/soil_quality/soil_quality_matches.dta", clear
+<stata_dta>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+</stata_dta>
+
+. 
+. keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
+
+. 
+. destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
+avg_slope: all characters numeric; replaced as double
+(164372 missing values generated)
+slope_15: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_restri: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_sand: all characters numeric; replaced as double
+(164372 missing values generated)
+avg_clay: all characters numeric; replaced as double
+(164372 missing values generated)
+
+. 
+. tempfile soil
+
+. save `soil', replace
+(file /tmp/350618.1.sta.q/St532737.000002 not found)
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+file /tmp/350618.1.sta.q/St532737.000002 saved as .dta format
+
+. 
+. 
+. *NEW POSTRESTAT
+. ********************************************************************************
+. ** load and regulations data to keep only the imputed flag variables
+. ********************************************************************************
+. use "$DATAPATH/warren_zoning_regulations_match.dta", clear
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+
+. 
+. keep prop_id *_esval mnls_eff mxfl_eff maxheight mxdu_eff maxdu far far_eff
+
+. 
+. 
+. tempfile imputed_flags
+
+. save `imputed_flags', replace
+(file /tmp/350618.1.sta.q/St532737.000003 not found)
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+file /tmp/350618.1.sta.q/St532737.000003 saved as .dta format
+
+. 
+. 
+. ********************************************************************************
+. ** create working dataset
+. ********************************************************************************
+. use "$DATAPATH/within_town_analysis_data.dta", clear
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<strls>
+<value_labels>
+</stata_dta>
+
+. 
+. * merge on soil quality data
+. merge m:1 prop_id using `soil'
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       443,044
+        from master                         0  (_merge==1)
+        from using                    443,044  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         * merge error check
+.         sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  3,642,292    2.878361    .3268682          2          3
+
+.         /* assert `r(N)' ==  3642292
+>         assert `r(sum_w)' ==  3642292
+>         assert `r(mean)' ==  2.878361207723049
+>         assert `r(Var)' ==  .1068428258243096
+>         assert `r(sd)' ==  .3268682086473226
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  10483832 */
+. 
+.         drop if _merge == 2
+(443,044 observations deleted)
+
+.         drop _merge
+
+. 
+. * merge on mt lines to keep straight line properties
+. merge m:1 prop_id using `mtlines', keepusing(straight_line home_minlotsize nn_minlotsize)
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<strls>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       201,049
+        from master                         0  (_merge==1)
+        from using                    201,049  (_merge==2)
+
+    Matched                         3,199,248  (_merge==3)
+    -----------------------------------------
+
+.         
+.         * merge error check
+.         sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  3,400,297    2.940873    .2358621          2          3
+
+.         /* assert `r(N)' ==  3400297
+>         assert `r(sum_w)' ==  3400297
+>         assert `r(mean)' ==  2.940873106084557
+>         assert `r(Var)' ==  .0556309206919615
+>         assert `r(sd)' ==  .235862079809285
+>         assert `r(min)' ==  2
+>         assert `r(max)' ==  3
+>         assert `r(sum)' ==  9999842 */
+. 
+.         drop if _merge == 2
+(201,049 observations deleted)
+
+.         drop _merge
+
+. 
+. keep if straight_line == 1  // <-- drops non-straight line properties
+(2,237,233 observations deleted)
+
+. 
+. * drop out of scope years
+. keep if (year >= 2010 & year <= 2018)
+(0 observations deleted)
+
+. 
+. tab year
+
+       year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2010 |    104,264       10.84       10.84
+       2011 |    107,230       11.15       21.98
+       2012 |    106,561       11.08       33.06
+       2013 |    106,732       11.09       44.16
+       2014 |    105,275       10.94       55.10
+       2015 |    107,440       11.17       66.27
+       2016 |    107,865       11.21       77.48
+       2017 |    108,234       11.25       88.73
+       2018 |    108,414       11.27      100.00
+------------+-----------------------------------
+      Total |    962,015      100.00
+
+. 
+. * merge on imputation flags for regulations
+. merge m:1 prop_id using `imputed_flags'
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       466,111
+        from master                         0  (_merge==1)
+        from using                    466,111  (_merge==2)
+
+    Matched                           962,015  (_merge==3)
+    -----------------------------------------
+
+. sum _merge
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      _merge |  1,428,126    2.673621    .4688881          2          3
+
+. 
+. drop if _merge == 2
+(466,111 observations deleted)
+
+. drop _merge 
+
+. 
+. ** merge on ACS characteristics
+. * merge on block data level characteristics
+. merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       149,217
+        from master                     1,516  (_merge==1)
+        from using                    147,701  (_merge==2)
+
+    Matched                           960,499
+        not updated                   960,499  (_merge==3)
+        missing updated                     0  (_merge==4)
+        nonmissing conflict                 0  (_merge==5)
+    -----------------------------------------
+
+.         
+.         * summarize _merge var and drop
+.         tab _merge
+
+   Matching result from |
+                  merge |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        Master only (1) |      1,516        0.14        0.14
+         Using only (2) |    147,701       13.31       13.45
+            Matched (3) |    960,499       86.55      100.00
+------------------------+-----------------------------------
+                  Total |  1,109,716      100.00
+
+.         drop if _merge == 2
+(147,701 observations deleted)
+
+.         drop _merge 
+
+. 
+. * create block group making variable
+. gen BLKGRP = substr(warren_GEOID_full,1,12)
+(272 missing values generated)
+
+. 
+. * merge on ace amenities dataset
+. merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        62,370
+        from master                    43,350  (_merge==1)
+        from using                     19,020  (_merge==2)
+
+    Matched                           918,665  (_merge==3)
+    -----------------------------------------
+
+. 
+.         * summarize merge and drop
+.         tab _merge
+
+   Matching result from |
+                  merge |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        Master only (1) |     43,350        4.42        4.42
+         Using only (2) |     19,020        1.94        6.36
+            Matched (3) |    918,665       93.64      100.00
+------------------------+-----------------------------------
+                  Total |    981,035      100.00
+
+.         drop if _merge == 2
+(19,020 observations deleted)
+
+.         drop _merge 
+
+. 
+.         * rename median income variable
+.         rename B19113001 median_inc
+
+. 
+. * define a global set of acs variable controls
+. global acs_vars frac_under18 frac_over65 frac_black frac_asian frac_hispanic frac_nonhispanicwhite frac_morethan4 median_inc
+
+. 
+. 
+. ********************************************************************************
+. ** gen amenity variables
+. ********************************************************************************
+. gen dist_school = closest_school_dist
+
+. gen dist_center = closest_city_dist
+
+. gen dist_road = closest_road_dist
+
+. gen dist_river = closest_river_dist
+
+. gen dist_space = closest_green_dist
+
+. 
+. // gen transit_dist = transit_dist_m/1609
+. 
+. gen soil_avgslope = avg_slope
+(182,953 missing values generated)
+
+. gen soil_slope15 = slope_15
+(182,953 missing values generated)
+
+. gen soil_avgrestri = avg_restri
+(182,953 missing values generated)
+
+. gen soil_avgsand = avg_sand
+(182,953 missing values generated)
+
+. gen soil_avgclay = avg_clay
+(182,953 missing values generated)
+
+. 
+. 
+. ********************************************************************************
+. ** property characteristic variables
+. ********************************************************************************
+. gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0                        // lot size in acres, excl zero acre --> NOW IN LOGS
+(74,533 missing values generated)
+
+. gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0          // living area in XX per unit, excl zero --> NOW IN LOGS
+(11,228 missing values generated)
+
+. gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0              // num bedrooms per unit, atleast 1
+(43,879 missing values generated)
+
+. gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0            // num full bathrooms per unit, atleast 1
+(21,608 missing values generated)
+
+. 
+. gen log_lotacres = ln(lot_acres) if lot_acres!=0
+(74,483 missing values generated)
+
+. gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
+(113,706 missing values generated)
+
+. 
+. * set control variables
+. global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
+
+. 
+. *global char_vars dist_road
+. *global char_vars_duhe dist_road soil_avgslope soil_avgrestri
+. 
+. 
+. ********************************************************************************
+. ** per squarefoot prices
+. ********************************************************************************
+. 
+. gen log_land = log(assd_landval)
+(96,863 missing values generated)
+
+. 
+. *per squarefoot price of land 
+. gen land_per_sqft = assd_landval/lot_sizesqft
+(74,483 missing values generated)
+
+. gen log_land_per_sqft = log(land_per_sqft)
+(96,885 missing values generated)
+
+. 
+. gen price_per_sqft = def_saleprice/lot_sizesqft
+(810,672 missing values generated)
+
+. gen log_ppsqft = log(price_per_sqft)
+(810,674 missing values generated)
+
+. 
+. gen rent_per_sqft = comb_rent2/lot_sizesqft  
+(783,898 missing values generated)
+
+. gen log_rpsqft = log(rent_per_sqft)
+(783,927 missing values generated)
+
+. 
+. ********************************************************************************
+. ** Calculate bindingness at the lot level
+. * 1. min lot size
+. * 2. height
+. * 3. mulfam
+. * 4. maxdu
+. * 5. FAR using gross building area
+. * 6. FAR living area
+. ********************************************************************************
+. local buffer1 = .1
+
+. local buffer2 = .2
+
+.  
+. ** 1. min lot size (mls)
+. * mls actual
+. gen mls_actual = lot_sizesqft if lot_sizesqft!=0
+(74,483 missing values generated)
+
+. 
+. * mls regulation (only where by-right allowed) -- minlotsize to home_minlotsize 20240920
+. gen mls_byright = home_minlotsize if mnls_esval == 0 & home_minlotsize != 0      /*non-imputed*/
+(629,836 missing values generated)
+
+. gen mls_all = mnls_eff if mnls_esval != . & mnls_eff != 0              /*includes imputed*/
+(566,160 missing values generated)
+
+. 
+. count if mls_actual == . 
+  74,483
+
+. count if mls_byright == . 
+  629,836
+
+. count if mls_all == .
+  566,160
+
+. 
+. ** binding/violation relative to regulation
+. * 5% buffer
+. * non-imputed
+. gen mls_binding_05 = (mls_actual<=(mls_byright*(1 + `buffer1'))) & (mls_actual>=(mls_byright*(1 - `buffer1'))) & mls_actual!=. & mls_byright!=.
+
+. replace mls_binding_05 = . if mls_actual==. | mls_byright==.
+(660,983 real changes made, 660,983 to missing)
+
+. gen mls_violate_05 = mls_actual<(mls_byright*(1 -`buffer1')) & mls_actual!=. & mls_byright!=.
+
+. replace mls_violate_05 = . if mls_actual==. | mls_byright==.
+(660,983 real changes made, 660,983 to missing)
+
+. 
+. * 5% buffer
+. * all (including imputed)
+. gen mls_binding_05_all = (mls_actual<=(mls_all*(1 + `buffer1'))) & (mls_actual>=(mls_all*(1 - `buffer1'))) & mls_actual!=. & mls_all!=.
+
+. replace mls_binding_05_all = . if mls_actual==. | mls_all==.
+(598,956 real changes made, 598,956 to missing)
+
+. gen mls_violate_05_all = mls_actual<(mls_all*(1 -`buffer1')) & mls_actual!=. & mls_all!=. 
+
+. replace mls_violate_05_all = . if mls_actual==. | mls_all==.
+(598,956 real changes made, 598,956 to missing)
+
+. 
+. * 10% buffer
+. * non-imputed
+. gen mls_binding_10 = (mls_actual<=(mls_byright*(1 + `buffer2'))) & (mls_actual>=(mls_byright*(1 - `buffer2'))) & mls_actual!=. & mls_byright!=.
+
+. replace mls_binding_10 = . if mls_actual==. | mls_byright==.
+(660,983 real changes made, 660,983 to missing)
+
+. gen mls_violate_10 = mls_actual<(mls_byright*(1 -`buffer2')) & mls_actual!=. & mls_byright!=.
+
+. replace mls_violate_10 = . if mls_actual==. | mls_byright==.
+(660,983 real changes made, 660,983 to missing)
+
+. 
+. * 10% buffer
+. * all (including imputed)
+. gen mls_binding_10_all = (mls_actual<=(mls_all*(1 + `buffer2'))) & (mls_actual>=(mls_all*(1 - `buffer2'))) & mls_actual!=. & mls_all!=.
+
+. replace mls_binding_10_all = . if mls_actual==. | mls_all==.
+(598,956 real changes made, 598,956 to missing)
+
+. gen mls_violate_10_all = mls_actual<(mls_all*(1 -`buffer2')) & mls_actual!=. & mls_all!=.
+
+. replace mls_violate_10_all = . if mls_actual==. | mls_all==.
+(598,956 real changes made, 598,956 to missing)
+
+. 
+. ** 2. height
+. * height actual 
+. gen height_actual = num_floors1*10 if num_floors1!=.
+(21,993 missing values generated)
+
+. 
+. replace mxfl_eff = mxfl_eff*10 //mult by 10 - 20240923
+(401,719 real changes made)
+
+. 
+. 
+. * height regulation w/ by-right
+. gen height_byright = maxheight if mxht_esval == 0 & maxheight!=0  /*non-imputed*/
+(570,979 missing values generated)
+
+. gen height_all = mxfl_eff if mxht_esval!=. & mxfl_eff!=0          /*includes imputed*/
+(560,296 missing values generated)
+
+. 
+. count if height_actual == . 
+  21,993
+
+. count if height_byright == . 
+  570,979
+
+. count if height_all == . 
+  560,296
+
+. 
+. local buffer1 = .1
+
+. local buffer2 = .2
+
+. 
+. ** binding/violation relative to regulation
+. * 5% buffer
+. * non-imputed
+. gen height_binding_05 = (height_actual<=(height_byright*(1 + `buffer1'))) & (height_actual>=(height_byright*(1 - `buffer1'))) & height_actual!=. & height_byright!=. 
+
+. replace height_binding_05 = . if height_actual==. | height_byright==.
+(583,622 real changes made, 583,622 to missing)
+
+. gen height_violate_05 = height_actual>(height_byright*(1 +`buffer1')) & height_actual!=. & height_byright!=. 
+
+. replace height_violate_05 = . if height_actual==. | height_byright==.
+(583,622 real changes made, 583,622 to missing)
+
+. 
+. * 5% buffer
+. * all (including imputed)
+. gen height_binding_05_all = (height_actual<=(height_all*(1 + `buffer1'))) & (height_actual>=(height_all*(1 - `buffer1'))) & height_actual!=. & height_all!=. 
+
+. replace height_binding_05_all = . if height_actual==. | height_all==.
+(573,099 real changes made, 573,099 to missing)
+
+. gen height_violate_05_all = height_actual>(height_all*(1 +`buffer1')) & height_actual!=. & height_all!=. 
+
+. replace height_violate_05_all = . if height_actual==. | height_all==.
+(573,099 real changes made, 573,099 to missing)
+
+. 
+. *10% buffer
+. *non-imputed
+. gen height_binding_10 = (height_actual<=(height_byright*(1 + `buffer2'))) & (height_actual>=(height_byright*(1 - `buffer2'))) & height_actual!=. & height_byright!=. 
+
+. replace height_binding_10 = . if height_actual==. | height_byright==. 
+(583,622 real changes made, 583,622 to missing)
+
+. gen height_violate_10 = height_actual>(height_byright*(1 +`buffer2')) & height_actual!=. & height_byright!=. 
+
+. replace height_violate_10 = . if height_actual==. | height_byright==.
+(583,622 real changes made, 583,622 to missing)
+
+. 
+. *10% buffer
+. *all (including imputed)
+. 
+. local buffer1 = .1
+
+. local buffer2 = .2
+
+. 
+. gen height_binding_10_all = (height_actual<=(height_all*(1 + `buffer2'))) & (height_actual>=(height_all*(1 - `buffer2'))) & height_actual!=. & height_all!=. 
+
+. replace height_binding_10_all = . if height_actual==. | height_all==. 
+(573,099 real changes made, 573,099 to missing)
+
+. gen height_violate_10_all = height_actual>(height_all*(1 +`buffer2')) & height_actual!=. & height_all!=. 
+
+. replace height_violate_10_all = . if height_actual==. | height_all==.
+(573,099 real changes made, 573,099 to missing)
+
+. 
+. 
+. ***********************************************************
+. ** 3. mulfam 
+. * mulfam actual 
+. gen mf_actual = num_units1 if num_units1!=.
+(1,697 missing values generated)
+
+. 
+. * mulfam by-right regulation 
+. gen mf_byright = home_mulfam if home_mulfam!=. 
+
+. 
+. *binding relative to regulation
+. gen mf_binding = (mf_byright==1 & mf_actual>1)
+
+. replace mf_binding = . if mf_byright == . | mf_actual == .
+(1,697 real changes made, 1,697 to missing)
+
+. gen mf_violate = (mf_byright==0 & mf_actual>1)    /*more than one unit on a lot even though mf not allowed*/
+
+. replace mf_violate = . if mf_byright == . | mf_actual == . 
+(1,697 real changes made, 1,697 to missing)
+
+. 
+. 
+. local buffer1 = .1
+
+. local buffer2 = .2
+
+. 
+. ** 4. maxdu 
+. * maxdu actual 
+. gen maxdu_actual = num_units1 if num_units1!=.
+(1,697 missing values generated)
+
+. 
+. * maxdu regulation w/ by-right
+. gen maxdu_byright = maxdu if mxdu_esval == 0 & maxdu!=0           /*non-imputed*/
+(662,873 missing values generated)
+
+. gen maxdu_all = mxdu_eff if mxdu_esval!= . & mxdu_eff!=0          /*includes imputed*/
+(565,231 missing values generated)
+
+. 
+. count if maxdu_actual == . 
+  1,697
+
+. count if maxdu_byright == . 
+  662,873
+
+. count if maxdu_all == . 
+  565,231
+
+. 
+. ** binding relative to regulation
+. * 5% buffer
+. * non-imputed
+. gen maxdu_binding_05 = (maxdu_actual<=(maxdu_byright*(1 + `buffer1'))) & (maxdu_actual>=(maxdu_byright*(1 - `buffer1'))) & maxdu_actual!=. & maxdu_byright!=. 
+
+. replace maxdu_binding_05 = . if maxdu_actual==. | maxdu_byright==.
+(663,175 real changes made, 663,175 to missing)
+
+. gen maxdu_violate_05 = maxdu_actual>(maxdu_byright*(1 +`buffer1')) & maxdu_actual!=. & maxdu_byright!=. 
+
+. replace maxdu_violate_05 = . if maxdu_actual==. | maxdu_byright==.
+(663,175 real changes made, 663,175 to missing)
+
+. 
+. * 5% buffer
+. * all (including imputed)
+. gen maxdu_binding_05_all = (maxdu_actual<=(maxdu_all*(1 + `buffer1'))) & (maxdu_actual>=(maxdu_all*(1 - `buffer1'))) & maxdu_actual!=. & maxdu_all!=. 
+
+. replace maxdu_binding_05_all = . if maxdu_actual==. | maxdu_all==.
+(565,726 real changes made, 565,726 to missing)
+
+. gen maxdu_violate_05_all = maxdu_actual>(maxdu_all*(1 +`buffer1')) & maxdu_actual!=. & maxdu_all!=. 
+
+. replace maxdu_violate_05_all = . if maxdu_actual==. | maxdu_all==.
+(565,726 real changes made, 565,726 to missing)
+
+. 
+. * 10% buffer
+. * non-imputed
+. gen maxdu_binding_10 = (maxdu_actual<=(maxdu_byright*(1 + `buffer2'))) & (maxdu_actual>=(maxdu_byright*(1 - `buffer2'))) & maxdu_actual!=. & maxdu_byright!=. 
+
+. replace maxdu_binding_10 = . if maxdu_actual==. | maxdu_byright==.
+(663,175 real changes made, 663,175 to missing)
+
+. gen maxdu_violate_10 = maxdu_actual>(maxdu_byright*(1 +`buffer2')) & maxdu_actual!=. & maxdu_byright!=. 
+
+. replace maxdu_violate_10 = . if maxdu_actual==. | maxdu_byright==.
+(663,175 real changes made, 663,175 to missing)
+
+. 
+. * 10% buffer
+. * all (including imputed)
+. gen maxdu_binding_10_all = (maxdu_actual<=(maxdu_all*(1 + `buffer2'))) & (maxdu_actual>=(maxdu_all*(1 - `buffer2'))) & maxdu_actual!=. & maxdu_all!=. 
+
+. replace maxdu_binding_10_all = . if maxdu_actual==. | maxdu_all==. 
+(565,726 real changes made, 565,726 to missing)
+
+. gen maxdu_violate_10_all = maxdu_actual>(maxdu_all*(1 +`buffer2')) & maxdu_actual!=. & maxdu_all!=. 
+
+. replace maxdu_violate_10_all = . if maxdu_actual==. | maxdu_all==.
+(565,726 real changes made, 565,726 to missing)
+
+. 
+. 
+. //stop
+. 
+. ** at this point we need to work step by step to get this to work correctly
+. 
+. * drop all dupac variables in current dataset
+. drop dupac*
+
+. 
+. * add on id to merge new data from zoning atlast
+. // cd /shared/boston_zoning/working_paper/data/shapefiles/standardized/
+. 
+.  
+. geoinpoly warren_latitude warren_longitude using "/shared/boston_zoning/working_paper/data/shapefiles/standardized/zoning_atlas_latlong_shp.dta", unique
+
+. 
+. * now add on the original dupac variables
+. merge m:1 _ID using "/shared/boston_zoning/working_paper/data/shapefiles/standardized/zoning_atlas_latlong.dta", keep(1 3) keepusing(dupac*) nogen
+<stata_dta>
+<map>
+<variable_types>
+<varnames>
+<sortlist>
+<formats>
+<value_label_names>
+<variable_labels>
+<characteristics>
+<data>
+<value_labels>
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                        13,843
+        from master                    13,843  
+        from using                          0  
+
+    Matched                           948,172  
+    -----------------------------------------
+
+. ren dupac_esva dupac_esval
+
+. 
+. *#### STOPPED HERE 
+. * uncomment the correct one
+. 
+. 
+. gen d1 = num_units / lot_sizeac
+(74,533 missing values generated)
+
+. bysort _ID: gen d2 = sum(num_units)/sum(lot_sizeac)
+(5,623 missing values generated)
+
+. 
+. sum d1,d
+
+                             d1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     .2207505              0
+ 5%     .5617978              0
+10%     .9345794              0       Obs             887,482
+25%     1.886793              0       Sum of wgt.     887,482
+
+50%            4                      Mean           14.76958
+                        Largest       Std. dev.      229.4661
+75%     9.090909          43400
+90%     23.07692          43400       Variance       52654.69
+95%     39.13043          43400       Skewness       127.5973
+99%     118.5185          43400       Kurtosis        21240.8
+
+. sum d2,d
+
+                             d2
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     .3378219              0
+ 5%     .7141661              0
+10%     .9038353              0       Obs             956,392
+25%     1.820165              0       Sum of wgt.     956,392
+
+50%     3.633935                      Mean           13.75805
+                        Largest       Std. dev.      68.86596
+75%     10.82057           8600
+90%     28.93857         9087.5       Variance       4742.521
+95%     49.79669         9387.5       Skewness       39.47946
+99%     102.5051           9875       Kurtosis       3251.177
+
+. 
+. gen dupac_byright = dupac if dupac_esval == 0 & dupac_eff != 0  // non-imputed
+(839,056 missing values generated)
+
+. gen dupac_all = dupac_eff if dupac_esval != . & dupac_eff != 0                    // includes imputed
+(24,526 missing values generated)
+
+. 
+. local buffer1 = .1
+
+. local buffer2 = .2
+
+. 
+. //diff versions of dupac_actual:
+. forval actual = 1/2 {
+  2.         * 10% buffer, non-imputed
+.         gen dupac_binding_10_d`actual' = (d`actual' <= (dupac_byright*(1 + `buffer2'))) & (d`actual'>=(dupac_byright*(1 - `buffer2'))) & d`actual'!=. & dupac_byright!=. 
+  3.         replace dupac_binding_10_d`actual' = . if d`actual'==. | dupac_byright==.
+  4. 
+.         gen dupac_violate_10_d`actual' = d`actual'>(dupac_byright*(1 +`buffer2')) & d`actual'!=. & dupac_byright!=. 
+  5.         replace dupac_violate_10_d`actual' = . if d`actual'==. | dupac_byright==.
+  6. 
+.         * 10% buffer, all (including imputed)
+.         gen dupac_binding_10_all_d`actual' = (d`actual'<=(dupac_all*(1 + `buffer2'))) & (d`actual'>=(dupac_all*(1 - `buffer2'))) & d`actual'!=. & dupac_all!=. 
+  7.         replace dupac_binding_10_all_d`actual' = . if d`actual'==. | dupac_all==. 
+  8. 
+.         gen dupac_violate_10_all_d`actual' = d`actual'>(dupac_all*(1 +`buffer2')) & d`actual'!=. & dupac_all!=. 
+  9.         replace dupac_violate_10_all_d`actual' = . if d`actual'==. | dupac_all==.
+ 10. }
+(853,438 real changes made, 853,438 to missing)
+(853,438 real changes made, 853,438 to missing)
+(95,369 real changes made, 95,369 to missing)
+(95,369 real changes made, 95,369 to missing)
+(841,282 real changes made, 841,282 to missing)
+(841,282 real changes made, 841,282 to missing)
+(30,056 real changes made, 30,056 to missing)
+(30,056 real changes made, 30,056 to missing)
+
+. 
+. ren d1 dupac_actual
+
+. ren d2 dupac_actual_zone
+
+. 
+. describe ,fullnames
+
+Contains data from /shared/boston_zoning/working_paper/replication_package/data/within_town_analysis_data.dta
+ Observations:       962,015                  
+    Variables:           594                  4 Apr 2025 13:05
+                                              (_dta has notes)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+prop_id         long    %12.0g                Warren Internal Property Record Number (for updating)
+mapref          str25   %25s                  Map Reference -- Usually Formatted as M: B: L:
+apn             str40   %40s                  Assessors Parcel Number Raw, Unprocessed as Provided by Assessor's Office
+source          str1    %9s                   P:Record from Assessor, S/M:Virtual' Property Record Created from Trxn
+st_num          long    %8.0g                 Number Portion of Situs Address Street Number
+st_numext       str5    %9s                   Additional Situs Street Number characters -- as in 82-84
+street          str25   %25s                  Situs Address Street Name Including Directionals
+lotcode         str1    %9s                   Describes Content of Situs Address Unit Field -- Lot or Parcel or Unit
+unit            str6    %9s                   Situs Address Lot, Parcel or Unit Number
+zipcode         long    %05.0f                Zip5 -- 5-digit Portion of Situs ZIP Code
+plus4           int     %04.0f                Plus4 Portion of Situs ZIP Code
+city            str20   %20s                  Town/city Name of Situs Address
+county          str15   %15s                  Full County Name of Situs Address
+state           str2    %9s                   State Code of Situs Address
+carrier_rt      str8    %9s                   Postal Carrier Route of Situs
+owner1_fn       str15   %15s                  First Name + Middle Initial Portion of Owner1
+owner1_ln       str25   %25s                  Last Name Portion of Owner1 (includes company names)
+owner2_fn       str15   %15s                  First Name + Middle Initial Portion of Owner2
+owner2_ln       str25   %25s                  Last Name Portion of Owner2 (includes company names)
+owner_rel       str15   %15s                  Relationship of Owner1 and Owner2
+res_owner       str1    %9s                   Y:Owners Reside at Address, N:Non-resident Owner, U:Unknown (most likely res)
+fy              int     %8.0g                 Fiscal Year During Which Assessed Values of Property Were Calculated
+entry_smonth    int     %tm                   Month of update/reload from Warren
+assd_totval     long    %12.0g                Total Assessed Value of Property
+assd_landval    long    %12.0g                Land Portion of Total Assessed Value of Property
+assd_bldgval    long    %12.0g                Building Portion of Total Assessed Value of Property
+tax_amt         long    %12.0g                Calc'd estimate -- Property Tax Amt Based on Assd Value, Prop Use, and Tax Rate
+tax_year        int     %8.0g                 Tax Year of Tax Rates Used in Tax Amount Calculation
+prop_usage      str12   %12s                  Property Usage
+usecode         str3    %9s                   MA Dept of Revenue Prop Usage Code -- Present Usage of Property (see prop_usage)
+zonecode        str6    %9s                   Zoning Code Representing Current Zoning Classification of Property
+lot_sizesqft    long    %12.0g                Size of Property in Square Feet
+lot_sizeac      float   %10.2f                Size of Property in Acres
+num_bldgs       int     %8.0g                 Number of Buildings on Property
+num_units       int     %8.0g                 Number of Units on Property
+year_built      int     %8.0g                 Original Year in Which Building was Constructed
+renovate_year   int     %8.0g                 Year in Which Most Recent Significant Improvements Were Made to Building
+num_floors      int     %8.0g                 Number of Floors in Building
+condo_floor     int     %8.0g                 Floor Number of Condo Unit
+common_area     float   %10.4f                Common Area Ownership Percentage for Condominium Properties
+num_firepl      int     %8.0g                 Number of Fireplaces in Building
+num_parkspot    int     %8.0g                 Number of Parking Spaces
+grossbldg_area  long    %12.0g                Gross Building Area Amount in Square Feet
+livingarea      long    %12.0g                Living Area of Building in Square Feet
+basetot_area    long    %8.0g                 Size of Building Basement in Square Feet -- Finished and Unfinished
+basefin_area    long    %8.0g                 Unfinished Area of Basement in Square Feet
+attic_area      long    %8.0g                 Finished and Unfinished Area of Attic in Square Feet
+floor1_area     long    %8.0g                 Area of First Floor in Square Feet
+totroom_num     int     %8.0g                 Total Number of Rooms in Building
+bedroom_num     int     %8.0g                 Number of Bedrooms in Building
+bathfull_num    int     %8.0g                 Number of Full Bathrooms in Building
+bathhalf_num    int     %8.0g                 Number of Half Bathrooms in Building
+amenity1        str50   %50s                  Amenity1 Description
+amenity2        str50   %50s                  Amenity2 Description
+amenity3        str50   %50s                  Amenity3 Description
+amenity4        str50   %50s                  Amenity4 Description
+amenity5        str50   %50s                  Amenity5 Description
+base_type       str15   %15s                  Basement Type
+build_style     str12   %12s                  Building Style
+condition       str15   %15s                  Building Condition
+const_type      str10   %10s                  Building Construction Type
+ext_cover       str15   %15s                  Building External Covering
+fuel_type       str8    %9s                   Heating System Fuel Type
+heat_type       str10   %10s                  Heating System Type
+park_type       str15   %15s                  Parking Type
+roof_type       str10   %10s                  Building Roof Type
+roof_mat        str15   %15s                  Building Roofing Material
+orig_latitude   double  %10.0g                original warren group lat coords + 2013 update
+orig_longitude  double  %10.0g                original warren group long coords + 2013 update
+state_fip       str2    %9s                   
+county_fip      str3    %9s                   
+cousub_name     str16   %16s                  
+cg_GEOID        str15   %15s                  Full GEOID from Census Geocoder
+cg_longitude    double  %10.0g                Longitude coordinates from Census GeoCoder
+cg_latitude     double  %10.0g                Latitude coordinates from Census GeoCoder
+cg_match_ind    str8    %9s                   TIGERline address match indicator
+warren_latitude double  %10.0g                original + corrected lat coords
+warren_longitude
+                double  %10.0g                original + correct long coords
+orig_GEOID_full str15   %15s                  original GEOID down to block + 2013 update
+warren_GEOID_full
+                str15   %15s                  original + corrected GEOID down to block, should be 2010 Census values
+residential_code
+                int     %49.0g     residential_code_lbl
+                                              prop use codes (residential only)
+res_type        double  %36.0g     res_type_lbl
+                                              
+condo_id        double  %10.0g                group(city zipcode street st_num)
+condo_units_max double  %10.0g                
+condo_units_count
+                double  %10.0g                
+condo_units_total
+                double  %10.0g                
+condo_recnum    double  %10.0g                
+l_r_fid         int     %10.0g                zoning area id from MAPC zone atlas
+boundary_using_id
+                double  %10.0g                unique ID for boundary segment
+boundary_side   str5    %9s                   indicates the final side the point was on
+boundary_side_both
+                str12   %12s                  indicates if the obs ever matched to LEFT==RIGHT
+boundary_dist   double  %10.0g                distance in miles to closest nth boundary
+boundary_dist_1mile
+                double  %10.0g                =1 if distance to nth closest boundary <1 mile
+home_zo_usety   double  %10.0g                zone use type of home zone
+home_mxht_eff   double  %10.0g                effective max height of home zone
+home_dupac_eff  double  %10.0g                effective dupac of home zone
+home_mulfam     double  %10.0g                multi-fam allowed in home zone
+home_reg_type   double  %10.0g                regulation type of home zone
+nn_zo_usety     double  %10.0g                zone use type of comparison zone
+nn_mxht_eff     double  %10.0g                effective max height of comparison zone
+nn_dupac_eff    double  %10.0g                effective dupac of comparison zone
+nn_mulfam       double  %10.0g                multi-fam allowed in comparison zone
+nn_reg_type     double  %10.0g                regulation type of comparison zone
+proptype_sf     double  %10.0g                (sum) proptype_sf
+proptype_gentle double  %10.0g                (sum) proptype_gentle
+proptype_hard   double  %10.0g                (sum) proptype_hard
+proptype_all    double  %10.0g                (sum) proptype_all
+density_sf      double  %10.0g                
+density_gentle  double  %10.0g                
+density_hard    double  %10.0g                
+costar_id       long    %10.0g                CoStar unique ID
+costar_match_type
+                double  %32.0g     match_type_lbl
+                                              CoStar to Warren match type
+nhpd_id         long    %10.0g                NHPD unique ID
+nhpd_match_type double  %32.0g     match_type_lbl
+                                              NHPD to Warren match type
+ch40b_match_type
+                byte    %32.0g     match_type_lbl
+                                              
+unique_id       double  %10.0g                
+ch40b_id        str5    %9s                   
+nhpd_status     str6    %9s                   
+ch40b_id2       str5    %9s                   
+ch40b_address   str147  %147s                 
+ch40b_city      str16   %16s                  
+census_tract    str6    %9s                   TRACT CODE
+block_group     str4    %9s                   BLOCK CODE
+ch40b_lon       double  %10.0g                
+ch40b_lat       double  %10.0g                
+ch40b_units     int     %10.0g                SHI Units
+ch40b_comp      str4    %9s                   Comp Permit?
+ch40b_source    str26   %26s                  
+YrEnd           str79   %79s                  Yr End
+OwnorRent       str9    %9s                   Own or Rent?
+DateCompPermitIssued
+                str10   %10s                  Date Comp Permit Issued
+MUNI            str18   %18s                  
+ch40b_status    str6    %9s                   
+year            double  %10.0g                
+closest_river_dist
+                float   %9.0g                 
+closest_road_dist
+                float   %9.0g                 
+closest_green_dist
+                float   %9.0g                 
+closest_school_dist
+                float   %9.0g                 
+closest_city_dist
+                float   %9.0g                 
+fred_cpi        float   %9.0g                 CPALTT01USA661S_NBD20190101
+PropertyAddress str32   %32s                  Property Address
+AvgEffectiveUnit
+                int     %10.0g                Avg Effective/Unit
+PropertyID      long    %10.0g                PropertyID
+AvgUnitSF       int     %10.0g                Avg Unit SF
+AvgAskingUnit   float   %10.0g                Avg Asking/Unit
+AvgAskingSF     double  %10.0g                Avg Asking/SF
+PropertyName    str45   %45s                  Property Name
+StarRating      byte    %10.0g                Star Rating
+EnergyStar      str11   %11s                  Energy Star
+LEEDCertified   str26   %26s                  LEED Certified
+BuildingStatus  str18   %18s                  Building Status
+NumberOfUnits   int     %10.0g                Number Of Units
+Style           str8    %9s                   Style
+RBA             long    %10.0g                RBA
+SecondaryType   str37   %37s                  Secondary Type
+MarketName      str6    %9s                   Market Name
+SubmarketName   str33   %33s                  Submarket Name
+City            str18   %18s                  City
+State           str2    %9s                   State
+Zip             str10   %10s                  Zip
+CountyName      str9    %9s                   County Name
+ForSalePrice    long    %10.0g                For Sale Price
+ForSaleStatus   str1    %9s                   For Sale Status
+YearBuilt       int     %10.0g                Year Built
+YearRenovated   int     %10.0g                Year Renovated
+BuildingPark    str39   %39s                  Building Park
+TotalBuildings  int     %10.0g                Total Buildings
+Zoning          str25   %25s                  Zoning
+NumberOfStories byte    %10.0g                Number Of Stories
+PriceUnit       byte    %10.0g                /Unit
+CapRate         double  %10.0g                Cap Rate
+Vacancy         double  %10.0g                Vacancy %
+AvgEffectiveSF  double  %10.0g                Avg Effective/SF
+AvgConcessions  double  %10.0g                Avg Concessions %
+Studios         double  %10.0g                % Studios
+OneBed          double  %10.0g                % 1-Bed
+TwoBed          double  %10.0g                % 2-Bed
+ThreeBed        double  %10.0g                % 3-Bed
+FourBed         double  %10.0g                % 4-Bed
+RentType        str17   %17s                  Rent Type
+AffordableType  str16   %16s                  Affordable Type
+MarketSegment   str9    %9s                   Market Segment
+ParkingSpacesUnit
+                double  %10.0g                Parking Spaces/Unit
+NumberOfParkingSpaces
+                int     %10.0g                Number Of Parking Spaces
+DaysOnMarket    int     %10.0g                Days On Market
+Amenities       str690  %690s                 Amenities
+AnchorGLA       byte    %10.0g                Anchor GLA
+AnchorTenants   byte    %10.0g                Anchor Tenants
+ArchitectName   str47   %47s                  Architect Name
+AverageWeightedRent
+                str6    %9s                   Average Weighted Rent
+AvgAskingBed    byte    %10.0g                Avg Asking/Bed
+AvgRentDirectIndustrial
+                byte    %10.0g                Avg Rent-Direct (Industrial)
+AvgRentDirectOffice
+                double  %10.0g                Avg Rent-Direct (Office)
+AvgRentDirectRetail
+                double  %10.0g                Avg Rent-Direct (Retail)
+AvgRentSubletIndustrial
+                byte    %10.0g                Avg Rent-Sublet (Industrial)
+AvgRentSubletOffice
+                double  %10.0g                Avg Rent-Sublet (Office)
+AvgRentSubletRetail
+                double  %10.0g                Avg Rent-Sublet (Retail)
+BuildingClass   str1    %9s                   Building Class
+BuildingOperatingExpenses
+                str58   %58s                  Building Operating Expenses
+BuildingTaxExpenses
+                str58   %58s                  Building Tax Expenses
+CeilingHeightRange
+                byte    %10.0g                Ceiling Height Range
+ClosestTransitStop
+                str46   %46s                  Closest Transit Stop
+ClosestTransitStopDistmi
+                double  %10.0g                Closest Transit Stop Dist (mi)
+ClosestTransitStopWalkTime
+                byte    %10.0g                Closest Transit Stop Walk Time (min)
+ColumnSpacing   byte    %10.0g                Column Spacing
+ConstructionMaterial
+                str19   %19s                  Construction Material
+CoreFactor      byte    %10.0g                Core Factor
+CrossStreet     str21   %21s                  Cross Street
+DeveloperName   str50   %50s                  Developer Name
+DirectAvailableSpace
+                int     %10.0g                Direct Available Space
+DirectServices  byte    %10.0g                Direct Services
+DirectVacantSpace
+                int     %10.0g                Direct Vacant Space
+DriveIns        str4    %9s                   Drive Ins
+ExpYear         int     %10.0g                Exp Year
+Features        str690  %690s                 Features
+FourBedroomAskingRentBed
+                int     %10.0g                Four Bedroom Asking Rent/Bed
+FourBedroomAskingRentSF
+                double  %10.0g                Four Bedroom Asking Rent/SF
+FourBedroomAskingRentUnit
+                int     %10.0g                Four Bedroom Asking Rent/Unit
+FourBedroomAvgSF
+                int     %10.0g                Four Bedroom Avg SF
+FourBedroomConcessions
+                double  %10.0g                Four Bedroom Concessions %
+FourBedroomEffectiveRentBed
+                int     %10.0g                Four Bedroom Effective Rent/Bed
+FourBedroomEffectiveRentSF
+                double  %10.0g                Four Bedroom Effective Rent/SF
+FourBedroomEffectiveRentUnit
+                int     %10.0g                Four Bedroom Effective Rent/Unit
+FourBedroomVacancy
+                double  %10.0g                Four Bedroom Vacancy %
+FourBedroomVacantUnits
+                byte    %10.0g                Four Bedroom Vacant Units
+Gas             str7    %9s                   Gas
+Heating         byte    %10.0g                Heating
+LandAreaAC      double  %10.0g                Land Area (AC)
+LandAreaSF      long    %10.0g                Land Area (SF)
+LastSaleDate    str9    %9s                   Last Sale Date
+LastSalePrice   long    %10.0g                Last Sale Price
+Latitude        double  %10.0g                Latitude
+costar_lat      double  %10.0g                Latitude
+LeasingCompanyAddress
+                str41   %41s                  Leasing Company Address
+LeasingCompanyCityStateZip
+                str30   %30s                  Leasing Company City State Zip
+LeasingCompanyContact
+                str21   %21s                  Leasing Company Contact
+LeasingCompanyFax
+                double  %10.0g                Leasing Company Fax
+LeasingCompanyName
+                str50   %50s                  Leasing Company Name
+LeasingCompanyPhone
+                double  %10.0g                Leasing Company Phone
+Longitude       double  %10.0g                Longitude
+costar_long     double  %10.0g                Longitude
+MaxBuildingContiguousSpace
+                int     %10.0g                Max Building Contiguous Space
+MaxFloorContiguousSpace
+                int     %10.0g                Max Floor Contiguous Space
+Notesmydata     byte    %10.0g                Notes (my data)
+NumberOf1BedroomsUnits
+                int     %10.0g                Number Of 1 Bedrooms Units
+NumberOf2BedroomsUnits
+                int     %10.0g                Number Of 2 Bedrooms Units
+NumberOf3BedroomsUnits
+                int     %10.0g                Number Of 3 Bedrooms Units
+NumberOf4BedroomsUnits
+                int     %10.0g                Number Of 4 Bedrooms Units
+NumberofBeds    byte    %10.0g                Number of Beds
+NumberOfCranes  byte    %10.0g                Number Of Cranes
+NumberOfElevators
+                byte    %10.0g                Number Of Elevators
+NumberOfLoadingDocks
+                byte    %10.0g                Number Of Loading Docks
+NumberOfRooms   byte    %10.0g                Number Of Rooms
+NumberOfStudiosUnits
+                int     %10.0g                Number Of Studios Units
+OfficeSpace     byte    %10.0g                Office Space
+OneBedroomAskingRentBed
+                int     %10.0g                One Bedroom Asking Rent/Bed
+OneBedroomAskingRentSF
+                double  %10.0g                One Bedroom Asking Rent/SF
+OneBedroomAskingRentUnit
+                int     %10.0g                One Bedroom Asking Rent/Unit
+OneBedroomAvgSF int     %10.0g                One Bedroom Avg SF
+OneBedroomConcessions
+                double  %10.0g                One Bedroom Concessions %
+OneBedroomEffectiveRentBed
+                int     %10.0g                One Bedroom Effective Rent/Bed
+OneBedroomEffectiveRentSF
+                double  %10.0g                One Bedroom Effective Rent/SF
+OneBedroomEffectiveRentUnit
+                int     %10.0g                One Bedroom Effective Rent/Unit
+OneBedroomVacancy
+                double  %10.0g                One Bedroom Vacancy %
+OneBedroomVacantUnits
+                int     %10.0g                One Bedroom Vacant Units
+OpsExpense      double  %10.0g                Ops Expense
+OpsExpensePerSF double  %10.0g                Ops Expense Per SF
+OwnerAddress    str48   %48s                  Owner Address
+OwnerCityStateZip
+                str34   %34s                  Owner City State Zip
+OwnerContact    str26   %26s                  Owner Contact
+OwnerName       str50   %50s                  Owner Name
+OwnerPhone      double  %10.0g                Owner Phone
+ParcelNumber1Min
+                str40   %40s                  Parcel Number 1(Min)
+ParcelNumber2Max
+                str40   %40s                  Parcel Number 2(Max)
+ParkingRatio    double  %10.0g                Parking Ratio
+PercentLeased   byte    %10.0g                Percent Leased
+Power           byte    %10.0g                Power
+PreLeasing      byte    %10.0g                Pre-Leasing
+PrimaryAgentName
+                str21   %21s                  Primary Agent Name
+PropertyLocation
+                str39   %39s                  Property Location
+PropertyManagerAddress
+                str42   %42s                  Property Manager Address
+PropertyManagerCityStateZip
+                str33   %33s                  Property Manager City State Zip
+PropertyManagerContact
+                str21   %21s                  Property Manager Contact
+PropertyManagerName
+                str50   %50s                  Property Manager Name
+PropertyManagerPhone
+                double  %10.0g                Property Manager Phone
+PropertyType    str34   %34s                  PropertyType
+ProposedLandUse byte    %10.0g                Proposed Land Use
+RailLines       byte    %10.0g                Rail Lines
+RecordedOwnerAddress
+                str49   %49s                  Recorded Owner Address
+RecordedOwnerCityStateZip
+                str32   %32s                  Recorded Owner City State Zip
+RecordedOwnerContact
+                str20   %20s                  Recorded Owner Contact
+RecordedOwnerName
+                str50   %50s                  Recorded Owner Name
+RecordedOwnerPhone
+                double  %10.0g                Recorded Owner Phone
+RentSFYr        str21   %21s                  Rent/SF/Yr
+SaleCompanyAddress
+                str22   %22s                  Sale Company Address
+SaleCompanyCityStateZip
+                str19   %19s                  Sale Company City State Zip
+SaleCompanyContact
+                str18   %18s                  Sale Company Contact
+SaleCompanyFax  double  %10.0g                Sale Company Fax
+SaleCompanyName str44   %44s                  Sale Company Name
+SaleCompanyPhone
+                double  %10.0g                Sale Company Phone
+SalesCompany    str44   %44s                  Sales Company
+SalesContact    str18   %18s                  Sales Contact
+SalesContactPhone
+                double  %10.0g                Sales Contact Phone
+Services        byte    %10.0g                Services
+Sewer           str4    %9s                   Sewer
+SmallestAvailableSpace
+                int     %10.0g                Smallest Available Space
+Sprinklers      str4    %9s                   Sprinklers
+StudioAskingRentBed
+                int     %10.0g                Studio Asking Rent/Bed
+StudioAskingRentSF
+                double  %10.0g                Studio Asking Rent/SF
+StudioAskingRentUnit
+                int     %10.0g                Studio Asking Rent/Unit
+StudioAvgSF     int     %10.0g                Studio Avg SF
+StudioConcessions
+                double  %10.0g                Studio Concessions %
+StudioEffectiveRentBed
+                int     %10.0g                Studio Effective Rent/Bed
+StudioEffectiveRentSF
+                double  %10.0g                Studio Effective Rent/SF
+StudioEffectiveRentUnit
+                int     %10.0g                Studio Effective Rent/Unit
+StudioVacancy   double  %10.0g                Studio Vacancy %
+StudioVacantUnits
+                int     %10.0g                Studio Vacant Units
+SubletAvailableSpace
+                int     %10.0g                Sublet Available Space
+SubletServices  byte    %10.0g                Sublet Services
+SubletVacantSpace
+                int     %10.0g                Sublet Vacant Space
+SubmarketCluster
+                str32   %32s                  Submarket Cluster
+TaxYear         int     %10.0g                Tax Year
+TaxesPerSF      double  %10.0g                Taxes Per SF
+TaxesTotal      double  %10.0g                Taxes Total
+Tenancy         str6    %9s                   Tenancy
+TESTFIELDmydata byte    %10.0g                TEST FIELD (my data)
+ThreeBedroomAskingRentBed
+                int     %10.0g                Three Bedroom Asking Rent/Bed
+ThreeBedroomAskingRentSF
+                double  %10.0g                Three Bedroom Asking Rent/SF
+ThreeBedroomAskingRentUnit
+                int     %10.0g                Three Bedroom Asking Rent/Unit
+ThreeBedroomAvgSF
+                int     %10.0g                Three Bedroom Avg SF
+ThreeBedroomConcessions
+                double  %10.0g                Three Bedroom Concessions %
+ThreeBedroomEffectiveRentBed
+                int     %10.0g                Three Bedroom Effective Rent/Bed
+ThreeBedroomEffectiveRentSF
+                double  %10.0g                Three Bedroom Effective Rent/SF
+ThreeBedroomEffectiveRentUni
+                int     %10.0g                Three Bedroom Effective Rent/Unit
+ThreeBedroomVacancy
+                double  %10.0g                Three Bedroom Vacancy %
+ThreeBedroomVacantUnits
+                byte    %10.0g                Three Bedroom Vacant Units
+TotalAvailableSpaceSF
+                int     %10.0g                Total Available Space (SF)
+TotalNewSpaceSF byte    %10.0g                Total New Space (SF)
+TotalReletSpaceSF
+                int     %10.0g                Total Relet Space (SF)
+TotalSubletSpaceSF
+                int     %10.0g                Total Sublet Space (SF)
+TotalVacantAvailReletSpace
+                int     %10.0g                Total Vacant Avail Relet Space (SF)
+TotalVacantAvailSubletSpace
+                int     %10.0g                Total Vacant Avail Sublet Space (SF)
+TotalVacantAvailable
+                int     %10.0g                Total Vacant Available
+TrueOwnerAddress
+                str48   %48s                  True Owner Address
+TrueOwnerCityStateZip
+                str34   %34s                  True Owner City State Zip
+TrueOwnerContact
+                str26   %26s                  True Owner Contact
+TrueOwnerName   str50   %50s                  True Owner Name
+TrueOwnerPhone  double  %10.0g                True Owner Phone
+TwoBedroomAskingRentBed
+                int     %10.0g                Two Bedroom Asking Rent/Bed
+TwoBedroomAskingRentSF
+                double  %10.0g                Two Bedroom Asking Rent/SF
+TwoBedroomAskingRentUnit
+                int     %10.0g                Two Bedroom Asking Rent/Unit
+TwoBedroomAvgSF int     %10.0g                Two Bedroom Avg SF
+TwoBedroomConcessions
+                double  %10.0g                Two Bedroom Concessions %
+TwoBedroomEffectiveRentBed
+                int     %10.0g                Two Bedroom Effective Rent/Bed
+TwoBedroomEffectiveRentSF
+                double  %10.0g                Two Bedroom Effective Rent/SF
+TwoBedroomEffectiveRentUnit
+                int     %10.0g                Two Bedroom Effective Rent/Unit
+TwoBedroomVacancy
+                double  %10.0g                Two Bedroom Vacancy %
+TwoBedroomVacantUnits
+                int     %10.0g                Two Bedroom Vacant Units
+TypicalFloorSize
+                long    %10.0g                Typical Floor Size
+University      str53   %53s                  University
+Water           str4    %9s                   Water
+costar_stnum    int     %10.0g                
+costar_street   str29   %29s                  
+costar_city     str18   %18s                  
+costar_GEOID    double  %10.0g                
+destring_id     long    %10.0g                
+costar_rent     double  %10.0g                Asking Rent Per Unit
+last_book       long    %12.0g                Town Clerk Book/volume Number -- Most Recent Sales Trxn
+last_page       int     %8.0g                 Town Clerk Page Number -- Most Recent Sales Trxn
+last_docid      str12   %12s                  Town Clerk Document Number -- Most Recent Sales Trxn
+last_salepr     double  %12.0g                Consideration Amount -- Most Recent Sales Trxn
+last_saledate   long    %12.0g                Date -- Most Recent Sales Trxn
+last_saleyr     int     %10.0g                Date -- Most Recent Sales Trxn
+last_deedtype   str15   %15s                  Deed Type -- Most Recent Sales Trxn
+last_saletype   str20   %20s                  Sale Type -- Most Recent Sales Trxn
+last_salenom    str1    %9s                   Y Indicates that Most Recent Sale < $100
+last_salevalid  str1    %9s                   Y Indicates that Most Recent Sale was Arms-length Trxn
+last_mortdate   long    %12.0g                Date -- Most Recent Mortgage Trxn
+last_mortamt    double  %12.0g                Mortgage Amount -- Most Recent Mortgage Trxn
+last_lender     str21   %21s                  Mortgage Lender -- Most Recent Mortgage Trxn
+res_typex       str36   %36s                  
+fam23_1         double  %10.0g                
+fam4plus_1      double  %10.0g                
+MU_2            double  %10.0g                
+num_floors1     double  %10.0g                
+num_units1      double  %10.0g                
+build_style1    long    %12.0g     build_style1
+                                              Building Style
+condition1      long    %15.0g     condition1
+                                              Building Condition
+ext_cover1      long    %15.0g     ext_cover1
+                                              Building External Covering
+fuel_type1      long    %8.0g      fuel_type1
+                                              Heating System Fuel Type
+heat_type1      long    %10.0g     heat_type1
+                                              Heating System Type
+roof_type1      long    %8.0g      roof_type1
+                                              Building Roof Type
+lot_acres       double  %10.0g                
+theta_sf        double  %10.0g                
+theta_gd        double  %10.0g                
+theta_hd        double  %10.0g                
+height          double  %10.0g                
+mf_allowed      double  %10.0g                
+std_he          double  %10.0g                Standardized height
+std_du          double  %10.0g                Standardized DUPAC
+height_2        double  %10.0g                
+byright_he      double  %10.0g                
+byright_du      double  %10.0g                
+mf_delta        double  %10.0g                
+he_delta        double  %10.0g                
+du_delta        double  %10.0g                
+only_mf         double  %10.0g                
+only_he         double  %10.0g                
+only_du         double  %10.0g                
+mf_he           double  %10.0g                
+mf_du           double  %10.0g                
+du_he           double  %10.0g                
+mf_he_du        double  %10.0g                
+own_du          double  %10.0g                
+other_du        double  %10.0g                
+own_he          double  %10.0g                
+other_he        double  %10.0g                
+std_du_own      double  %10.0g                
+std_he_own      double  %10.0g                
+std_du_other    double  %10.0g                
+std_he_other    double  %10.0g                
+lam_seg         double  %10.0g                
+blah            double  %10.0g                
+blah_sum        double  %10.0g                
+relaxed         double  %10.0g                
+relaxed2        double  %10.0g                
+relaxed3        double  %10.0g                
+relaxed4        double  %10.0g                
+clear_relaxed_strict_lam
+                double  %10.0g                
+dist            double  %10.0g                
+dist_1          double  %10.0g                
+dist_2          double  %10.0g                
+dist_both       double  %10.0g                
+strict          double  %10.0g                
+r_dist_both     double  %10.0g                
+dist_both2      double  %10.0g                
+r_dist_both2    double  %10.0g                
+dist_group      double  %10.0g                
+dist3           double  %10.0g     dist3      group(dist_group)
+dist_group2     double  %10.0g                
+dist3_2         double  %10.0g     dist3_2    group(dist_group2)
+dist_both3      double  %10.0g                
+strict3         double  %10.0g                
+r_dist_both3    double  %10.0g                
+dist_group3     double  %10.0g                
+dist3_3         double  %10.0g     dist3_3    group(dist_group3)
+dist_both4      double  %10.0g                
+strict4         double  %10.0g                
+r_dist_both4    double  %10.0g                
+dist_group4     double  %10.0g                
+dist3_4         double  %10.0g     dist3_4    group(dist_group4)
+def_houseprice  double  %10.0g                
+house_rent      double  %10.0g                
+log_houseprice  double  %10.0g                
+comb_rent1      double  %10.0g                
+comb1_99        double  %10.0g                
+comb_rent2      double  %10.0g                
+comb2_99        double  %10.0g                
+log_combrent1   double  %10.0g                
+log_combrent2   double  %10.0g                
+log_mfrent      double  %10.0g                
+sale_pct        double  %10.0g                
+ass_pct         double  %10.0g                
+def_saleprice   double  %10.0g                
+log_saleprice   double  %10.0g                
+avg_slope       double  %10.0g                
+slope_15        double  %10.0g                
+avg_restri      double  %10.0g                
+avg_sand        double  %10.0g                
+avg_clay        double  %10.0g                
+straight_line   double  %10.0g                
+home_minlotsize float   %9.0g                 
+nn_minlotsize   float   %9.0g                 
+mnls_eff        double  %10.0g                
+mnls_esval      long    %12.0g                
+plc_esval       double  %10.0g                
+mxfl_esval      double  %10.0g                
+maxheight       double  %10.0g                
+mxfl_eff        double  %10.0g                
+mxht_esval      long    %12.0g                
+maxdu           double  %10.0g                
+mxdu_eff        double  %10.0g                
+mxdu_esval      double  %10.0g                
+far             double  %10.0g                
+far_eff         double  %10.0g                
+far_esval       double  %10.0g                
+geo_id          str24   %24s                  GEO_ID
+frac_mortgage   float   %9.0g                 
+frac_ownedfree  float   %9.0g                 
+frac_rented     float   %9.0g                 
+frac_female     float   %9.0g                 
+frac_under18    float   %9.0g                 
+frac_over65     float   %9.0g                 
+frac_hispanic   float   %9.0g                 
+frac_nonhispanic
+                float   %9.0g                 
+frac_nonhispanicwhite
+                float   %9.0g                 
+frac_white      float   %9.0g                 
+frac_black      float   %9.0g                 
+frac_amindian   float   %9.0g                 
+frac_asian      float   %9.0g                 
+frac_aapi       float   %9.0g                 
+frac_other      float   %9.0g                 
+frac_multiracial
+                float   %9.0g                 
+frac_1pers      float   %9.0g                 
+frac_2ppl       float   %9.0g                 
+frac_3ppl       float   %9.0g                 
+frac_4ppl       float   %9.0g                 
+frac_morethan4  float   %9.0g                 
+total_block_pop int     %10.0g                
+BLKGRP          str12   %12s                  
+median_inc      double  %10.0g                Families: Median Family Income in the Past 12 Months (in 2009 Inflation-Adjusted
+dist_school     double  %10.0g                
+dist_center     double  %10.0g                
+dist_road       double  %10.0g                
+dist_river      double  %10.0g                
+dist_space      double  %10.0g                
+soil_avgslope   double  %10.0g                
+soil_slope15    double  %10.0g                
+soil_avgrestri  double  %10.0g                
+soil_avgsand    double  %10.0g                
+soil_avgclay    double  %10.0g                
+char1_lotsizeac1
+                double  %10.0g                
+char2_livingarea1
+                double  %10.0g                
+char3_bedrooms1 double  %10.0g                
+char4_bathfull1 double  %10.0g                
+log_lotacres    double  %10.0g                
+log_bldgarea    double  %10.0g                
+log_land        double  %10.0g                
+land_per_sqft   double  %10.0g                
+log_land_per_sqft
+                double  %10.0g                
+price_per_sqft  double  %10.0g                
+log_ppsqft      double  %10.0g                
+rent_per_sqft   double  %10.0g                
+log_rpsqft      double  %10.0g                
+mls_actual      double  %10.0g                
+mls_byright     double  %10.0g                
+mls_all         double  %10.0g                
+mls_binding_05  double  %10.0g                
+mls_violate_05  double  %10.0g                
+mls_binding_05_all
+                double  %10.0g                
+mls_violate_05_all
+                double  %10.0g                
+mls_binding_10  double  %10.0g                
+mls_violate_10  double  %10.0g                
+mls_binding_10_all
+                double  %10.0g                
+mls_violate_10_all
+                double  %10.0g                
+height_actual   double  %10.0g                
+height_byright  double  %10.0g                
+height_all      double  %10.0g                
+height_binding_05
+                double  %10.0g                
+height_violate_05
+                double  %10.0g                
+height_binding_05_all
+                double  %10.0g                
+height_violate_05_all
+                double  %10.0g                
+height_binding_10
+                double  %10.0g                
+height_violate_10
+                double  %10.0g                
+height_binding_10_all
+                double  %10.0g                
+height_violate_10_all
+                double  %10.0g                
+mf_actual       double  %10.0g                
+mf_byright      double  %10.0g                
+mf_binding      double  %10.0g                
+mf_violate      double  %10.0g                
+maxdu_actual    double  %10.0g                
+maxdu_byright   double  %10.0g                
+maxdu_all       double  %10.0g                
+maxdu_binding_05
+                double  %10.0g                
+maxdu_violate_05
+                double  %10.0g                
+maxdu_binding_05_all
+                double  %10.0g                
+maxdu_violate_05_all
+                double  %10.0g                
+maxdu_binding_10
+                double  %10.0g                
+maxdu_violate_10
+                double  %10.0g                
+maxdu_binding_10_all
+                double  %10.0g                
+maxdu_violate_10_all
+                double  %10.0g                
+_ID             long    %12.0g                
+dupac           int     %24.15f               dupac
+dupac_spec      str5    %9s                   dupac_spec
+dupac_ove       int     %24.15f               dupac_ove
+dupac_oven      str124  %124s                 dupac_oven
+dupac_calc      long    %24.15f               dupac_calc
+dupac_ca_1      int     %24.15f               dupac_ca_1
+dupac_ca_2      long    %24.15f               dupac_ca_2
+dupac_eff       int     %24.15f               dupac_eff
+dupac_note      str254  %254s                 dupac_note
+dupac_esval     byte    %24.15f               dupac_esva
+dupac_actual    double  %10.0g                
+dupac_actual_zone
+                double  %10.0g                
+dupac_byright   double  %10.0g                
+dupac_all       double  %10.0g                
+dupac_binding_10_d1
+                double  %10.0g                
+dupac_violate_10_d1
+                double  %10.0g                
+dupac_binding_10_all_d1
+                double  %10.0g                
+dupac_violate_10_all_d1
+                double  %10.0g                
+dupac_binding_10_d2
+                double  %10.0g                
+dupac_violate_10_d2
+                double  %10.0g                
+dupac_binding_10_all_d2
+                double  %10.0g                
+dupac_violate_10_all_d2
+                double  %10.0g                
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: _ID
+     Note: Dataset has changed since last saved.
+
+. 
+. 
+. stop
+   Dofile ran until specified stopping point.
+
+      name:  <unnamed>
+       log:  /shared/boston_zoning/working_paper/replication_package/analysis/revised_bindingness_output/revised_bindingness_log_2025-08-08.log
+  log type:  text
+ closed on:   8 Aug 2025, 14:03:52
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
