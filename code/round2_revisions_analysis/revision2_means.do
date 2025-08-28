@@ -8,6 +8,9 @@ local name ="revision2_means"  // <--- change when necessry
 * creates an output directory if none exists
 global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 
+global DATAPATH "${DATAPATH_replication_package}"
+global DOPATH "~/rda-projects/clones_dept/boston_zoning/code/analysis_files"
+
 capture confirm file "$EXPORTPATH"
 
 if _rc != 0 {
@@ -25,16 +28,17 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 * File name:		revision2_meanss.do
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
+*
+* Description:		
 *					updated on 8/28 to restrict to distince within .2 miles of 
 *					boundary
-* Description:		
 * 				
 * Inputs:		
 *
 * Outputs:		n/a
 *
 * Created:		07/30/2025
-* Updated:		07/30/2025
+* Updated:		08/28/2025
 ********************************************************************************
 
 
