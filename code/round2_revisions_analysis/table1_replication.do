@@ -29,14 +29,16 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
 *
-* Description:		
+* Description:		replicates table 1 from the ReStat paper
+*					updated on 8/28 to restrict to distince within .2 miles of 
+*					boundary
 * 				
-* Inputs:		
+* Inputs:			various
 *
 * Outputs:			n/a
 *
 * Created:			07/30/2025
-* Updated:			07/30/2025
+* Updated:			08/28/2025
 ********************************************************************************
 
 
@@ -141,6 +143,7 @@ keep if (year >= 2010 & year <= 2018)
 
 tab year
 
+keep if (dist_both<=0.21 & dist_both>=-0.2)
 
 ********************************************************************************
 ** define mean variables
@@ -373,3 +376,5 @@ restore
 ********************************************************************************
 log close
 clear all
+
+

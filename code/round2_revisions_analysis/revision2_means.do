@@ -25,7 +25,8 @@ log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
 * File name:		revision2_meanss.do
 *
 * Project title:	Boston Affordable Housing project (visting scholar porject)
-*
+*					updated on 8/28 to restrict to distince within .2 miles of 
+*					boundary
 * Description:		
 * 				
 * Inputs:		
@@ -139,6 +140,7 @@ keep if (year >= 2010 & year <= 2018)
 
 tab year
 
+keep if (dist_both<=0.21 & dist_both>=-0.2)
 
 ********************************************************************************
 ** define mean variables
