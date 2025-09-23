@@ -8,10 +8,7 @@ local name ="amenities_muni_boundary"  // <--- change when necessry
 * creates an output directory if none exists
 global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 
-global DATAPATH "${DATAPATH_replication_package}"
-global DOPATH "~/rda-projects/clones_dept/boston_zoning/code/analysis_files"
-
-capture confirm file "$EXPORTPATH" 
+capture confirm file "$EXPORTPATH"
 
 if _rc != 0 {
 	di "making directory $EXPORTPATH"
