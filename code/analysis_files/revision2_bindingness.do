@@ -803,7 +803,6 @@ restore
 
 
 
-
 ****2c. VARIATION OVER TIME 
 *restrict distance to 0.1 miles from boundary
 *generate year_built groups 
@@ -846,6 +845,130 @@ graph save "bindingness_over_time_01_du2.gph", replace
 restore 
 
 
+****2d - New 09/30 - number of binding regulations 
+*between 0.11 and -0.11
+preserve 
+*Lot-level fraction of binding boundaries
+keep if dist_both<=0.11 & dist_both>=-0.1
+
+
+gen sum_binding = dupac_d1_binding_10_all + mf_binding + height_binding_10_all 
+
+tab sum_binding
+
+
+gen binding_1 = (sum_binding ==1)
+tab binding_1
+
+
+gen binding_2 = (sum_binding==2)
+tab binding_2
+
+
+gen binding_3 = (sum_binding==3)
+tab binding_3
+
+
+gen sum_binding_du2 = dupac_d2_binding_10_all+ mf_binding==1+ height_binding_10_all 
+
+
+gen binding_1_du2 = (sum_binding_du2 ==1)
+tab binding_1_du2
+
+
+gen binding_2_du2 = (sum_binding_du2==2)
+tab binding_2_du2
+
+
+gen binding_3_du2 = (sum_binding_du2==3)
+tab binding_3_du2
+
+*generate average bindingenss by year group
+by yb_group, sort: egen frac_binding1 = mean(binding_1)
+by yb_group, sort: egen frac_binding2 = mean(binding_2)
+by yb_group, sort: egen frac_binding3 = mean(binding_3)
+
+
+by yb_group, sort: egen frac_binding1_du2 = mean(binding_1_du2)
+by yb_group, sort: egen frac_binding2_du2 = mean(binding_2_du2)
+by yb_group, sort: egen frac_binding3_du2 = mean(binding_3_du2)
+
+*du1
+graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
+graph save "num_binding_over_time_01_within01.gph", ytitle("Average number of binding regulations") replace
+
+
+*du2
+graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
+graph save "num_binding_over_time_02_within01.gph", ytitle("Average number of binding regulations") replace
+
+
+
+restore 
+
+
+
+
+
+*between 0.21 and -0.21
+preserve 
+*Lot-level fraction of binding boundaries
+keep if dist_both<=0.21 & dist_both>=-0.2
+
+
+gen sum_binding = dupac_d1_binding_10_all+ mf_binding + height_binding_10_all 
+
+tab sum_binding
+
+
+gen binding_1 = (sum_binding ==1)
+tab binding_1
+
+
+gen binding_2 = (sum_binding==2)
+tab binding_2
+
+
+gen binding_3 = (sum_binding==3)
+tab binding_3
+
+
+gen sum_binding_du2 = dupac_d2_binding_10_all+ mf_binding==1+ height_binding_10_all 
+
+
+gen binding_1_du2 = (sum_binding_du2 ==1)
+tab binding_1_du2
+
+
+gen binding_2_du2 = (sum_binding_du2==2)
+tab binding_2_du2
+
+
+gen binding_3_du2 = (sum_binding_du2==3)
+tab binding_3_du2
+
+*generate average bindingenss by year group
+by yb_group, sort: egen frac_binding1 = mean(binding_1)
+by yb_group, sort: egen frac_binding2 = mean(binding_2)
+by yb_group, sort: egen frac_binding3 = mean(binding_3)
+
+
+by yb_group, sort: egen frac_binding1_du2 = mean(binding_1_du2)
+by yb_group, sort: egen frac_binding2_du2 = mean(binding_2_du2)
+by yb_group, sort: egen frac_binding3_du2 = mean(binding_3_du2)
+
+*du1
+graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
+graph save "num_binding_over_time_01_within02.gph", ytitle("Average number of binding regulations") replace
+
+
+*du2
+graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
+graph save "num_binding_over_time_02_within02.gph", ytitle("Average number of binding regulations") replace
+
+
+
+restore 
 
 
 
