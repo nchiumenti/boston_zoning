@@ -1,3 +1,10 @@
+to dos for the final replication package
+    - Figure 1 from AK
+    - Walkthrough is NC
+    - For Can...fork the repo and have him go through the analysis files and have him comment on what produced what, and highlight any excess code we *do not* needed (like regressions) that we can delete
+    - goal is two repos, (internal) for us and then a public one we share with whomever publishes it
+    
+
 
 # Boston Zoning Project
 This repo stores all of the current working versions of data setup and analysis
