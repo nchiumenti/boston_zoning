@@ -1,3 +1,4 @@
+* add a test comment
 * start here
 clear all
 log close _all
