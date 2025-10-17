@@ -2,7 +2,7 @@
 
 library(tidyverse)
 
-data<-sf::read_sf("C:/current_projects/boston_zoning/data/Base Districts/zoning_atlas.shp")
+data<-sf::read_sf("C:\\01_current_projects\\_Boston Zoning Paper\\zoning_atlas_latlong.shp")
 
 data2 <- as.data.frame(data)
 

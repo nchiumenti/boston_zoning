@@ -69,14 +69,6 @@ be run in the specific order they are named based on their numbering.
 | straight_line_v_walking.do[^1] | ✅ | ✅ |✅ |
 | within_town_mtlines.do | ✅ | ✅ | ✅ |
 | within_town_mtlines_robustse.do | ✅ | ✅ |  ✅ |
-| existence.do |✅|✅|✅|
-| amenities_muni_boundary_onlymf.do |.|.|.|
-| table_1_replication.do|✅|✅|✅|
-| revision2_bindingness.do |✅|✅|✅| <--- flag as potentially not in final repli package
-| bindingness_land_values.do |.|.|.|
-| revision2_means.do |✅|✅|✅| <--- flag as potentially not in final repli package
-| revision2_within_town_mtlines.do |✅|✅|✅| <--- cross check and this can potentially replace the OG 
-| revision2_main_mtlines.do |✅|✅|✅| <--- cross check and this can potentially replace the OG main_mtlines.do
 
 ## File descriptions
 

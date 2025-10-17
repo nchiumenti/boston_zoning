@@ -3,7 +3,7 @@ clear all
 log close _all
 set linesize 255
 
-local name ="09192025_table1_replication"  // <--- change when necessry
+local name ="table1_replication"  // <--- change when necessry
 
 * creates an output directory if none exists
 global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
@@ -83,8 +83,6 @@ keep prop_id station_id station_name distance_m_* length_m
 destring prop_id distance_m_* length_m, replace
 
 gen transit_dist_m = distance_m_man + length_m
-
-replace transit_dist_m = transit_dist_m / 1609.34
 
 tempfile transit
 save `transit', replace
@@ -314,7 +312,7 @@ bysort lam_seg (boundary_dist): gen closest_parcel = 1 if _n == 1 // this will t
 
 gen closest_city_lamseg = closest_city_dist if closest_parcel == 1    /*what is the closest city dist of that closest parcel*/
 
-gen transit_dist_lamseg = transit_dist_m if closest_parcel == 1     /*what is the transit dist to south station of that closest parcel */
+gen transit_dist_lamseg = transit_dist if closest_parcel == 1     /*what is the transit dist to south station of that closest parcel */
 
 * end of additional code from 3/9/2023
 

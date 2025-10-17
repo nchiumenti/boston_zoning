@@ -15,13 +15,11 @@ global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
 //$EXPORTPATH
 capture confirm file "$EXPORTPATH"
 
+
 if _rc != 0 {
 	di "making directory $EXPORTPATH"
 	shell mkdir $EXPORTPATH
 }
-di "${EXPORTPATH}"
-
-
 cd "${EXPORTPATH}"
 
 * start log file
@@ -858,81 +856,53 @@ keep if dist_both<=0.11 & dist_both>=-0.1
 
 gen sum_binding = dupac_d1_binding_10_all + mf_binding + height_binding_10_all 
 
-tab sum_binding, miss
+tab sum_binding
 
 
-gen binding_1 = .
-replace binding_1 = 1 if sum_binding == 1
-replace binding_1 = 0 if sum_binding == 0 | sum_binding == 2 | sum_binding == 3
-
-tab binding_1, miss
+gen binding_1 = (sum_binding ==1)
+tab binding_1
 
 
-gen binding_2 = .
-replace binding_2 = 1 if sum_binding == 2
-replace binding_2 = 0 if sum_binding == 0 | sum_binding == 1 | sum_binding == 3
-
-tab binding_2, miss
+gen binding_2 = (sum_binding==2)
+tab binding_2
 
 
-gen binding_3 = .
-replace binding_3 = 1 if sum_binding == 3
-replace binding_3 = 0 if sum_binding == 0 | sum_binding == 1 | sum_binding == 2
-
-tab binding_3, miss
+gen binding_3 = (sum_binding==3)
+tab binding_3
 
 
 gen sum_binding_du2 = dupac_d2_binding_10_all+ mf_binding==1+ height_binding_10_all 
 
 
-gen binding_1_du2 = .
-replace binding_1_du2 = 1 if sum_binding_du2 == 1
-replace binding_1_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 2 | sum_binding_du2 == 3
-
-tab binding_1_du2, miss
+gen binding_1_du2 = (sum_binding_du2 ==1)
+tab binding_1_du2
 
 
-gen binding_2_du2 = .
-replace binding_2_du2 = 1 if sum_binding_du2 == 2
-replace binding_2_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 1 | sum_binding_du2 == 3
-
-tab binding_2_du2, miss
+gen binding_2_du2 = (sum_binding_du2==2)
+tab binding_2_du2
 
 
-gen binding_3_du2 = .
-replace binding_3_du2 = 1 if sum_binding_du2 == 3
-replace binding_3_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 1 | sum_binding_du2 == 2
-
-tab binding_3_du2, miss
+gen binding_3_du2 = (sum_binding_du2==3)
+tab binding_3_du2
 
 *generate average bindingenss by year group
 by yb_group, sort: egen frac_binding1 = mean(binding_1)
-tab yb_group frac_binding1, miss
-
 by yb_group, sort: egen frac_binding2 = mean(binding_2)
-tab yb_group frac_binding2, miss
-
 by yb_group, sort: egen frac_binding3 = mean(binding_3)
-tab yb_group frac_binding3, miss
 
 
 by yb_group, sort: egen frac_binding1_du2 = mean(binding_1_du2)
-tab yb_group frac_binding1_du2, miss
-
 by yb_group, sort: egen frac_binding2_du2 = mean(binding_2_du2)
-tab yb_group frac_binding2_du2, miss
-
 by yb_group, sort: egen frac_binding3_du2 = mean(binding_3_du2)
-tab yb_group frac_binding3_du2, miss 
 
 *du1
 graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
-graph save "num_binding_over_time_01_within01.gph", replace
+graph save "num_binding_over_time_01_within01.gph", replace //ytitle("Average number of binding regulations") 
 
 
 *du2
 graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
-graph save "num_binding_over_time_02_within01.gph",  replace
+graph save "num_binding_over_time_02_within01.gph",  replace //ytitle("Average number of binding regulations")
 
 
 
@@ -948,83 +918,55 @@ preserve
 keep if dist_both<=0.21 & dist_both>=-0.2
 
 
-gen sum_binding = dupac_d1_binding_10_all + mf_binding + height_binding_10_all 
+gen sum_binding = dupac_d1_binding_10_all+ mf_binding + height_binding_10_all 
 
-tab sum_binding, miss
-
-
-gen binding_1 = .
-replace binding_1 = 1 if sum_binding == 1
-replace binding_1 = 0 if sum_binding == 0 | sum_binding == 2 | sum_binding == 3
-
-tab binding_1, miss
+tab sum_binding
 
 
-gen binding_2 = .
-replace binding_2 = 1 if sum_binding == 2
-replace binding_2 = 0 if sum_binding == 0 | sum_binding == 1 | sum_binding == 3
-
-tab binding_2, miss
+gen binding_1 = (sum_binding ==1)
+tab binding_1
 
 
-gen binding_3 = .
-replace binding_3 = 1 if sum_binding == 3
-replace binding_3 = 0 if sum_binding == 0 | sum_binding == 1 | sum_binding == 2
+gen binding_2 = (sum_binding==2)
+tab binding_2
 
-tab binding_3, miss
+
+gen binding_3 = (sum_binding==3)
+tab binding_3
 
 
 gen sum_binding_du2 = dupac_d2_binding_10_all+ mf_binding==1+ height_binding_10_all 
 
 
-gen binding_1_du2 = .
-replace binding_1_du2 = 1 if sum_binding_du2 == 1
-replace binding_1_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 2 | sum_binding_du2 == 3
-
-tab binding_1_du2, miss
+gen binding_1_du2 = (sum_binding_du2 ==1)
+tab binding_1_du2
 
 
-gen binding_2_du2 = .
-replace binding_2_du2 = 1 if sum_binding_du2 == 2
-replace binding_2_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 1 | sum_binding_du2 == 3
-
-tab binding_2_du2, miss
+gen binding_2_du2 = (sum_binding_du2==2)
+tab binding_2_du2
 
 
-gen binding_3_du2 = .
-replace binding_3_du2 = 1 if sum_binding_du2 == 3
-replace binding_3_du2 = 0 if sum_binding_du2 == 0 | sum_binding_du2 == 1 | sum_binding_du2 == 2
-
-tab binding_3_du2, miss
+gen binding_3_du2 = (sum_binding_du2==3)
+tab binding_3_du2
 
 *generate average bindingenss by year group
 by yb_group, sort: egen frac_binding1 = mean(binding_1)
-tab yb_group frac_binding1, miss
-
 by yb_group, sort: egen frac_binding2 = mean(binding_2)
-tab yb_group frac_binding2, miss
-
 by yb_group, sort: egen frac_binding3 = mean(binding_3)
-tab yb_group frac_binding3, miss
 
 
 by yb_group, sort: egen frac_binding1_du2 = mean(binding_1_du2)
-tab yb_group frac_binding1_du2, miss
-
 by yb_group, sort: egen frac_binding2_du2 = mean(binding_2_du2)
-tab yb_group frac_binding2_du2, miss
-
 by yb_group, sort: egen frac_binding3_du2 = mean(binding_3_du2)
-tab yb_group frac_binding3_du2, miss 
 
 *du1
 graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
-graph save "num_binding_over_time_01_within02.gph", replace
+graph save "num_binding_over_time_01_within02.gph", replace // ytitle("Average number of binding regulations") 
 
 
 *du2
 graph bar frac_binding1 frac_binding2 frac_binding3, over(yb_group)
-graph save "num_binding_over_time_02_within02.gph", replace
+graph save "num_binding_over_time_02_within02.gph", replace // ytitle("Average number of binding regulations") 
 
 
 
@@ -2014,10 +1956,12 @@ eststo clear
 log close
 clear all 
 
-display "finished!" 
+display "finished!"
+
+scalar ZIP_OUTPUT = 1 
+if ZIP_OUTPUT{
+	zipfile "${EXPORTPATH}", saving("${EXPORTPATH}.zip",replace)
+}
 
 
-cd "${WORKINGDIR}/analysis"
-
-zipfile "${EXPORTPATH}",saving("${WORKINGDIR}/analysis/`name'_`date_stamp'", replace)
 
