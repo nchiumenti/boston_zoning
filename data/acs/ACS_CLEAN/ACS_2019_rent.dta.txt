@@ -1,0 +1,6 @@
+ACS_2019_rent.dta
+
+This is a placeholder file illustrating where the source file is located within 
+the directory structure.
+
+File too large to upload to GitHub

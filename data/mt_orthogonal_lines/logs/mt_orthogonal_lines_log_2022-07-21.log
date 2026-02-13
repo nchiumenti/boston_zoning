@@ -1,0 +1,71 @@
+-----------------------------------------------------------
+      name:  <unnamed>
+       log:  /home/a1nfc04/Documents/boston_zoning_sdrive/d
+> ata/mt_orthogonal_lines/logs/mt_orthogonal_lines_log_2022
+> -07-21.log
+  log type:  text
+ opened on:  21 Jul 2022, 10:59:23
+
+. 
+. 
+. *********************************************************
+> ***********************
+. 
+. copy "/home/a1nfc04/Documents/boston_zoning_sdrive/python
+> _programs/matt_turner_orthogonal_lines/mt_orthogonal_dist
+> _100m_07-01-22.csv" "mt_orthogonal_dist_100m_07-01-22.csv
+> ", replace
+
+. 
+. import delimited "mt_orthogonal_dist_100m_07-01-22.csv", 
+> clear stringcols(_all)
+(18 vars, 821,237 obs)
+
+. 
+. unique prop_id
+Number of unique values of prop_id is  821237
+Number of records is  821237
+
+. 
+. destring left_dist_m right_dist_m, replace
+left_dist_m: all characters numeric; replaced as double
+(241995 missing values generated)
+right_dist_m: all characters numeric; replaced as double
+(241995 missing values generated)
+
+. 
+. * define straight line boundary identifier
+. gen straight_line = (left_dist_m <= 15 | right_dist_m <= 15)
+
+. replace straight_line = . if unique_id == ""
+(241,995 real changes made, 241,995 to missing)
+
+. 
+. tab straight_line, missing
+
+straight_li |
+         ne |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    272,770       33.21       33.21
+          1 |    306,472       37.32       70.53
+          . |    241,995       29.47      100.00
+------------+-----------------------------------
+      Total |    821,237      100.00
+
+. 
+. drop if unique_id == ""
+(241,995 observations deleted)
+
+. 
+. save "mt_orthogonal_dist_100m_07-01-22.dta", replace
+(note: file mt_orthogonal_dist_100m_07-01-22.dta not found)
+file mt_orthogonal_dist_100m_07-01-22.dta saved
+
+. 
+. log off
+      name:  <unnamed>
+       log:  /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogonal_lines/logs/mt_orthogonal_lines
+> _log_2022-07-21.log
+  log type:  text
+ paused on:  21 Jul 2022, 10:59:41
+-----------------------------------------------------------------------------------------------------------

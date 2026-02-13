@@ -1,0 +1,5 @@
+Source: MA_assessor_annual_expanded.dta
+
+This is a placeholder file illustrating where the source file is located within the directory structure.
+
+Cannot be shared due to data license agreement.

@@ -1,0 +1,11 @@
+# US Census Bureau Cartographic Boundary files:
+#	url: https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+#	files: 'cb_2018_25_cousub_500k.zip'; 'cb_2018_25_bg_500k.zip'
+
+# MAPC Zoning Atlas:
+#	url: https://zoningatlas.mapc.org/
+#	files: 'Overlay Districts.zip'; 'Base Districts.zip'
+
+# NCES School Attendance Boundary Survey (SABS):
+#	url: https://nces.ed.gov/programs/edge/SABS
+#	files: 'ACS0610-SAA.zip'; 'SAA1011.zip'; 'SABS_1314_SchoolLevels.zip'; 'SABS_1516_SchoolLevels.zip'

@@ -1,0 +1,19 @@
+# excluded directories
+_archived/
+
+# excluded from the repo because they exceed 100MB
+data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_v2.dta
+data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22_moreregs.dta
+data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22.dta
+data/regulation_data/warren_zoning_regulations_match.dta
+data/acs/ACS_CLEAN/ACS_2019_rent.dta
+data/boundary_selection/SABS_1516_Primary.zip
+data/boundary_selection/SABS_1516_SchoolLevels.zip
+data/walkability/Natl_WI.gdb.zip
+data/zoning_boundaries/standardized/zo_usety_muni_latlong.zip
+data/zoning_boundaries/originals/zo_usety_muni.zip
+data/boundary_selection.zip
+data/schools/SABS_1516_Primary.zip
+data/schools/SABS_1516_SchoolLevels.zip
+data/soil/Soil_Parcel_Data_Shape.zip
+

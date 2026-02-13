@@ -1,0 +1,297 @@
+---
+title: "Soil Survey and Tax Parcel Intersection"
+author: "None"
+date: "2022-07-19"
+output: pdf_document
+---
+
+# Packages
+
+```{r}
+
+# Load packages (Install Accordingly)
+
+#install.packages("readr")
+#install.packages("dplyr")
+
+library(readr)
+library(dplyr)
+
+```
+
+# Data
+
+## Loading
+
+```{r}
+
+# Load Required Datasets (Change Locations Accordingly)
+
+# Full Intersection Data
+Soil_and_parcel_int_update1 <- read_csv("F:/WorkStudyData/CH40b/Soil_and_parcel_int_update1.csv")
+
+# Parcel data for checking duplicates and allowing for WKT shapefiles in QGIS
+Parcels_Fresh <- read_csv("F:/WorkStudyData/CH40b/Fixed_Parcels_Data.csv")
+
+```
+
+## Organizing
+
+```{r}
+# Turn SLOPE categories into numerics, using the midpoint of the categories' slopes as an average
+# Also calculate share of parcel belonging to each soil survey area
+# Create variables to clean up CM2RESLYR confusion and find slopes above 15%
+
+clean_sp <- Soil_and_parcel_int_update1 %>% 
+  mutate(
+    PARCEL_SHARE = Int_area/Parcel_area,
+    SLOPE_AVG = case_when(
+      SLOPE == "A" ~ 1.5,
+      SLOPE == "B" ~ 5.5,
+      SLOPE == "C" ~ 11.5,
+      SLOPE == "D" ~ 20,
+      SLOPE == "E" ~ 25,
+      SLOPE == "F" ~ 25,
+      SLOPE == "M" ~ 0,
+      SLOPE == "0" ~ 0
+    ), 
+    SOIL_RES_DEPTH = case_when(
+      CM2RESLYR == 0 & is.na(RESKIND) ~ 200,
+      TRUE ~ CM2RESLYR
+    ),
+    ABOVE_15 = case_when(
+      SLOPE_1 >= 15 ~ 1,
+      SLOPE_1 < 15 ~ 0
+    )
+  )
+
+```
+
+```{r}
+
+# Create unique identifier for each parcel
+# Length due to lack of uniqueness within given data 
+## i.e. multiple units in apartment or housing area given same identifier, despite having differences
+
+parcels_unique <- clean_sp %>% 
+  mutate(
+    unique_id = paste(
+      LOC_ID, PROP_ID, STYLE, YEAR_BUILT, LAST_EDIT, BLD_AREA, 
+      TOTAL_VAL, UNITS, NUM_ROOMS, STORIES, RES_AREA, LOT_SIZE, 
+      LS_DATE, LS_BOOK, LS_PAGE, USE_CODE, REG_ID, ZONING, OWN_CO, 
+      OWN_ADDR, SITE_ADDR, FULL_STR, OWNER1, 
+      sep = "-"
+    )
+  )
+
+```
+
+```{r}
+
+# Checking number of duplicated parcels using new unique identifier
+
+nrow(Parcels_Fresh)
+length(unique(parcels_unique$unique_id))
+
+```
+
+```{r}
+
+# Create unique identifier to include soil data, 
+# allowing for filtering of duplicates later
+
+full_unique <- parcels_unique %>% 
+  mutate(
+    full_unique_id = paste(
+      unique_id, AREASYMBOL, SPATIALVER, MUSYM, MUKEY, SS_AREA, PARCEL_SHARE
+    )
+  )
+
+```
+
+```{r}
+
+# Checking number of duplicated soil and parcel intersections using new unique identifier
+
+nrow(full_unique)
+length(unique(full_unique$full_unique_id))
+
+```
+
+### Removing Duplicates
+
+```{r}
+
+# Filter data to unique entries only
+
+final_sp <- distinct(full_unique)
+
+```
+
+# Calculations
+
+```{r}
+
+# Check to determine parcels whose total area sums to numbers that aren't 100%
+
+testfor100 <- final_sp %>% 
+  group_by(unique_id) %>% 
+  summarise(total_area = sum(PARCEL_SHARE)) 
+
+```
+
+```{r}
+
+# Calculate average slope per parcel based on created values
+
+slope1 <- final_sp %>% 
+  mutate(SLOPE_SHARE1 = SLOPE_AVG*PARCEL_SHARE) %>% 
+  group_by(unique_id) %>% 
+  summarise(AVG_SLOPE = sum(SLOPE_SHARE1))
+
+
+```
+
+```{r}
+
+# Alternative calculation for average slope
+
+slope2 <- final_sp %>% 
+  mutate(SLOPE_SHARE2 = SLOPE_1*PARCEL_SHARE) %>% 
+  group_by(unique_id) %>% 
+  summarise(AVG_SLOPE_ALT = sum(SLOPE_SHARE2))
+
+
+```
+
+
+```{r}
+
+# Calculate region of parcel with slope above 15 degrees
+
+slope3 <- final_sp %>% 
+  mutate(FRACTION_15 = ABOVE_15*PARCEL_SHARE) %>% 
+  group_by(unique_id) %>% 
+  summarise(SLOPE_15 = sum(FRACTION_15))
+
+
+```
+
+```{r}
+
+# Calculate average depth to soil restrictive layer on each parcel (in cm.)
+
+soil_restrict <- final_sp %>% 
+  mutate(RESTRICT_PORTION = PARCEL_SHARE * SOIL_RES_DEPTH) %>% 
+  group_by(unique_id) %>% 
+  summarise(AVG_RESTRICTION = sum(RESTRICT_PORTION))
+
+
+```
+
+```{r}
+
+# Calculate average sand concentration (%) in soil
+
+sandyness <- final_sp %>% 
+  mutate(SAND_SHARE = PARCEL_SHARE * SAND) %>% 
+  group_by(unique_id) %>% 
+  summarise(AVG_SAND = sum(SAND_SHARE))
+
+
+```
+
+```{r}
+
+# Calculate average clay concentration (%) in soil
+
+clayness <- final_sp %>% 
+  mutate(CLAY_SHARE = PARCEL_SHARE * CLAY) %>% 
+  group_by(unique_id) %>% 
+  summarise(AVG_CLAY = sum(CLAY_SHARE))
+
+
+```
+
+
+# Creating Final Dataset
+
+## Joins
+
+```{r}
+
+# Join datasets from calculations 
+
+join1 <- left_join(slope1, slope2, by = "unique_id")
+join2 <- left_join(join1, slope3, by = "unique_id")
+join3 <- left_join(join2, soil_restrict, by = "unique_id")
+join4 <- left_join(join3, sandyness, by = "unique_id")
+join5 <- left_join(join4, clayness, by = "unique_id")
+
+# Join calculations and total data to determine which parcels miss 100%
+
+join_last <- left_join(join5, testfor100, by = "unique_id")
+
+```
+
+```{r}
+
+# Create a fresh parcel dataset, used to join WKT to original parcels, 
+# allows for plotting
+
+
+Parcels_join <- Parcels_Fresh %>% 
+  mutate(
+    unique_id = paste(
+      LOC_ID, PROP_ID, STYLE, YEAR_BUILT, LAST_EDIT, BLD_AREA, 
+      TOTAL_VAL, UNITS, NUM_ROOMS, STORIES, RES_AREA, LOT_SIZE, 
+      LS_DATE, LS_BOOK, LS_PAGE, USE_CODE, REG_ID, ZONING, OWN_CO, 
+      OWN_ADDR, SITE_ADDR, FULL_STR, OWNER1, 
+      sep = "-")
+  ) %>% 
+  select(
+    WKT, unique_id, MAP_PAR_ID, PROP_ID, LOC_ID, SITE_ADDR
+  )
+
+```
+
+```{r}
+
+# Join calculations data with parcel data
+
+final_join <- left_join(Parcels_join, join_last, by = "unique_id")
+
+```
+
+## Final Data
+
+```{r}
+
+# Create final data set
+# Add columns to indicate parcels with areas below our threshold,
+# as well as those that return NA values
+
+final_data <- final_join %>% 
+  mutate(
+    is_full = case_when(
+      total_area >= 0.9 ~ 1,
+      TRUE ~ 0
+    ),
+    caution = case_when(
+      is.na(total_area) ~ 1,
+      TRUE ~ 0
+    )
+  )
+
+```
+
+
+# Saving
+
+```{r}
+
+# Create a csv of final_data (Change Location Accordingly)
+
+write_csv(final_data, "F:/WorkStudyData/CH40b/Final/Soil_Parcel_Data.csv")
+
+```

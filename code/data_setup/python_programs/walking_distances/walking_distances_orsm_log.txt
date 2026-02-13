@@ -1,0 +1,12 @@
+Last run on 10/17/22 at 04:04:20 PM
+2 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/walking_distance_outputs.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 05 seconds 
+
+Last run on 10/17/22 at 04:04:40 PM
+2 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/walking_distance_outputs.csv 
+Total run time: 0 days, 00 hours, 00 minutes, 25 seconds 
+
+Last run on 10/17/22 at 04:36:28 PM
+1,358 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/walking_distance_outputs.csv 
+Total run time: 0 days, 00 hours, 25 minutes, 55 seconds 
+

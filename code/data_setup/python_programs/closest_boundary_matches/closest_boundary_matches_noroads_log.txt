@@ -1,0 +1,24 @@
+Last run on 10/17/22 at 10:28:19 AM
+1,000 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/warren/closest_boundary_matches/closest_boundary_no_roads_2022-10-17.csv 
+Total run time: 2 days, 22 hours, 06 minutes, 16 seconds 
+
+Last run on 10/17/22 at 11:20:01 AM
+584,405 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_no_roads_2022-10-17.csv 
+Total run time: 0 days, 00 hours, 07 minutes, 44 seconds 
+
+Last run on 10/17/22 at 11:37:55 AM
+584,405 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_no_roads_2022-10-17.csv 
+Total run time: 0 days, 00 hours, 07 minutes, 50 seconds 
+
+Last run on 10/17/22 at 11:51:50 AM
+584,405 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_no_roads_2022-10-17.csv 
+Total run time: 0 days, 00 hours, 07 minutes, 42 seconds 
+
+Last run on 11/01/22 at 02:33:51 PM
+584,405 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_noroads.csv 
+Total run time: 0 days, 00 hours, 08 minutes, 10 seconds 
+
+Last run on 11/01/22 at 02:36:31 PM
+584,405 observations written to /home/a1nfc04/Documents/boston_zoning_sdrive/data/closest_boundary_matches/closest_boundary_matches_noroads.csv 
+Total run time: 0 days, 00 hours, 10 minutes, 50 seconds 
+

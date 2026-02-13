@@ -1,0 +1,5 @@
+Source: Natl_WI.gdb.zip
+
+This is a placeholder file illustrating where the source file is located within the directory structure.
+
+Not uploaded to GitHub due to file size exceeding upload limit.

@@ -1,0 +1,703 @@
+Samples selected:
+      2019 ACS
+File Type:                    rectangular
+Case Selection:               No
+  Variable               Columns        Len   2019    
+  YEAR               H   1-4            4     X       
+  SAMPLE             H   5-10           6     X       
+  SERIAL             H  11-18           8     X       
+  CBSERIAL           H  19-31          13     X       
+  HHWT               H  32-41          10     X       
+  CLUSTER            H  42-54          13     X       
+  REGION             H  55-56           2     X       
+  STATEICP           H  57-58           2     X       
+  STATEFIP           H  59-60           2     X       
+  COUNTYICP          H  61-64           4     X       
+  COUNTYFIP          H  65-67           3     X       
+  PUMA               H  68-72           5     X       
+  STRATA             H  73-84          12     X       
+  GQ                 H  85              1     X       
+  OWNERSHP           H  86              1     X       
+  OWNERSHPD          H  87-88           2     X       
+  OWNCOST            H  89-93           5     X       
+  RENT               H  94-97           4     X       
+  RENTGRS            H  98-101          4     X       
+  CONDOFEE           H 102-105          4     X       
+  MOBLHOME           H 106-110          5     X       
+  VALUEH             H 111-117          7     X       
+  VACANCY            H 118              1     X       
+  UNITSSTR           H 119-120          2     X       
+  PERNUM             P 121-124          4     X       
+  PERWT              P 125-134         10     X       
+
+Variable Availability Key:
+All Years X - available in this sample
+All Years . - not available in this sample
+
+RECTYPE   Record type
+1         Household
+2         Person
+
+YEAR                Census year
+1850                1850
+1860                1860
+1870                1870
+1880                1880
+1900                1900
+1910                1910
+1920                1920
+1930                1930
+1940                1940
+1950                1950
+1960                1960
+1970                1970
+1980                1980
+1990                1990
+2000                2000
+2001                2001
+2002                2002
+2003                2003
+2004                2004
+2005                2005
+2006                2006
+2007                2007
+2008                2008
+2009                2009
+2010                2010
+2011                2011
+2012                2012
+2013                2013
+2014                2014
+2015                2015
+2016                2016
+2017                2017
+2018                2018
+2019                2019
+
+SAMPLE              IPUMS sample identifier
+201904              2015-2019, PRCS 5-year
+201903              2015-2019, ACS 5-year
+201902              2019 PRCS
+201901              2019 ACS
+201804              2014-2018, PRCS 5-year
+201803              2014-2018, ACS 5-year
+201802              2018 PRCS
+201801              2018 ACS
+201704              2013-2017, PRCS 5-year
+201703              2013-2017, ACS 5-year
+201702              2017 PRCS
+201701              2017 ACS
+201604              2012-2016, PRCS 5-year
+201603              2012-2016, ACS 5-year
+201602              2016 PRCS
+201601              2016 ACS
+201504              2011-2015, PRCS 5-year
+201503              2011-2015, ACS 5-year
+201502              2015 PRCS
+201501              2015 ACS
+201404              2010-2014, PRCS 5-year
+201403              2010-2014, ACS 5-year
+201402              2014 PRCS
+201401              2014 ACS
+201306              2009-2013, PRCS 5-year
+201305              2009-2013, ACS 5-year
+201304              2011-2013, PRCS 3-year
+201303              2011-2013, ACS 3-year
+201302              2013 PRCS
+201301              2013 ACS
+201206              2008-2012, PRCS 5-year
+201205              2008-2012, ACS 5-year
+201204              2010-2012, PRCS 3-year
+201203              2010-2012, ACS 3-year
+201202              2012 PRCS
+201201              2012 ACS
+201106              2007-2011, PRCS 5-year
+201105              2007-2011, ACS 5-year
+201104              2009-2011, PRCS 3-year
+201103              2009-2011, ACS 3-year
+201102              2011 PRCS
+201101              2011 ACS
+201008              2010 Puerto Rico 10%
+201007              2010 10%
+201006              2006-2010, PRCS 5-year
+201005              2006-2010, ACS 5-year
+201004              2008-2010, PRCS 3-year
+201003              2008-2010, ACS 3-year
+201002              2010 PRCS
+201001              2010 ACS
+200906              2005-2009, PRCS 5-year
+200905              2005-2009, ACS 5-year
+200904              2007-2009, PRCS 3-year
+200903              2007-2009, ACS 3-year
+200902              2009 PRCS
+200901              2009 ACS
+200804              2006-2008, PRCS 3-year
+200803              2006-2008, ACS 3-year
+200802              2008 PRCS
+200801              2008 ACS
+200704              2005-2007, PRCS 3-year
+200703              2005-2007, ACS 3-year
+200702              2007 PRCS
+200701              2007 ACS
+200602              2006 PRCS
+200601              2006 ACS
+200502              2005 PRCS
+200501              2005 ACS
+200401              2004 ACS
+200301              2003 ACS
+200201              2002 ACS
+200101              2001 ACS
+200008              2000 Puerto Rico 1%
+200007              2000 1%
+200006              2000 Puerto Rico 1% sample (old version)
+200005              2000 Puerto Rico 5%
+200004              2000 ACS
+200003              2000 Unweighted 1%
+200002              2000 1% sample (old version)
+200001              2000 5%
+199007              1990 Puerto Rico 1%
+199006              1990 Puerto Rico 5%
+199005              1990 Labor Market Area
+199004              1990 Elderly
+199003              1990 Unweighted 1%
+199002              1990 1%
+199001              1990 5%
+198007              1980 Puerto Rico 1%
+198006              1980 Puerto Rico 5%
+198005              1980 Detailed metro/non-metro
+198004              1980 Labor Market Area
+198003              1980 Urban/Rural
+198002              1980 1%
+198001              1980 5%
+197009              1970 Puerto Rico Neighborhood
+197008              1970 Puerto Rico Municipio
+197007              1970 Puerto Rico State
+197006              1970 Form 2 Neighborhood
+197005              1970 Form 1 Neighborhood
+197004              1970 Form 2 Metro
+197003              1970 Form 1 Metro
+197002              1970 Form 2 State
+197001              1970 Form 1 State
+196002              1960 5%
+196001              1960 1%
+195001              1950 1%
+194002              1940 100% database
+194001              1940 1%
+193004              1930 100% database
+193003              1930 Puerto Rico
+193002              1930 5%
+193001              1930 1%
+192003              1920 100% database
+192002              1920 Puerto Rico sample
+192001              1920 1%
+191004              1910 100% database
+191003              1910 1.4% sample with oversamples
+191002              1910 1%
+191001              1910 Puerto Rico
+190004              1900 100% database
+190003              1900 1% sample with oversamples
+190002              1900 1%
+190001              1900 5%
+188003              1880 100% database
+188002              1880 10%
+188001              1880 1%
+187003              1870 100% database
+187002              1870 1% sample with black oversample
+187001              1870 1%
+186003              1860 100% database
+186002              1860 1% sample with black oversample
+186001              1860 1%
+185002              1850 100% database
+185001              1850 1%
+
+REGION              Census region and division
+                    NORTHEAST REGION
+11                  New England Division
+12                  Middle Atlantic Division
+13                  Mixed Northeast Divisions (1970 Metro)
+                    MIDWEST REGION
+21                  East North Central Div.
+22                  West North Central Div.
+23                  Mixed Midwest Divisions (1970 Metro)
+                    SOUTH REGION
+31                  South Atlantic Division
+32                  East South Central Div.
+33                  West South Central Div.
+34                  Mixed Southern Divisions (1970 Metro)
+                    WEST REGION
+41                  Mountain Division
+42                  Pacific Division
+43                  Mixed Western Divisions (1970 Metro)
+                    STATE UNKNOWN
+91                  Military/Military reservations
+92                  PUMA boundaries cross state lines-1% sample
+97                  State not identified
+99                  Not identified
+
+STATEICP            State (ICPSR code)
+01                  Connecticut
+02                  Maine
+03                  Massachusetts
+04                  New Hampshire
+05                  Rhode Island
+06                  Vermont
+11                  Delaware
+12                  New Jersey
+13                  New York
+14                  Pennsylvania
+21                  Illinois
+22                  Indiana
+23                  Michigan
+24                  Ohio
+25                  Wisconsin
+31                  Iowa
+32                  Kansas
+33                  Minnesota
+34                  Missouri
+35                  Nebraska
+36                  North Dakota
+37                  South Dakota
+40                  Virginia
+41                  Alabama
+42                  Arkansas
+43                  Florida
+44                  Georgia
+45                  Louisiana
+46                  Mississippi
+47                  North Carolina
+48                  South Carolina
+49                  Texas
+51                  Kentucky
+52                  Maryland
+53                  Oklahoma
+54                  Tennessee
+56                  West Virginia
+61                  Arizona
+62                  Colorado
+63                  Idaho
+64                  Montana
+65                  Nevada
+66                  New Mexico
+67                  Utah
+68                  Wyoming
+71                  California
+72                  Oregon
+73                  Washington
+81                  Alaska
+82                  Hawaii
+83                  Puerto Rico
+96                  State groupings (1980 Urban/rural sample)
+97                  Military/Mil. Reservations
+98                  District of Columbia
+99                  State not identified
+
+STATEFIP            State (FIPS code)
+01                  Alabama
+02                  Alaska
+04                  Arizona
+05                  Arkansas
+06                  California
+08                  Colorado
+09                  Connecticut
+10                  Delaware
+11                  District of Columbia
+12                  Florida
+13                  Georgia
+15                  Hawaii
+16                  Idaho
+17                  Illinois
+18                  Indiana
+19                  Iowa
+20                  Kansas
+21                  Kentucky
+22                  Louisiana
+23                  Maine
+24                  Maryland
+25                  Massachusetts
+26                  Michigan
+27                  Minnesota
+28                  Mississippi
+29                  Missouri
+30                  Montana
+31                  Nebraska
+32                  Nevada
+33                  New Hampshire
+34                  New Jersey
+35                  New Mexico
+36                  New York
+37                  North Carolina
+38                  North Dakota
+39                  Ohio
+40                  Oklahoma
+41                  Oregon
+42                  Pennsylvania
+44                  Rhode Island
+45                  South Carolina
+46                  South Dakota
+47                  Tennessee
+48                  Texas
+49                  Utah
+50                  Vermont
+51                  Virginia
+53                  Washington
+54                  West Virginia
+55                  Wisconsin
+56                  Wyoming
+                    State groups (1980 Urban/rural sample):
+61                  Maine-New Hampshire-Vermont
+62                  Massachusetts-Rhode Island
+63                  Minnesota-Iowa-Missouri-Kansas-Nebraska-S.Dakota-N.Dakota
+64                  Maryland-Delaware
+65                  Montana-Idaho-Wyoming
+66                  Utah-Nevada
+67                  Arizona-New Mexico
+68                  Alaska-Hawaii
+72                  Puerto Rico
+97                  Military/Mil. Reservation
+99                  State not identified
+
+COUNTYICP           County (ICPSR code)
+0010                
+0030                
+0050                
+0070                
+0090                
+0110                
+0130                
+0150                
+0170                
+0190                
+0200                
+0205                
+0210                
+0230                
+0250                
+0270                
+0290                
+0310                
+0330                
+0350                
+0360                
+0370                
+0390                
+0410                
+0430                
+0450                
+0455                
+0470                
+0490                
+0510                
+0530                
+0550                
+0570                
+0590                
+0605                
+0610                
+0630                
+0650                
+0670                
+0690                
+0710                
+0730                
+0750                
+0770                
+0790                
+0810                
+0830                
+0850                
+0870                
+0890                
+0910                
+0930                
+0950                
+0970                
+0990                
+1010                
+1030                
+1050                
+1070                
+1090                
+1110                
+1130                
+1150                
+1170                
+1190                
+1210                
+1230                
+1250                
+1270                
+1290                
+1310                
+1330                
+1350                
+1370                
+1390                
+1410                
+1430                
+1450                
+1470                
+1490                
+1510                
+1530                
+1550                
+1570                
+1590                
+1610                
+1630                
+1650                
+1670                
+1690                
+1710                
+1730                
+1750                
+1770                
+1790                
+1810                
+1830                
+1850                
+1870                
+1875                
+1890                
+1910                
+1930                
+1950                
+1970                
+1990                
+2010                
+2030                
+2050                
+2070                
+2090                
+2110                
+2130                
+2150                
+2170                
+2190                
+2210                
+2230                
+2250                
+2270                
+2290                
+2310                
+2330                
+2350                
+2370                
+2390                
+2410                
+2430                
+2450                
+2470                
+2490                
+2510                
+2530                
+2550                
+2570                
+2590                
+2610                
+2630                
+2650                
+2670                
+2690                
+2710                
+2730                
+2750                
+2770                
+2790                
+2810                
+2830                
+2850                
+2870                
+2890                
+2910                
+2930                
+2950                
+2970                
+2990                
+3010                
+3030                
+3050                
+3070                
+3090                
+3110                
+3130                
+3150                
+3170                
+3190                
+3210                
+3230                
+3250                
+3270                
+3290                
+3310                
+3330                
+3350                
+3370                
+3390                
+3410                
+3430                
+3450                
+3470                
+3490                
+3510                
+3530                
+3550                
+3570                
+3590                
+3610                
+3630                
+3650                
+3670                
+3690                
+3710                
+3730                
+3750                
+3770                
+3790                
+3810                
+3830                
+3850                
+3870                
+3890                
+3910                
+3930                
+3950                
+3970                
+3990                
+4010                
+4030                
+4050                
+4070                
+4090                
+4110                
+4130                
+4150                
+4170                
+4190                
+4210                
+4230                
+4250                
+4270                
+4290                
+4310                
+4330                
+4350                
+4370                
+4390                
+4410                
+4430                
+4450                
+4470                
+4490                
+4510                
+4530                
+4550                
+4570                
+4590                
+4610                
+4630                
+4650                
+4670                
+4690                
+4710                
+4730                
+4750                
+4770                
+4790                
+4810                
+4830                
+4850                
+4870                
+4890                
+4910                
+4930                
+4950                
+4970                
+4990                
+5010                
+5030                
+5050                
+5070                
+5100                
+5200                
+5300                
+5400                
+5500                
+5600                
+5700                
+5800                
+5900                
+6100                
+6300                
+6400                
+6500                
+6600                
+6700                
+6800                
+6900                
+7000                
+7100                
+7200                
+7300                
+7400                
+7500                
+7600                
+7700                
+7800                
+7850                
+7900                
+8000                
+8100                
+8200                
+8300                
+8400                
+
+GQ                  Group quarters status
+0                   Vacant unit
+                    Households:
+1                   Households under 1970 definition
+2                   Additional households under 1990 definition
+                    Group Quarters:
+3                   Group quarters--Institutions
+4                   Other group quarters
+5                   Additional households under 2000 definition
+6                   Fragment
+
+OWNERSHP            Ownership of dwelling (tenure) [general version]
+0                   N/A
+1                   Owned or being bought (loan)
+2                   Rented
+
+OWNERSHPD           Ownership of dwelling (tenure) [detailed version]
+00                  N/A
+10                  Owned or being bought
+11                  Check mark (owns?)
+12                  Owned free and clear
+13                  Owned with mortgage or loan
+20                  Rented
+21                  No cash rent
+22                  With cash rent
+
+VACANCY             Vacancy status
+0                   N/A
+1                   For rent or sale
+2                   For sale only
+3                   Rented or sold but not (yet) occupied
+4                   For seasonal, recreational or other occasional use
+5                   For occasional use
+6                   For seasonal use
+7                   For migrant farm workers
+8                   For seasonal use or migratory
+9                   Other vacant
+
+UNITSSTR            Units in structure
+00                  N/A
+01                  Mobile home or trailer
+02                  Boat, tent, van, other
+03                  1-family house, detached
+04                  1-family house, attached
+05                  2-family building
+06                  3-4 family building
+07                  5-9 family building
+08                  10-19 family building
+09                  20-49 family building
+10                  50+ family building

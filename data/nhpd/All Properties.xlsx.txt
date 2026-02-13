@@ -1,0 +1,3 @@
+All Properties.xlsx
+
+Placeholder file illustrating where the original sits in the working directory.

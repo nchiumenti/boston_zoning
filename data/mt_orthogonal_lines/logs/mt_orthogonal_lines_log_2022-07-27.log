@@ -1,0 +1,267 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogonal_lines/logs//mt_orthogonal_lines_log_2022-07-27.log
+  log type:  text
+ opened on:  27 Jul 2022, 11:05:43
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. import delimited "/home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-01-22.csv", clear stringcols(_all)
+(18 vars, 821,237 obs)
+
+. 
+. keep if left_dist_m != "" & right_dist_m != ""
+(241,995 observations deleted)
+
+. 
+. destring left_dist_m right_dist_m, replace
+left_dist_m: all characters numeric; replaced as double
+right_dist_m: all characters numeric; replaced as double
+
+. 
+. gen straight_line = (left_dist_m <=15 & right_dist_m<=15)
+
+. 
+. tab straight_line
+
+straight_li |
+         ne |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    448,337       77.40       77.40
+          1 |    130,905       22.60      100.00
+------------+-----------------------------------
+      Total |    579,242      100.00
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. import delimited "/home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogonal_
+> lines/mt_orthogonal_dist_100m_07-01-22.csv", clear stringcols(_all)
+(18 vars, 821,237 obs)
+
+. 
+. keep if left_dist_m != "" & right_dist_m != ""
+(241,995 observations deleted)
+
+. 
+. destring left_dist_m right_dist_m, replace
+left_dist_m: all characters numeric; replaced as double
+right_dist_m: all characters numeric; replaced as double
+
+. 
+. gen straight_line = (left_dist_m <=15 & right_dist_m<=15)
+
+. 
+. gen straight_line2 = (left_dist_m <=15 | right_dist_m<=15)
+
+. 
+. tab straight_line
+
+straight_li |
+         ne |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    448,337       77.40       77.40
+          1 |    130,905       22.60      100.00
+------------+-----------------------------------
+      Total |    579,242      100.00
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab straight_line striaght_line2
+variable striaght_line2 not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. gen straight_line2 = (left_dist_m <=15 | right_dist_m<=15)
+variable straight_line2 already defined
+r(110);
+
+end of do-file
+
+r(110);
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab straight_line striaght_line2
+variable striaght_line2 not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab straight_line straight_line2
+
+straight_l |    straight_line2
+       ine |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   272,770    175,567 |   448,337 
+         1 |         0    130,905 |   130,905 
+-----------+----------------------+----------
+     Total |   272,770    306,472 |   579,242 
+
+. 
+end of do-file
+
+. sum fy
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+          fy |          0
+
+. tab fy
+
+         fy |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2007 |      2,717        0.47        0.47
+       2008 |      2,187        0.38        0.85
+       2009 |      2,115        0.37        1.21
+       2010 |      1,490        0.26        1.47
+       2011 |      6,342        1.09        2.56
+       2012 |      2,489        0.43        2.99
+       2013 |      1,728        0.30        3.29
+       2014 |      1,908        0.33        3.62
+       2015 |      2,331        0.40        4.02
+       2016 |      2,352        0.41        4.43
+       2017 |      2,873        0.50        4.93
+       2018 |     76,019       13.12       18.05
+       2019 |    474,691       81.95      100.00
+------------+-----------------------------------
+      Total |    579,242      100.00
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab fy if (left_dist_m <=9 & right_dist_m<=9)
+
+         fy |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2007 |        452        0.42        0.42
+       2008 |        362        0.34        0.76
+       2009 |        362        0.34        1.10
+       2010 |        214        0.20        1.30
+       2011 |      1,043        0.98        2.28
+       2012 |        441        0.41        2.69
+       2013 |        306        0.29        2.98
+       2014 |        383        0.36        3.33
+       2015 |        310        0.29        3.62
+       2016 |        384        0.36        3.98
+       2017 |        436        0.41        4.39
+       2018 |      6,332        5.92       10.31
+       2019 |     95,860       89.69      100.00
+------------+-----------------------------------
+      Total |    106,885      100.00
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab fy if (left_dist_m <=15 & right_dist_m<=15)
+
+         fy |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2007 |        581        0.44        0.44
+       2008 |        460        0.35        0.80
+       2009 |        466        0.36        1.15
+       2010 |        308        0.24        1.39
+       2011 |      1,330        1.02        2.40
+       2012 |        550        0.42        2.82
+       2013 |        381        0.29        3.11
+       2014 |        484        0.37        3.48
+       2015 |        398        0.30        3.79
+       2016 |        478        0.37        4.15
+       2017 |        553        0.42        4.58
+       2018 |      8,227        6.28       10.86
+       2019 |    116,689       89.14      100.00
+------------+-----------------------------------
+      Total |    130,905      100.00
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. tab fy if (left_dist_m <=10 & right_dist_m<=10)
+
+         fy |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2007 |        476        0.43        0.43
+       2008 |        378        0.34        0.77
+       2009 |        383        0.34        1.11
+       2010 |        225        0.20        1.31
+       2011 |      1,089        0.98        2.29
+       2012 |        459        0.41        2.70
+       2013 |        322        0.29        2.99
+       2014 |        409        0.37        3.36
+       2015 |        324        0.29        3.65
+       2016 |        403        0.36        4.01
+       2017 |        453        0.41        4.42
+       2018 |      6,625        5.95       10.37
+       2019 |     99,763       89.63      100.00
+------------+-----------------------------------
+      Total |    111,309      100.00
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. unique prop_id
+Number of unique values of prop_id is  579242
+Number of records is  579242
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. save "/home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthog
+> onal_lines/mt_orthogonal_lines", replace
+(note: file /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_or
+> thogonal_lines/mt_orthogonal_lines.dta not found)
+file /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogona
+> l_lines/mt_orthogonal_lines.dta saved
+
+. 
+end of do-file
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. use "$DATAPATH/mt_orthogonal_lines/mt_orthogonal_dist_100m_07-27-
+> 22.dta", clear
+file
+    /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_orthogon
+    > al_lines/mt_orthogonal_dist_100m_07-27-22.dta not found
+r(601);
+
+end of do-file
+
+r(601);
+
+. do "/tmp/275783.1.sta.q/SD19014.000000"
+
+. clear all
+
+. 
+. log close _all
+      name:  <unnamed>
+       log:  /home/a1nfc04/Documents/boston_zoning_sdrive/data/mt_o
+> rthogonal_lines/logs//mt_orthogonal_lines_log_2022-07-27.log
+  log type:  text
+ closed on:  27 Jul 2022, 11:42:36
+-------------------------------------------------------------------

@@ -1,0 +1,778 @@
+* start here
+clear all
+log close _all
+set linesize 255
+
+local name ="main_noroads"  // <--- change when necessry
+
+* creates an output directory if none exists
+global EXPORTPATH "$WORKINGDIR/analysis/`name'_output"
+
+capture confirm file "$EXPORTPATH"
+
+if _rc != 0 {
+	di "making directory $EXPORTPATH"
+	shell mkdir $EXPORTPATH
+}
+
+* start log file
+local date_stamp : di %tdCY-N-D date("$S_DATE","DMY")
+
+log using "$EXPORTPATH/`name'_log_`date_stamp'.log", replace
+
+
+********************************************************************************
+* File name:		main_noroads.do
+*
+* Project title:	Under the (Neighbor)Hood: Understanding Interactions Among 
+*					Zoning Regulations
+*
+* Description:		Basically the same as main_mtlines but for boundaries w/
+*					no road overlaps.
+* 				
+* Inputs:			mt_orthogonal_dist_100m_07-01-22_v2.dta
+*					soil_quality_matches.dta
+*					dist_south_station_2022_09_29.csv
+*					transit_distance.csv
+*					blocks_2010.dta
+*					acs_amenities.dta
+*				
+* Outputs:			Figure C.12, Appendix C.5.1
+*
+* Created:			06/23/2021
+* Updated:			01/31/2026
+********************************************************************************
+
+
+********************************************************************************
+* load the mt lines data and tempsave
+********************************************************************************
+use "$DATAPATH/mt_orthogonal_dist_100m_07-01-22_v2.dta", clear
+
+destring prop_id, replace
+
+tempfile mtlines
+save `mtlines', replace
+
+
+********************************************************************************
+** Setup step 1 & 2: Get the no road boundary data
+********************************************************************************
+* set to 1 to run setup code
+scalar UPDATE_INT_FILE = 0
+if UPDATE_INT_FILE {
+
+	do "$DOPATH/analysis_noroads_setup.do"
+	save "$DATAPATH/analysis_noroads_data.dta", replace
+
+}
+else {
+	use "$DATAPATH/analysis_noroads_data.dta", clear
+}
+* drop out of scope observations
+keep if straight_line == 1
+
+keep if (year >= 2010 & year <= 2018)
+
+* keep only the regulation variables and vars to match
+keep prop_id year dist_both dist3 lam_seg only_du only_he only_mf mf_he mf_du du_he mf_he_du warren_GEOID_full
+
+tab year
+
+* temp save the data
+tempfile noroads
+save `noroads', replace
+clear
+
+
+********************************************************************************
+** load and tempsave the transit data
+********************************************************************************
+import delimited "$DATAPATH/dist_south_station_2022_09_29.csv", clear stringcols(_all)
+
+tempfile dist_south_station
+save `dist_south_station', replace
+
+import delimited "$DATAPATH/transit_distance.csv", clear stringcols(_all)
+
+merge m:1 station_id using `dist_south_station'
+		
+		* merge error check
+		sum _merge
+		assert `r(N)' ==  821248
+		assert `r(sum_w)' ==  821248
+		assert `r(mean)' ==  2.999986605751247
+		assert `r(Var)' ==  .0000133940856566
+		assert `r(sd)' ==  .0036597931166456
+		assert `r(min)' ==  2
+		assert `r(max)' ==  3
+		assert `r(sum)' ==  2463733
+
+		drop if _merge == 2
+		drop _merge
+	
+keep prop_id station_id station_name distance_m_* length_m
+
+destring prop_id distance_m_* length_m, replace
+
+gen transit_dist_m = distance_m_man + length_m
+
+tempfile transit
+save `transit', replace
+
+
+********************************************************************************
+** load and tempsave the soil data
+********************************************************************************
+use "$DATAPATH/soil_quality_matches.dta", clear
+
+keep prop_id avg_slope slope_15 avg_restri avg_sand avg_clay
+
+destring  avg_slope slope_15 avg_restri avg_sand avg_clay, replace
+
+tempfile soil
+save `soil', replace
+
+
+********************************************************************************
+** create working dataset
+********************************************************************************
+use "$DATAPATH/within_town_analysis_data.dta", clear
+
+** merge on transit data
+merge m:1 prop_id using `transit'
+	
+	/* merge error check
+	sum _merge
+	assert `r(N)' ==  3642292
+	assert `r(sum_w)' ==  3642292
+	assert `r(mean)' ==  2.878361207723049
+	assert `r(Var)' ==  .1068428258243096
+	assert `r(sd)' ==  .3268682086473226
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  10483832 */
+
+	drop if _merge == 2
+	drop _merge
+	
+** merge on soil quality data
+merge m:1 prop_id using `soil'
+	
+	/* merge error check
+	sum _merge
+	assert `r(N)' ==  3642292
+	assert `r(sum_w)' ==  3642292
+	assert `r(mean)' ==  2.878361207723049
+	assert `r(Var)' ==  .1068428258243096
+	assert `r(sd)' ==  .3268682086473226
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  10483832 */
+	
+	drop if _merge == 2
+	drop _merge
+
+** merge on mt lines to keep straight line properties
+merge m:1 prop_id using `mtlines', keepusing(straight_line)
+	
+	* checks for errors in merge
+	sum _merge
+	assert `r(N)' ==  3400297
+	assert `r(sum_w)' ==  3400297
+	assert `r(mean)' ==  2.940873106084557
+	assert `r(Var)' ==  .0556309206919615
+	assert `r(sd)' ==  .235862079809285
+	assert `r(min)' ==  2
+	assert `r(max)' ==  3
+	assert `r(sum)' ==  9999842
+
+	drop if _merge == 2
+	drop _merge
+
+** merge on block data level characteristics
+merge m:1 warren_GEOID_full using "$DATAPATH/blocks_2010.dta", update replace
+	
+	* summarize _merge var and drop
+	tab _merge
+	drop if _merge == 2
+	drop _merge 
+
+    * create block group making variable
+    gen BLKGRP = substr(warren_GEOID_full,1,12)
+
+** merge on acs amenities dataset
+merge m:1 year BLKGRP using "$DATAPATH/acs_amenities.dta", keepusing(B19113001)
+
+	* summarize merge and drop
+	tab _merge
+	drop if _merge == 2
+	drop _merge 
+
+	* rename median income variable
+	rename B19113001 median_inc
+
+keep if straight_line == 1  // <-- drops non-straight line properties
+
+** drop out of scope years
+keep if (year >= 2010 & year <= 2018)
+
+tab year
+
+** Finalize the baseline data
+/* NFC Note: The first sub-step here is to just preserve the baseline data and 
+then clear it. The second sub-step is to load and tempsave the characteristics data. 
+The third and final sub-step is to merge the characteristics variables back onto
+the baseline data */
+
+* rename the important boundary variables to tag them as baseline versions
+rename dist_both dist_both_baseline
+rename dist3 dist3_baseline
+rename lam_seg lam_seg_baseline
+rename only_du only_du_baseline
+rename only_he only_he_baseline
+rename only_mf only_mf_baseline
+rename mf_he mf_he_baseline
+rename mf_du mf_du_baseline
+rename du_he du_he_baseline
+rename mf_he_du mf_he_du_baseline
+
+
+********************************************************************************
+** Setup step 6: merge on no roads variables
+********************************************************************************
+merge 1:1 prop_id year using `noroads'
+
+    tab _merge
+    drop if _merge == 2
+    drop _merge 
+
+
+********************************************************************************
+** property characteristic variables
+********************************************************************************
+* define a global set of acs variable controls
+global acs_vars frac_under18 frac_over65 frac_black frac_asian frac_hispanic frac_nonhispanicwhite frac_morethan4 median_inc
+
+* define a global set of characteristic variables
+gen char1_lotsizeac1 = ln(lot_sizeac) if lot_sizeac != 0			// lot size in acres, excl zero acre --> NOW IN LOGS
+gen char2_livingarea1 = ln(livingarea) / num_units1 if livingarea != 0		// living area in XX per unit, excl zero --> NOW IN LOGS
+gen char3_bedrooms1 = bedroom_num / num_units1 if bedroom_num != 0		// num bedrooms per unit, atleast 1
+gen char4_bathfull1 = bathfull_num / num_units1 if bathfull_num != 0		// num full bathrooms per unit, atleast 1
+
+gen log_lotacres = ln(lot_acres) if lot_acres!=0
+gen log_bldgarea =ln(grossbldg_area) if grossbldg_area!=0
+
+global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
+
+* define a global set of amenity variables
+gen dist_school = closest_school_dist
+gen dist_center = closest_city_dist
+gen dist_road = closest_road_dist
+gen dist_river = closest_river_dist
+gen dist_space = closest_green_dist
+
+gen transit_dist = transit_dist_m/1609
+
+gen soil_avgslope = avg_slope
+gen soil_slope15 = slope_15
+gen soil_avgrestri = avg_restri
+gen soil_avgsand = avg_sand
+gen soil_avgclay = avg_clay
+
+global char_vars_land dist_school dist_center dist_road dist_river dist_space transit_dist soil_avgslope soil_slope15 soil_avgrestri soil_avgsand soil_avgclay
+
+//save "$DATAPATH/analysis_no_roads_interim.dta",replace
+
+
+********************************************************************************
+** Beginning of analysis portion of file
+********************************************************************************
+* define the globals used for regressions
+global acs_vars frac_under18 frac_over65 frac_black frac_asian frac_hispanic frac_nonhispanicwhite frac_morethan4 median_inc
+global char_vars i.year_built log_lotacres num_floors log_bldgarea bedroom_num bathfull_num
+global char_vars_land dist_school dist_center dist_road dist_river dist_space transit_dist soil_avgslope soil_slope15 soil_avgrestri soil_avgsand soil_avgclay
+
+* generate no roads indicator and baseline indicator
+gen no_roads = lam_seg != .  // is no roads obs if lam_seg is not missing
+gen baseline = lam_seg_baseline != .  // is baseline obs if lam_seg_baseline is not missing
+
+* check the samples
+tab no_roads baseline, miss 
+
+
+********************************************************************************
+** Define the MAPC town types used in spatial heterogeneity file
+********************************************************************************
+* Basic ring defition
+cap drop town_type_1 town_type_name
+replace city = upper(city)
+
+#delimit ;
+
+gen town_type_1 = 1 if (city=="ARLINGTON" | 
+			city=="BELMONT" | 
+			city=="BOSTON" | 
+			city=="BROOKLINE" | 
+			city=="CAMBRIDGE" | 
+			city=="CHELSEA" |
+			city=="EVERETT" | 
+			city=="MALDEN" | 
+			city=="MEDFORD" | 
+			city=="MELROSE" | 
+			city=="NEWTON" | 
+			city=="REVERE" | 
+			city=="SOMERVILLE" | 
+			city=="WALTHAM" | 
+			city=="WATERTOWN" | 
+			city=="WINTHROP") ;
+				   
+replace town_type_1 = 2 if (city=="BEVERLY" | 
+			city=="FRAMINGHAM" | 
+			city=="GLOUCESTER"| 
+			city=="LYNN" | 
+			city=="MARLBORO" | 
+			city=="MILFORD" | 
+			city=="SALEM" | city=="WOBURN") ;
+				   
+replace town_type_1 = 3 if (city=="ACTON" | 
+			city=="BEDFORD" | 
+			city=="CANTON"| 
+			city=="CONCORD" | 
+			city=="DEDHAM" | 
+			city=="DUXBURY" |
+			city=="HINGHAM" | 
+			city=="HOLBROOK" | 
+			city=="HULL" | 
+			city=="LEXINGTON" | 
+			city=="LINCOLN" | 
+			city=="MARBLEHEAD" | 
+			city=="MARSHFIELD" | 
+			city=="MAYNARD" | 
+			city=="MEDFIELD" | 
+			city=="MILTON" | 
+			city=="NAHANT"| 
+			city=="NATICK" | 
+			city=="NEEDHAM" | 
+			city=="NORTH READING" | 
+			city=="PEMBROKE" | 
+			city=="RANDOLPH" | 
+			city=="SCITUATE" |	
+			city=="SHARON" | 
+			city=="SOUTHBORO" |  
+			city=="STONEHAM" | 
+			city=="STOUGHTON" |  
+			city=="SUDBURY" | 
+			city=="SWAMPSCOTT" | 
+			city=="WAKEFIELD" | 
+			city=="WAYLAND" | 
+			city=="WELLESLEY" | 
+			city=="WESTON" | 
+			city=="WESTWOOD" | 
+			city=="WEYMOUTH") ;
+				   
+replace town_type_1 = 4 if (city=="BOLTON" | 
+			city=="BOXBORO" | 
+			city=="CARLISLE"| 
+			city=="COHASSET" | 
+			city=="DOVER" | 
+			city=="ESSEX" | 
+			city=="FOXBORO" | 
+			city=="FRANKLIN" | 
+			city=="HANOVER" | 
+			city=="HOLLISTON" | 
+			city=="HOPKINTON" | 
+			city=="HUDSON" | 
+			city=="LITTLETON" | 
+			city=="MANCHESTER" | 
+			city=="MEDWAY" | 
+			city=="MIDDLETON" | 
+			city=="MILLIS"| 
+			city=="NORFOLK" | 
+			city=="NORWELL" | 
+			city=="ROCKLAND" | 
+			city=="ROCKPORT" | 
+			city=="SHERBORN" | 
+			city=="STOW" | 
+			city=="TOPSFIELD" | 
+			city=="WALPOLE" | 
+			city=="WRENTHAM" ) ;
+#delimit cr			
+
+gen town_type_name = "Inner Core" if town_type_1 == 1 /* Blue  */
+	replace town_type_name = "Regional Urban" if town_type_1 == 2 /* Grey  */
+	replace town_type_name = "Mature Suburbs" if town_type_1 == 3 /* Green  */
+	replace town_type_name = "Developing Suburbs" if town_type_1 == 4 /* Yellow  */
+
+tab town_type_name no_roads, miss  // this should show the town types and how many obs in each are no roads
+
+tab town_type_name no_roads, miss col
+
+
+********************************************************************************
+** Sales prices
+********************************************************************************
+* summary statistics for all boundaries (baseline only + no roads only)
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+
+* summary stats for baseline only boundaries
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads == 0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+
+* summary statistics for no roads only
+cap n sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018,d
+
+* summary states by town types
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+
+* baseline only boundaries
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads ==0 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+
+* no roads only
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & no_roads==1 & res_typex =="Single Family Res" & last_saleyr>=2010 & last_saleyr<=2018, by(town_type_name) statistics(n mean sd min max)
+
+
+** Sales prices, Basline (same as mt lines main file)
+* define local regression conditions
+gen dist3_unique = dist3_baseline
+
+local regression_conditions_baseline (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both_baseline<=0.21 & dist_both_baseline>=-0.2) & res_typex=="Single Family Res"
+
+* run baseline regressions
+* Figure C.12g
+quietly eststo price_du_4a: reg log_saleprice ib26.dist3_unique i.lam_seg_baseline i.last_saleyr if only_du_baseline==1 & `regression_conditions_baseline', vce(cluster lam_seg_baseline)	
+
+* Figure C.12h	
+quietly eststo price_mfdu_4a: reg log_saleprice ib26.dist3_unique i.lam_seg_baseline i.last_saleyr if  mf_du_baseline == 1 & `regression_conditions_baseline' , vce(cluster lam_seg_baseline)
+
+esttab price_du_4a price_mfdu_4a, ///
+	se r2 indicate("Boundary f.e.=*lam_seg_baseline" "Year f.e.=*last_saleyr") interaction(" X ") ///
+	label mtitles("price_du_baseline" "price_mfdu_baseline") ///
+	title("4a. Sales Prices, baseline") 
+	
+
+** Sales prices, No roads w/o tract weights w/ no_roads indicator restriction
+* set regression conditions for no roads version
+drop dist3_unique
+gen dist3_unique = dist3
+
+local regression_conditions (last_saleyr>=2010 & last_saleyr<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex=="Single Family Res" & no_roads==1  // conditioned on no_roads indicator here
+
+* run no roads regressions
+*[PAPER SOURCE]: For Figure C.12 Subfigure (g)
+quietly eststo price_du_4d: reg log_saleprice ib26.dist3_unique i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions', vce(cluster lam_seg)
+*[PAPER SOURCE]: For Figure C.12 Subfigure (h)
+quietly eststo price_mfdu_4d: reg log_saleprice ib26.dist3_unique i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' , vce(cluster lam_seg)
+
+
+esttab price_du_4d price_mfdu_4d, ///
+	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+	label mtitles("price_du" "price_mfdu") ///
+	title("4d. Sales Prices, no roads ") 
+
+* robust s.e.
+*[PAPER SOURCE]: For Figure C.12 Subfigure (g)
+quietly eststo price_du_4d_robust: reg log_saleprice ib26.dist3_unique i.lam_seg i.last_saleyr if only_du==1 & `regression_conditions', vce(robust)
+*[PAPER SOURCE]: For Figure C.12 Subfigure (h)
+quietly eststo price_mfdu_4d_robust: reg log_saleprice ib26.dist3_unique i.lam_seg i.last_saleyr if  mf_du == 1 & `regression_conditions' , vce(robust))
+
+esttab price_du_4d_robust price_mfdu_4d_robust, ///
+	se r2 indicate("Boundary f.e.=*lam_seg" "Year f.e.=*last_saleyr") interaction(" X ") ///
+	label mtitles("price_du" "price_mfdu") ///
+	title("4d. Sales Prices, no roads ") 
+
+
+
+** Sales prices, Generate Graphs
+
+local plot_list price_du price_mfdu
+local suffix "coef_price_base_unweighted_noroads"
+local l1_title "Log Sales Price"
+local b1_title "<- More restrictive  |  Less restrictive ->"
+local b2_title "Distance to Boundary (miles)"
+
+foreach r in `plot_list' {
+	
+	local pos = ustrpos("`r'", "_") + 1
+	local str = substr("`r'", `pos', .)
+
+	if "`str'" == "du" {
+		local title "Only DUPAC Changes"
+	}
+	
+	if "`str'" == "duhe" {
+		local title "DUPAC and Height Change"
+	}
+
+	if "`str'" == "mfdu" {
+		local title "MF Allowed and DUPAC Change"
+	}
+	
+	if "`str'" == "mf" {
+		local title "Only MF Allowed Changes"
+	}
+	
+	if "`str'" == "mfhe" {
+		local title "MF Allowed and Height Change"
+	}
+	
+	if "`str'" == "he" {
+		local title "Only Height Changes"
+	}
+	
+	* coefplots
+	#delimit;
+	coefplot 
+		/* baseline side relaxed side graphing variables */
+		(`r'_4a, keep(16.dist3_unique 17.dist3_unique 18.dist3_unique 19.dist3_unique 20.dist3_unique 21.dist3_unique 22.dist3_unique 23.dist3_unique 24.dist3_unique 25.dist3_unique) 
+			recast(line) color(midblue) 
+			ciopts(recast(rarea) color(midblue%30) lwidth(none))
+			)
+		
+		/* baseline side strict side graphing variables */
+		(`r'_4a, keep(26.dist3_unique 27.dist3_unique 28.dist3_unique 29.dist3_unique 30.dist3_unique 31.dist3_unique 32.dist3_unique 33.dist3_unique 34.dist3_unique 35.dist3_unique)
+			recast(line) color(maroon)
+			ciopts(recast(rarea) color(maroon%30) lwidth(none))
+			)
+			
+		(`r'_4d, keep(16.dist3_unique 17.dist3_unique 18.dist3_unique 19.dist3_unique 20.dist3_unique 21.dist3_unique 22.dist3_unique 23.dist3_unique 24.dist3_unique 25.dist3_unique) 
+			recast(line) color(gs5%30) 
+			ciopts(recast(rarea) color(gs5%30) lwidth(none))
+			)
+		
+		/* strict side graphing variables */
+		(`r'_4d, keep(26.dist3_unique 27.dist3_unique 28.dist3_unique 29.dist3_unique 30.dist3_unique 31.dist3_unique 32.dist3_unique 33.dist3_unique 34.dist3_unique 35.dist3_unique) 
+			recast(line) color(gs5%30)
+			ciopts(recast(rarea) color(gs5%30) lwidth(none))
+			),
+
+		/* plot region */
+		vertical levels(95) baselevels offset(0)
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+
+		xline(10.5, lpattern(dash) lwidth(thin) lcolor(black))
+		yline(0, lpattern(dash) lwidth(thin) lcolor(black))
+
+		/* titles, subtitles, notes */		
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+
+		/* axis titles and labels */		
+		ylabel(, labsize(4) gmin gmax) ymtick()	
+		
+		xlabel(1 "-.20" 2 "-.18" 3 "-.16" 4 "-.14" 5 "-.12" 6 "-.10" 7 "-.08" 8 "-.06" 9 "-.04" 10 "-.02" 10.5 "0"
+			11 ".02" 12 ".04" 13 ".06" 14 ".08" 15 ".10" 16 ".12" 17 ".14" 18 ".16" 19 ".18" 20 ".20", labsize(3) angle(45) gmax)
+			
+		/* legend */
+		legend(off position(6) 
+			order()
+			symy(2) symx(3) 
+			rows(1) cols() size(2) 
+			nobox fcolor()
+			region(fcolor(none) lpattern(blank))
+			margin(t=1 b=1 l=0 r=0)span)
+		name("`r'_42", replace) ;
+
+
+	
+	graph combine `r'_42,
+		graphregion(fc(white) lcolor(white))
+		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+		b1title("`b1_title'", size(2))
+		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+		name(`r'_42, replace);
+	graph save `r'_42 "$EXPORTPATH/`suffix'_`str'", replace;
+	graph close "`r'_42";
+		#delimit cr
+}
+
+graph close _all
+
+
+********************************************************************************
+** Rents
+********************************************************************************
+* [PAPER SOURCE] generates numbers in Appendix C.5.1
+* summary statistics for baseline
+cap n sum dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
+
+* summary statistics for no roads
+cap n sum dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=.
+
+* summary states by town types
+cap n tabstat dist_center transit_dist dupac height mf_allowed if baseline==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
+
+cap n tabstat dist_center transit_dist dupac height mf_allowed if no_roads==1 & res_typex != "Condominiums" & year>=2010 & year<=2018 & log_mfrent!=., by(town_type_name) statistics(n mean sd min max)
+
+** Rents, Basline (same as mt lines main file)
+* set baseline regression conditions
+drop dist3_unique
+gen dist3_unique = dist3_baseline
+
+local regression_conditions_baseline (year>=2010 & year<=2018) & (dist_both_baseline<=0.21 & dist_both_baseline>=-0.2) & res_typex != "Condominiums"
+
+** Rents, Rents w/o characteristics
+* [PAPER SOURCE]: For Figure C.12 Subfigure (i)
+quietly eststo rent_du_6a: reg log_mfrent ib26.dist3_unique i.lam_seg_baseline i.year if only_du_baseline==1 & `regression_conditions_baseline', vce(cluster lam_seg_baseline)
+		
+esttab rent_du_6a, se r2 ///
+	indicate("Boundary f.e.=*lam_seg_baseline" "Year f.e.=*year") interaction(" X ") ///
+	label mtitles("rent_du") ///
+	title("6a. Rents, baseline") 
+
+	
+** Rents, no roads w/o tract weights w/ no_roads indicator restriction
+* set regression conditions for no roads version
+drop dist3_unique
+gen dist3_unique = dist3
+
+local regression_conditions (year>=2010 & year<=2018) & (dist_both<=0.21 & dist_both>=-0.2) & res_typex != "Condominiums"  & no_roads == 1    /*conditioning on no roads indicator here */
+
+* run regressions
+*[PAPER SOURCE]: For Figure C.12 Subfigure (i)
+quietly eststo rent_du_6d: reg log_mfrent ib26.dist3_unique i.lam_seg i.year if only_du==1 & `regression_conditions', vce(cluster lam_seg)
+	
+esttab rent_du_6d, se r2 ///
+	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
+	label mtitles("rent_du") ///
+	title("6d. Rents, no roads") 
+
+* robust se
+*[PAPER SOURCE]: For Figure C.12 Subfigure (i)
+quietly eststo rent_du_6d_robust: reg log_mfrent ib26.dist3_unique i.lam_seg i.year if only_du==1 & `regression_conditions', vce(robust)
+	
+esttab rent_du_6d_robust, se r2 ///
+	indicate("Boundary f.e.=*lam_seg" "Year f.e.=*year") interaction(" X ") ///
+	label mtitles("rent_du") ///
+	title("6d. Rents, no roads") 
+
+** Rents, Generate Graphs
+
+local plot_list rent_du
+local suffix "coef_rent_base_unweighted_noroads"
+local l1_title "Log Monthly Rent"
+local b1_title "<- More restrictive  |  Less restrictive ->"
+local b2_title "Distance to Boundary (miles)"
+
+foreach r in `plot_list'{
+	
+	local pos = ustrpos("`r'", "_") + 1
+	local str = substr("`r'", `pos', .)
+
+	if "`str'" == "du" {
+		local title "Only DUPAC Changes"
+	}
+	
+	if "`str'" == "duhe" {
+		local title "DUPAC and Height Change"
+	}
+
+	if "`str'" == "mfdu" {
+		local title "MF Allowed and DUPAC Change"
+	}
+	
+	if "`str'" == "mf" {
+		local title "Only MF Allowed Changes"
+	}
+	
+	if "`str'" == "mfhe" {
+		local title "MF Allowed and Height Change"
+	}
+	
+	if "`str'" == "he" {
+		local title "Only Height Changes"
+	}
+	
+	* coefplots
+	#delimit;
+	coefplot 
+		/* relaxed side graphing variables */
+		/* relaxed side graphing variables */
+		(`r'_6a, keep(16.dist3_unique 17.dist3_unique 18.dist3_unique 19.dist3_unique 20.dist3_unique 21.dist3_unique 22.dist3_unique 23.dist3_unique 24.dist3_unique 25.dist3_unique) 
+			recast(line) color(midblue) 
+			ciopts(recast(rarea) color(midblue%30) lwidth(none))
+			)
+		
+		/* strict side graphing variables */
+		(`r'_6a, keep(26.dist3_unique 27.dist3_unique 28.dist3_unique 29.dist3_unique 30.dist3_unique 31.dist3_unique 32.dist3_unique 33.dist3_unique 34.dist3_unique 35.dist3_unique)
+			recast(line) color(maroon)
+			ciopts(recast(rarea) color(maroon%30) lwidth(none))
+			)
+
+			
+
+		(`r'_6d, keep(16.dist3_unique 17.dist3_unique 18.dist3_unique 19.dist3_unique 20.dist3_unique 21.dist3_unique 22.dist3_unique 23.dist3_unique 24.dist3_unique 25.dist3_unique) 
+			recast(line) color(gs5%30) 
+			ciopts(recast(rarea) color(gs5%30) lwidth(none))
+			)
+		
+		/* strict side graphing variables */
+		(`r'_6d, keep(26.dist3_unique 27.dist3_unique 28.dist3_unique 29.dist3_unique 30.dist3_unique 31.dist3_unique 32.dist3_unique 33.dist3_unique 34.dist3_unique 35.dist3_unique) 
+			recast(line) color(gs5%30)
+			ciopts(recast(rarea) color(gs5%30) lwidth(none))
+			),
+
+		/* plot region */
+		vertical levels(95) baselevels offset(0)
+		graphregion(fc(white) lcolor(white)) plotregion(fc(white) lcolor(white))
+
+		xline(10.5, lpattern(dash) lwidth(thin) lcolor(black))
+		yline(0, lpattern(dash) lwidth(thin) lcolor(black))
+
+		/* titles, subtitles, notes */		
+		title("{bf:`title'}", size(3) pos(12) margin(t=0 b=0 l=0 r=0) span)
+
+		/* axis titles and labels */		
+		ylabel(, labsize(4) gmin gmax) ymtick()	
+		
+		xlabel(1 "-.20" 2 "-.18" 3 "-.16" 4 "-.14" 5 "-.12" 6 "-.10" 7 "-.08" 8 "-.06" 9 "-.04" 10 "-.02" 10.5 "0"
+			11 ".02" 12 ".04" 13 ".06" 14 ".08" 15 ".10" 16 ".12" 17 ".14" 18 ".16" 19 ".18" 20 ".20", labsize(3) angle(45) gmax)
+			
+		/* legend */
+		legend(off position(6) 
+			order()
+			symy(2) symx(3) 
+			rows(1) cols() size(2) 
+			nobox fcolor()
+			region(fcolor(none) lpattern(blank))
+			margin(t=1 b=1 l=0 r=0)span)
+		name("`r'_62", replace) ;
+		
+	graph combine `r'_62,
+		graphregion(fc(white) lcolor(white))
+		l1title("{bf:`l1_title'}", size(3) margin(t=0 b=0 l=0 r=1))
+		b1title("`b1_title'", size(2))
+		b2title("{bf:`b2_title'}", size(3) margin(t=1 b=0 l=0 r=0))
+		name(`r'_62a, replace);
+	
+	graph save `r'_62a "$EXPORTPATH/`suffix'_`str'", replace;
+	graph close "`r'_62a";
+	#delimit cr
+}
+
+
+//eststo clear
+graph close _all
+
+
+********************************************************************************
+** end
+********************************************************************************
+display "finished!"
+log off 
+log close
+
+** convert gph to pdf
+local files : dir "$EXPORTPATH" files "*.gph"
+
+foreach fin in `files'{	
+	local fout : subinstr local fin ".gph" ".pdf"	
+	
+	display "converting `fin' to `fout'..."
+	
+	graph use "$EXPORTPATH/`fin'"
+	
+	graph export "$EXPORTPATH/`fout'", as(pdf) replace
+	
+	graph close
+}
+
+

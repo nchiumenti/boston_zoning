@@ -1,0 +1,3 @@
+address_corrections_output.dta
+
+Placeholder file to note the location of source in directory structure.
